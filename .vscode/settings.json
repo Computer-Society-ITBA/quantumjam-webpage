@@ -1,0 +1,6 @@
+{
+  "oxc.lint.run": "onSave",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.oxc": "explicit"
+  }
+}
