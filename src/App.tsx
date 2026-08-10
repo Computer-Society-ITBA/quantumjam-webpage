@@ -11,7 +11,7 @@ function App() {
   const currentLng = (i18n.resolvedLanguage ?? 'en') as SupportedLng
 
   return (
-    <main className="min-h-svh flex flex-col items-center justify-center gap-8 p-8">
+    <main className="flex min-h-svh flex-col items-center justify-center gap-8 p-8">
       <header className="flex flex-col items-center gap-2 text-center">
         <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl">
           {t('app.title')}
@@ -32,7 +32,7 @@ function App() {
       </section>
 
       <section className="flex items-center gap-2">
-        <span className="text-sm text-muted-foreground">
+        <span className="text-muted-foreground text-sm">
           {t('language.label')}:
         </span>
         {supportedLngs.map((lng) => (

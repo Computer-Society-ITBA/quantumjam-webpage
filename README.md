@@ -7,16 +7,16 @@ Firebase surface is wired but no feature consumes it yet.
 
 ## Stack
 
-| Layer      | Choice                                         |
-| ---------- | ---------------------------------------------- |
-| Bundler    | Vite 8                                         |
-| Framework  | React 19 + TypeScript                          |
-| Styling    | Tailwind CSS v4 (via `@tailwindcss/vite`)      |
-| UI kit     | shadcn/ui — New York style, Zinc base          |
-| i18n       | react-i18next, en / es, browser detector       |
-| Backend    | Firebase — Hosting, Firestore, Functions       |
-| Lint       | oxlint                                         |
-| Hooks      | husky + lint-staged (blocks bad commits)       |
+| Layer     | Choice                                    |
+| --------- | ----------------------------------------- |
+| Bundler   | Vite 8                                    |
+| Framework | React 19 + TypeScript                     |
+| Styling   | Tailwind CSS v4 (via `@tailwindcss/vite`) |
+| UI kit    | shadcn/ui — New York style, Zinc base     |
+| i18n      | react-i18next, en / es, browser detector  |
+| Backend   | Firebase — Hosting, Firestore, Functions  |
+| Lint      | oxlint                                    |
+| Hooks     | husky + lint-staged (blocks bad commits)  |
 
 ## Getting started
 
@@ -30,13 +30,13 @@ The dev server starts on `http://localhost:5173`.
 
 ## Scripts
 
-| Command             | What it does                                  |
-| ------------------- | --------------------------------------------- |
-| `npm run dev`       | Vite dev server with HMR                      |
-| `npm run build`     | `tsc -b` then `vite build` into `dist/`       |
-| `npm run preview`   | Serve the production build locally            |
-| `npm run lint`      | Run oxlint across the repo                    |
-| `npm run typecheck` | `tsc -b` only, no bundling                    |
+| Command             | What it does                            |
+| ------------------- | --------------------------------------- |
+| `npm run dev`       | Vite dev server with HMR                |
+| `npm run build`     | `tsc -b` then `vite build` into `dist/` |
+| `npm run preview`   | Serve the production build locally      |
+| `npm run lint`      | Run oxlint across the repo              |
+| `npm run typecheck` | `tsc -b` only, no bundling              |
 
 `npm install` also runs `husky` via the `prepare` script, which
 installs the git hooks defined in `.husky/`.

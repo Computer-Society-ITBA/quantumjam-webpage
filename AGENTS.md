@@ -54,21 +54,21 @@ firebase.json .firebaserc firestore.rules firestore.indexes.json
 
 Every commit subject starts with a bracketed tag. Common ones:
 
-| Tag           | Use for                                              |
-| ------------- | ---------------------------------------------------- |
-| `[FEATURE]`   | new feature                                          |
-| `[BUG]`       | fixing a known bug                                   |
-| `[BEHAVIOR]`  | behavior change that isn't a bug fix                 |
-| `[UI/UX]`     | design or user-flow change                           |
-| `[BUILD]`     | build / tooling / dependency change                  |
-| `[CODE]`      | refactor, format, correctness cleanup                |
-| `[DOCS]`      | docs or logging strings                              |
-| `[TEST]`      | tests                                                |
-| `[VERSION]`   | version bump                                         |
-| `[CHERRY]`    | cherry-pick (include original commit hash)           |
-| `[GIT]`       | generic git action (prefer something more specific)  |
-| `[HACK]`      | intentional hack — explain what and why in the body  |
-| `[IMPORTANT]` | load-bearing change worth flagging                   |
+| Tag           | Use for                                             |
+| ------------- | --------------------------------------------------- |
+| `[FEATURE]`   | new feature                                         |
+| `[BUG]`       | fixing a known bug                                  |
+| `[BEHAVIOR]`  | behavior change that isn't a bug fix                |
+| `[UI/UX]`     | design or user-flow change                          |
+| `[BUILD]`     | build / tooling / dependency change                 |
+| `[CODE]`      | refactor, format, correctness cleanup               |
+| `[DOCS]`      | docs or logging strings                             |
+| `[TEST]`      | tests                                               |
+| `[VERSION]`   | version bump                                        |
+| `[CHERRY]`    | cherry-pick (include original commit hash)          |
+| `[GIT]`       | generic git action (prefer something more specific) |
+| `[HACK]`      | intentional hack — explain what and why in the body |
+| `[IMPORTANT]` | load-bearing change worth flagging                  |
 
 Rules:
 
