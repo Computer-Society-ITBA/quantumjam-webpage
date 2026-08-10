@@ -1,0 +1,15 @@
+{
+  "app": {
+    "title": "Quantum Jam",
+    "subtitle": "Impulsado por React, Tailwind, shadcn/ui e i18next.",
+    "count_one": "Hiciste clic {{count}} vez",
+    "count_other": "Hiciste clic {{count}} veces",
+    "increment": "Incrementar",
+    "reset": "Reiniciar"
+  },
+  "language": {
+    "label": "Idioma",
+    "en": "Inglés",
+    "es": "Español"
+  }
+}
