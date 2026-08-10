@@ -1,15 +1,145 @@
 {
-  "app": {
-    "title": "Quantum Jam",
-    "subtitle": "Powered by React, Tailwind, shadcn/ui and i18next.",
-    "count_one": "You clicked {{count}} time",
-    "count_other": "You clicked {{count}} times",
-    "increment": "Increment",
-    "reset": "Reset"
+  "nav": {
+    "brand": "Computer Society ITBA",
+    "cta": "Register"
   },
-  "language": {
-    "label": "Language",
-    "en": "English",
-    "es": "Spanish"
+  "hero": {
+    "eyebrow": "Computer Society ITBA × IBM Quantum",
+    "subtitle": "Talks, a Qiskit workshop, and real IBM quantum hardware.",
+    "sponsored_by": "Sponsored by",
+    "date": "Sat, November 14",
+    "place": "ITBA, Sedes Sur Building",
+    "capacity": "Limited seats",
+    "cta": "Reserve my spot"
+  },
+  "about": {
+    "eyebrow": "|0⟩ + |1⟩",
+    "title": "What is QuantumJam?",
+    "description": "A Computer Society ITBA event bringing quantum computing closer to anyone who has never touched a qubit and to those already reading papers.",
+    "features": {
+      "beginner": {
+        "title": "No prior experience needed",
+        "desc": "We start from scratch: what a qubit is and what superposition means."
+      },
+      "hands_on": {
+        "title": "Hands-on with Qiskit",
+        "desc": "Build and run your first circuit on real IBM hardware."
+      },
+      "community": {
+        "title": "Community",
+        "desc": "Technical talks and networking with the Buenos Aires quantum community."
+      }
+    }
+  },
+  "hardware": {
+    "title": "The hardware",
+    "description": "IBM Quantum processors hold each qubit in a superconducting chip cooled to millikelvins above absolute zero. Every gold plate of the cryostat shields and progressively cools the chip: gold is the material that best conducts and protects at those temperatures.",
+    "specs": {
+      "qubit_label": "Qubit",
+      "qubit_value": "Josephson junction, superconducting",
+      "temp_label": "Temperature",
+      "temp_value": "~15 millikelvin",
+      "control_label": "Control",
+      "control_value": "microwave pulses",
+      "arch_label": "Architecture",
+      "arch_value": "heavy-hex lattice"
+    }
+  },
+  "program": {
+    "title": "Program",
+    "items": {
+      "fundamentals": {
+        "title": "Fundamentals",
+        "desc": "Qubits, superposition, and why this is not just a faster PC.",
+        "time": "10:00",
+        "place": "Main auditorium"
+      },
+      "workshop": {
+        "title": "Qiskit Workshop",
+        "desc": "Build a circuit and run it on a real IBM quantum processor.",
+        "time": "12:00",
+        "place": "Lab"
+      },
+      "panel": {
+        "title": "Open panel",
+        "desc": "Researchers, industry, and students discussing the real state of quantum hardware.",
+        "time": "16:00",
+        "place": "Main auditorium"
+      }
+    }
+  },
+  "sponsor": {
+    "title": "IBM Quantum",
+    "description": "IBM Quantum provides the workshop with real quantum hardware: superconducting processors at millikelvin temperatures, controlled with microwave pulses."
+  },
+  "registration": {
+    "title": "Register",
+    "description": "Every field displays several possible answers at once. On focus, they collapse to yours.",
+    "cat": {
+      "title": "Schrödinger's box",
+      "state_label": "State:",
+      "indeterminate": "undetermined",
+      "collapsing": "collapsing…",
+      "alive": "alive, confirmed"
+    },
+    "fields": {
+      "name": {
+        "label": "Full name",
+        "ghost1": "Who are you?",
+        "ghost2": "Ada Lovelace"
+      },
+      "email": {
+        "label": "Email",
+        "ghost1": "you@mail.com",
+        "ghost2": "where we reach you"
+      },
+      "career": {
+        "label": "University and degree",
+        "ghost1": "ITBA, CS Engineering",
+        "ghost2": "degree and year"
+      },
+      "level": {
+        "label": "Prior quantum experience",
+        "placeholder": "Pick a state",
+        "options": {
+          "none": "None (starting from |0⟩)",
+          "basic": "Basic (read something, watched a video)",
+          "intermediate": "Intermediate (already coded a circuit)"
+        }
+      },
+      "reason": {
+        "label": "Why do you want to come? (optional)",
+        "ghost1": "just curious",
+        "ghost2": "want to work on this"
+      }
+    },
+    "submit": "Collapse the wavefunction",
+    "submitting": "Measuring the system…",
+    "note": "Email confirmation in the coming days.",
+    "success": {
+      "title": "Measurement made: you are going to QuantumJam",
+      "desc": "The box is open and the cat is fine. Your spot is saved: confirmation lands by email. See you on November 14."
+    }
+  },
+  "footer": {
+    "brand_desc": "Student community at ITBA. QuantumJam is our annual quantum computing event, sponsored by IBM Quantum.",
+    "columns": {
+      "event": "Event",
+      "contact": "Contact"
+    },
+    "links": {
+      "hardware": "The hardware",
+      "agenda": "Program",
+      "register": "Register",
+      "email": "computersociety@itba.edu.ar",
+      "place": "ITBA, Sedes Sur Building"
+    },
+    "copyright": "© 2026 Computer Society ITBA",
+    "tagline": "QuantumJam, together with IBM Quantum"
+  },
+  "a11y": {
+    "instagram": "Instagram",
+    "email": "Email",
+    "linkedin": "LinkedIn"
   }
 }

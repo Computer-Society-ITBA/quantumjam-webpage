@@ -1,15 +1,145 @@
 {
-  "app": {
-    "title": "Quantum Jam",
-    "subtitle": "Impulsado por React, Tailwind, shadcn/ui e i18next.",
-    "count_one": "Hiciste clic {{count}} vez",
-    "count_other": "Hiciste clic {{count}} veces",
-    "increment": "Incrementar",
-    "reset": "Reiniciar"
+  "nav": {
+    "brand": "Computer Society ITBA",
+    "cta": "Inscribirme"
   },
-  "language": {
-    "label": "Idioma",
-    "en": "Inglés",
-    "es": "Español"
+  "hero": {
+    "eyebrow": "Computer Society ITBA × IBM Quantum",
+    "subtitle": "Charlas, un workshop con Qiskit y hardware cuántico real de IBM.",
+    "sponsored_by": "Sponsoreado por",
+    "date": "Sáb 14 de noviembre",
+    "place": "ITBA, Edificio Sedes Sur",
+    "capacity": "Cupo limitado",
+    "cta": "Reservar mi lugar"
+  },
+  "about": {
+    "eyebrow": "|0⟩ + |1⟩",
+    "title": "¿Qué es QuantumJam?",
+    "description": "Una jornada de Computer Society ITBA para acercar la computación cuántica a quien nunca tocó un qubit y a quien ya lee papers.",
+    "features": {
+      "beginner": {
+        "title": "Sin experiencia previa",
+        "desc": "Arrancamos desde cero: qué es un qubit y qué significa superposición."
+      },
+      "hands_on": {
+        "title": "Hands-on con Qiskit",
+        "desc": "Armás y corrés tu primer circuito en hardware real de IBM."
+      },
+      "community": {
+        "title": "Comunidad",
+        "desc": "Charla técnica y networking con la comunidad cuántica de Buenos Aires."
+      }
+    }
+  },
+  "hardware": {
+    "title": "El hardware",
+    "description": "Los procesadores de IBM Quantum guardan cada qubit en un chip superconductor enfriado a milikelvin del cero absoluto. Cada placa dorada del criostato blinda y enfría progresivamente el chip: el oro es el material que mejor conduce y protege a esas temperaturas.",
+    "specs": {
+      "qubit_label": "Qubit",
+      "qubit_value": "unión de Josephson, superconductora",
+      "temp_label": "Temperatura",
+      "temp_value": "~15 milikelvin",
+      "control_label": "Control",
+      "control_value": "pulsos de microondas",
+      "arch_label": "Arquitectura",
+      "arch_value": "lattice heavy-hex"
+    }
+  },
+  "program": {
+    "title": "Agenda",
+    "items": {
+      "fundamentals": {
+        "title": "Fundamentos",
+        "desc": "Qubits, superposición y por qué esto no es solo una PC más rápida.",
+        "time": "10:00",
+        "place": "Auditorio principal"
+      },
+      "workshop": {
+        "title": "Workshop Qiskit",
+        "desc": "Armás un circuito y lo corrés en un procesador cuántico real de IBM.",
+        "time": "12:00",
+        "place": "Laboratorio"
+      },
+      "panel": {
+        "title": "Panel abierto",
+        "desc": "Investigadores, industria y estudiantes charlando sobre el estado real del hardware cuántico.",
+        "time": "16:00",
+        "place": "Auditorio principal"
+      }
+    }
+  },
+  "sponsor": {
+    "title": "IBM Quantum",
+    "description": "IBM Quantum pone a disposición del workshop hardware cuántico real: procesadores superconductores a milikelvin del cero absoluto, controlados con pulsos de microondas."
+  },
+  "registration": {
+    "title": "Inscribite",
+    "description": "Los campos muestran, a la vez, varias respuestas posibles. Al hacer foco, colapsan a la tuya.",
+    "cat": {
+      "title": "Caja de Schrödinger",
+      "state_label": "Estado:",
+      "indeterminate": "indeterminado",
+      "collapsing": "colapsando…",
+      "alive": "vivo, confirmado"
+    },
+    "fields": {
+      "name": {
+        "label": "Nombre y apellido",
+        "ghost1": "¿Quién sos?",
+        "ghost2": "Ada Lovelace"
+      },
+      "email": {
+        "label": "Email",
+        "ghost1": "tu@mail.com",
+        "ghost2": "donde te avisamos"
+      },
+      "career": {
+        "label": "Universidad y carrera",
+        "ghost1": "ITBA, Ing. Informática",
+        "ghost2": "carrera y año"
+      },
+      "level": {
+        "label": "Experiencia previa en cuántica",
+        "placeholder": "Elegí un estado",
+        "options": {
+          "none": "Ninguna (arranco de |0⟩)",
+          "basic": "Básica (leí algo, vi algún video)",
+          "intermediate": "Intermedia (ya programé algún circuito)"
+        }
+      },
+      "reason": {
+        "label": "¿Por qué querés venir? (opcional)",
+        "ghost1": "curiosidad nomás",
+        "ghost2": "quiero laburar en esto"
+      }
+    },
+    "submit": "Colapsar función de onda",
+    "submitting": "Midiendo el sistema…",
+    "note": "Confirmación por mail en los próximos días.",
+    "success": {
+      "title": "Medición realizada: vas a QuantumJam",
+      "desc": "La caja se abrió y el gato está bien. Guardamos tu lugar: la confirmación llega por mail. Nos vemos el 14 de noviembre."
+    }
+  },
+  "footer": {
+    "brand_desc": "Comunidad de estudiantes de ITBA. QuantumJam es nuestra jornada anual de computación cuántica, sponsoreada por IBM Quantum.",
+    "columns": {
+      "event": "Evento",
+      "contact": "Contacto"
+    },
+    "links": {
+      "hardware": "El hardware",
+      "agenda": "Agenda",
+      "register": "Inscribirme",
+      "email": "computersociety@itba.edu.ar",
+      "place": "ITBA, Edificio Sedes Sur"
+    },
+    "copyright": "© 2026 Computer Society ITBA",
+    "tagline": "QuantumJam, en conjunto con IBM Quantum"
+  },
+  "a11y": {
+    "instagram": "Instagram",
+    "email": "Email",
+    "linkedin": "LinkedIn"
   }
 }
