@@ -12,6 +12,15 @@ dist
 dist-ssr
 *.local
 
+# Env
+.env
+.env.*
+!.env.example
+
+# Test / build artifacts
+coverage
+*.tsbuildinfo
+
 # Firebase
 .firebase/
 firebase-debug.log
