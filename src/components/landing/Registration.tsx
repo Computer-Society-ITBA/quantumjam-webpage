@@ -113,7 +113,7 @@ export function Registration() {
       id="inscripcion"
       className="relative z-10 px-[clamp(20px,6vw,80px)] py-[clamp(56px,9vw,120px)]"
     >
-      <h2 className="font-display text-foreground mb-[0.9rem] text-[clamp(1.5rem,3vw,2.15rem)] font-bold tracking-[0.01em]">
+      <h2 className="text-foreground mb-[0.9rem] text-[clamp(1.5rem,3vw,2.15rem)] font-semibold tracking-tight">
         {t('registration.title')}
       </h2>
       <p className="text-brand-text-dim mb-9 max-w-[58ch]">
@@ -148,7 +148,7 @@ export function Registration() {
                   fill="none"
                 />
               </svg>
-              <h3 className="font-display mb-2 text-[1.15rem]">
+              <h3 className="mb-2 text-[1.15rem] font-semibold">
                 {t('registration.success.title')}
               </h3>
               <p className="text-brand-text-dim mx-auto max-w-[58ch]">

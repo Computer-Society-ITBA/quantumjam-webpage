@@ -53,7 +53,7 @@ export function About() {
       </p>
       <div className="mt-[1.6rem] grid grid-cols-1 items-start gap-14 md:grid-cols-2">
         <div>
-          <h2 className="font-display text-foreground mb-[0.9rem] text-[clamp(1.5rem,3vw,2.15rem)] font-bold tracking-[0.01em]">
+          <h2 className="text-foreground mb-[0.9rem] text-[clamp(1.5rem,3vw,2.15rem)] font-semibold tracking-tight">
             {t('about.title')}
           </h2>
           <p className="text-brand-text-dim max-w-[58ch]">

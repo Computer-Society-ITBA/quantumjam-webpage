@@ -147,7 +147,7 @@ export function Hardware() {
       className="bg-brand-panel relative z-10 px-[clamp(20px,6vw,80px)] py-[clamp(56px,9vw,120px)]"
     >
       <div className="mb-[0.9rem] flex items-center gap-4">
-        <h2 className="font-display text-foreground text-[clamp(1.5rem,3vw,2.15rem)] font-bold tracking-[0.01em]">
+        <h2 className="text-foreground text-[clamp(1.5rem,3vw,2.15rem)] font-semibold tracking-tight">
           {t('hardware.title')}
         </h2>
         <PairOrbit />
