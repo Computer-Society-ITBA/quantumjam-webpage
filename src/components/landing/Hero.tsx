@@ -3,7 +3,10 @@ import { Calendar, ChevronDown, MapPin, Ticket } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import { Button } from '@/components/ui/button'
+import { ParticleTitle } from '@/components/landing/ParticleTitle'
+import { ShaderBackground } from '@/components/landing/ShaderBackground'
 import { cn } from '@/lib/utils'
+import { Nav } from './Nav'
 
 function Eyebrow({ children }: { children: React.ReactNode }) {
   return (
@@ -43,32 +46,6 @@ function MetaChip({
   )
 }
 
-function Title() {
-  const [collapsed, setCollapsed] = useState(false)
-
-  return (
-    <div
-      className={cn(
-        'title-wrap relative isolate mb-[1.1rem]',
-        collapsed && 'collapsed',
-      )}
-      onTouchStart={() => setCollapsed((v) => !v)}
-    >
-      <h1 className="font-display cursor-default text-center text-[clamp(2.8rem,10vw,7.4rem)] leading-none font-bold tracking-[0.01em]">
-        <span className="grid place-items-center">
-          <span className="title-ghost a col-start-1 row-start-1">
-            QuantumJam
-          </span>
-          <span className="title-ghost b col-start-1 row-start-1">
-            QuantumJam
-          </span>
-          <span className="title-main col-start-1 row-start-1">QuantumJam</span>
-        </span>
-      </h1>
-    </div>
-  )
-}
-
 function useSettle() {
   const [ready, setReady] = useState(false)
   useEffect(() => {
@@ -100,7 +77,10 @@ export function Hero() {
   const { t } = useTranslation()
 
   return (
-    <section className="relative flex min-h-[94vh] flex-col items-center justify-center px-[clamp(20px,6vw,80px)] pt-[60px] pb-[clamp(56px,9vw,120px)] text-center">
+    <section className="relative flex min-h-[94vh] flex-col items-center justify-center overflow-hidden px-[clamp(20px,6vw,80px)] py-[clamp(220px,18vh,290px)] text-center">
+      <Nav />
+      <ShaderBackground />
+
       <div
         aria-hidden="true"
         className="pointer-events-none absolute top-[-10%] left-1/2 z-0 h-[640px] w-[min(1000px,92vw)] -translate-x-1/2 blur-[30px]"
@@ -114,25 +94,29 @@ export function Hero() {
         <Eyebrow>{t('hero.eyebrow')}</Eyebrow>
       </Settle>
 
-      <Settle delay={0.15}>
-        <Title />
+      <Settle delay={0.15} className="w-full">
+        <h1 className="sr-only">QuantumJam</h1>
+        <ParticleTitle
+          text="QuantumJam"
+          className="relative z-10 mx-auto mb-2 h-[clamp(160px,26vh,340px)] w-full max-w-[1200px]"
+        />
       </Settle>
 
       <Settle delay={0.25}>
-        <p className="text-brand-text-dim mx-auto mb-[1.8rem] max-w-[46ch] text-[clamp(1rem,1.5vw,1.15rem)]">
+        <p className="text-brand-text-dim mx-auto mb-4 max-w-[46ch] text-[clamp(1rem,1.5vw,1.15rem)]">
           {t('hero.subtitle')}
         </p>
       </Settle>
 
       <Settle delay={0.32}>
-        <div className="text-brand-text-dim mb-8 flex items-center justify-center gap-[10px] text-[0.78rem]">
+        <div className="text-brand-text-dim mb-5 flex items-center justify-center gap-[10px] text-[0.78rem]">
           <span>{t('hero.sponsored_by')}</span>
           <IbmBadge />
         </div>
       </Settle>
 
       <Settle delay={0.4}>
-        <div className="mb-[2.4rem] flex flex-wrap justify-center gap-3">
+        <div className="mb-6 flex flex-wrap justify-center gap-3">
           <MetaChip icon={Calendar}>{t('hero.date')}</MetaChip>
           <MetaChip icon={MapPin}>{t('hero.place')}</MetaChip>
           <MetaChip icon={Ticket}>{t('hero.capacity')}</MetaChip>
