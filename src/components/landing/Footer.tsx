@@ -82,13 +82,8 @@ export function Footer() {
   return (
     <footer className="bg-brand-panel relative z-10 px-[clamp(20px,6vw,80px)] pt-[60px] pb-7">
       <div className="flex flex-wrap justify-between gap-12 pb-9">
-        <div className="flex max-w-[300px] flex-col gap-2.5">
-          <div className="text-brand-text-dim flex items-center gap-2.5 text-[0.85rem]">
-            <LogoMark />
-            <span className="text-foreground font-semibold whitespace-nowrap">
-              {t('nav.brand')}
-            </span>
-          </div>
+        <div className="flex max-w-[300px] flex-col gap-3">
+          <LogoMark />
           <p className="text-brand-text-dim text-[0.82rem]">
             {t('footer.brand_desc')}
           </p>
