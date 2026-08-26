@@ -11,7 +11,9 @@ const firebaseConfig: FirebaseOptions = {
 }
 
 export const app = initializeApp(firebaseConfig)
-export const db = getFirestore(app)
+// The project has multiple Firestore databases (other apps in the same
+// Firebase project use their own); this one is scoped to "quantumjam".
+export const db = getFirestore(app, 'quantumjam')
 
 // To add Auth later:
 //   import { getAuth } from 'firebase/auth'
