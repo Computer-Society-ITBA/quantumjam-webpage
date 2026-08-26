@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next'
+import { Link } from 'react-router'
 
 import { LogoMark } from '@/components/landing/Nav'
 
@@ -70,7 +71,7 @@ function Social({
     <a
       href={href}
       aria-label={t(labelKey)}
-      className="border-brand-line text-brand-text-dim hover:border-brand-warm hover:text-brand-gold-bright flex h-[34px] w-[34px] items-center justify-center rounded-md border transition-colors duration-200"
+      className="text-brand-text-dim hover:text-brand-green flex size-6 items-center justify-center transition-colors duration-200"
     >
       {icon}
     </a>
@@ -80,14 +81,14 @@ function Social({
 export function Footer() {
   const { t } = useTranslation()
   return (
-    <footer className="bg-brand-panel relative z-10 px-[clamp(20px,6vw,80px)] pt-[60px] pb-7">
+    <footer className="bg-brand-panel border-brand-line relative z-10 border-t px-[clamp(20px,6vw,80px)] pt-[60px] pb-7">
       <div className="flex flex-wrap justify-between gap-12 pb-9">
         <div className="flex max-w-[300px] flex-col gap-3">
           <LogoMark />
-          <p className="text-brand-text-dim text-[0.82rem]">
+          <p className="text-brand-text-dim text-[0.82rem] font-light">
             {t('footer.brand_desc')}
           </p>
-          <div className="flex gap-2.5">
+          <div className="-ml-[3px] flex gap-4">
             <Social
               href="#"
               labelKey="a11y.instagram"
@@ -99,9 +100,15 @@ export function Footer() {
         </div>
         <div className="flex flex-wrap gap-14">
           <div className="flex flex-col gap-2.5">
-            <h4 className="text-brand-gold-bright text-[0.7rem] font-semibold tracking-[0.1em] uppercase">
+            <h4 className="font-display text-brand-green text-[0.8rem] font-bold tracking-[0.1em] uppercase">
               {t('footer.columns.event')}
             </h4>
+            <a
+              href="#about"
+              className="text-brand-text-dim hover:text-foreground text-[0.85rem] transition-colors"
+            >
+              {t('footer.links.about')}
+            </a>
             <a
               href="#hardware"
               className="text-brand-text-dim hover:text-foreground text-[0.85rem] transition-colors"
@@ -109,20 +116,26 @@ export function Footer() {
               {t('footer.links.hardware')}
             </a>
             <a
-              href="#"
+              href="#program"
               className="text-brand-text-dim hover:text-foreground text-[0.85rem] transition-colors"
             >
               {t('footer.links.agenda')}
             </a>
             <a
-              href="#inscripcion"
+              href="#sponsor"
+              className="text-brand-text-dim hover:text-foreground text-[0.85rem] transition-colors"
+            >
+              {t('footer.links.sponsor')}
+            </a>
+            <Link
+              to="/register"
               className="text-brand-text-dim hover:text-foreground text-[0.85rem] transition-colors"
             >
               {t('footer.links.register')}
-            </a>
+            </Link>
           </div>
           <div className="flex flex-col gap-2.5">
-            <h4 className="text-brand-gold-bright text-[0.7rem] font-semibold tracking-[0.1em] uppercase">
+            <h4 className="font-display text-brand-green text-[0.8rem] font-bold tracking-[0.1em] uppercase">
               {t('footer.columns.contact')}
             </h4>
             <a
@@ -140,9 +153,8 @@ export function Footer() {
           </div>
         </div>
       </div>
-      <div className="border-brand-line text-brand-text-dim flex flex-wrap items-center justify-between gap-3 border-t pt-5 text-[0.76rem]">
+      <div className="text-brand-text-dim text-[0.76rem]">
         <span>{t('footer.copyright')}</span>
-        <span>{t('footer.tagline')}</span>
       </div>
     </footer>
   )

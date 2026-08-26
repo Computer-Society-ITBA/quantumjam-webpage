@@ -4,7 +4,7 @@ import { Hardware } from '@/components/landing/Hardware'
 import { Hero } from '@/components/landing/Hero'
 import { Program } from '@/components/landing/Program'
 import { ProgressRail } from '@/components/landing/ProgressRail'
-import { Registration } from '@/components/landing/Registration'
+import { RegisterCta } from '@/components/landing/RegisterCta'
 import { Sponsor } from '@/components/landing/Sponsor'
 
 export default function LandingPage() {
@@ -13,10 +13,10 @@ export default function LandingPage() {
       <ProgressRail />
       <Hero />
       <About />
-      <Hardware />
       <Program />
+      <Hardware />
       <Sponsor />
-      <Registration />
+      <RegisterCta />
       <Footer />
     </>
   )

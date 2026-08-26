@@ -10,6 +10,7 @@ type BaseProps = {
   onChange: (value: string) => void
   required?: boolean
   autoComplete?: string
+  error?: string
 }
 
 type TextProps = BaseProps & {
@@ -22,6 +23,44 @@ type TextareaProps = BaseProps & {
 
 type QuantumFieldProps = TextProps | TextareaProps
 
+export function FieldLabel({
+  htmlFor,
+  label,
+  required,
+}: {
+  htmlFor: string
+  label: string
+  required?: boolean
+}) {
+  return (
+    <label
+      htmlFor={htmlFor}
+      className="text-brand-text-dim mb-1.5 block text-[0.78rem] font-medium"
+    >
+      {label}
+      {required && (
+        <span aria-hidden="true" className="text-brand-green">
+          {' '}
+          *
+        </span>
+      )}
+    </label>
+  )
+}
+
+export function FieldError({ id, message }: { id: string; message?: string }) {
+  if (!message) return null
+  return (
+    <p
+      id={id}
+      role="alert"
+      className="text-brand-magenta-bright mt-1.5 text-[0.78rem]"
+    >
+      {message}
+    </p>
+  )
+}
+
 export function QuantumField(props: QuantumFieldProps) {
   const {
     label,
@@ -31,9 +70,11 @@ export function QuantumField(props: QuantumFieldProps) {
     onChange,
     required = false,
     autoComplete,
+    error,
   } = props
   const variant = 'variant' in props ? props.variant : 'text'
   const id = useId()
+  const errorId = `${id}-error`
   const [focused, setFocused] = useState(false)
   const collapsed = focused || value.length > 0
 
@@ -44,15 +85,11 @@ export function QuantumField(props: QuantumFieldProps) {
 
   return (
     <div>
-      <label
-        htmlFor={id}
-        className="text-brand-text-dim mb-1.5 block text-[0.72rem] font-medium tracking-[0.05em] uppercase"
-      >
-        {label}
-      </label>
+      <FieldLabel htmlFor={id} label={label} required={required} />
       <div
         className={cn(
-          'bg-brand-panel border-brand-line focus-within:border-brand-warm relative overflow-hidden rounded-md border transition-[border-color,box-shadow] duration-200 focus-within:shadow-[0_0_0_3px_rgba(201,151,79,0.16)]',
+          'bg-brand-panel focus-within:border-brand-green relative overflow-hidden border transition-[border-color,box-shadow] duration-200 focus-within:shadow-[0_0_0_3px_rgba(180,255,57,0.16)]',
+          error ? 'border-brand-magenta-bright' : 'border-brand-line',
           isTextarea ? 'h-[88px]' : 'h-[58px]',
         )}
       >
@@ -64,20 +101,18 @@ export function QuantumField(props: QuantumFieldProps) {
           )}
         >
           <span
-            className="text-brand-gold-bright absolute right-3.5 left-3.5 truncate font-sans text-[0.85rem] whitespace-nowrap opacity-70"
-            style={{
-              top: isTextarea ? 12 : 10,
-              transform: 'rotate(-1deg)',
-            }}
+            className={cn(
+              'ghost-alt text-brand-green',
+              isTextarea && 'ghost-alt-top',
+            )}
           >
             {ghost1}
           </span>
           <span
-            className="text-brand-blue absolute right-3.5 left-3.5 truncate font-sans text-[0.85rem] whitespace-nowrap opacity-60"
-            style={{
-              top: isTextarea ? 36 : 32,
-              transform: 'rotate(0.8deg) translateX(5px)',
-            }}
+            className={cn(
+              'ghost-alt ghost-alt-b text-brand-magenta-bright',
+              isTextarea && 'ghost-alt-top',
+            )}
           >
             {ghost2}
           </span>
@@ -93,6 +128,8 @@ export function QuantumField(props: QuantumFieldProps) {
             onBlur={() => setFocused(false)}
             required={required}
             autoComplete={autoComplete ?? 'off'}
+            aria-invalid={Boolean(error)}
+            aria-describedby={error ? errorId : undefined}
           />
         ) : (
           <input
@@ -105,9 +142,12 @@ export function QuantumField(props: QuantumFieldProps) {
             onBlur={() => setFocused(false)}
             required={required}
             autoComplete={autoComplete ?? 'off'}
+            aria-invalid={Boolean(error)}
+            aria-describedby={error ? errorId : undefined}
           />
         )}
       </div>
+      <FieldError id={errorId} message={error} />
     </div>
   )
 }

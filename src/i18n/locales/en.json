@@ -5,17 +5,16 @@
   },
   "hero": {
     "eyebrow": "Computer Society ITBA × IBM Quantum",
-    "subtitle": "Talks, a Qiskit workshop, and real IBM quantum hardware.",
+    "subtitle": "Virtual workshops and classes leading up to an in-person quantum computing competition at ITBA.",
     "sponsored_by": "Sponsored by",
     "date": "Sat, November 14",
-    "place": "ITBA, Sedes Sur Building",
-    "capacity": "Limited seats",
-    "cta": "Reserve my spot"
+    "place": "ITBA SDF (San Martín 202)",
+    "capacity": "Limited spots",
+    "cta": "Register"
   },
   "about": {
-    "eyebrow": "|0⟩ + |1⟩",
     "title": "What is QuantumJam?",
-    "description": "A Computer Society ITBA event bringing quantum computing closer to anyone who has never touched a qubit and to those already reading papers.",
+    "description": "A Computer Society ITBA event in two independent parts: a series of virtual workshops and classes, followed by an in-person quantum computing competition at ITBA.",
     "features": {
       "beginner": {
         "title": "No prior experience needed",
@@ -47,40 +46,63 @@
   },
   "program": {
     "title": "Program",
-    "items": {
-      "fundamentals": {
-        "title": "Fundamentals",
-        "desc": "Qubits, superposition, and why this is not just a faster PC.",
-        "time": "10:00",
-        "place": "Main auditorium"
-      },
-      "workshop": {
-        "title": "Qiskit Workshop",
-        "desc": "Build a circuit and run it on a real IBM quantum processor.",
-        "time": "12:00",
-        "place": "Lab"
-      },
-      "panel": {
-        "title": "Open panel",
-        "desc": "Researchers, industry, and students discussing the real state of quantum hardware.",
-        "time": "16:00",
-        "place": "Main auditorium"
-      }
+    "now": "Now",
+    "workshops": {
+      "label": "Virtual workshops",
+      "desc": "Regular online sessions on our Discord server. Registration required."
+    },
+    "competition": {
+      "label": "Competition day",
+      "desc": "November 14, in person at ITBA SDF."
     }
   },
   "sponsor": {
     "title": "IBM Quantum",
-    "description": "IBM Quantum provides the workshop with real quantum hardware: superconducting processors at millikelvin temperatures, controlled with microwave pulses."
+    "description": "IBM Quantum provides the workshop with real quantum hardware: superconducting processors at millikelvin temperatures, controlled with microwave pulses.",
+    "items": {
+      "hardware": {
+        "label": "Hardware",
+        "value": "Live access to IBM's superconducting quantum processors, the same ones used in production."
+      },
+      "software": {
+        "label": "Software",
+        "value": "Qiskit, the open-source SDK used to build and run every circuit at the workshops."
+      },
+      "support": {
+        "label": "Support",
+        "value": "Technical guidance for teams throughout the competition."
+      }
+    }
+  },
+  "registerCta": {
+    "title": "Ready to sign up?",
+    "cta": "Register"
+  },
+  "registerSelect": {
+    "title": "Register",
+    "description": "Registration is separate for each part. You don't need to sign up for both.",
+    "workshops": {
+      "ket": "|0⟩",
+      "title": "Virtual workshops & classes",
+      "desc": "Online, leading up to the competition.",
+      "mode": "Online"
+    },
+    "competition": {
+      "ket": "|1⟩",
+      "title": "Quantum computing competition",
+      "desc": "The main event, live at ITBA.",
+      "mode": "In person"
+    },
+    "backHome": "Home"
   },
   "registration": {
-    "title": "Register",
-    "description": "Every field displays several possible answers at once. On focus, they collapse to yours.",
-    "cat": {
-      "title": "Schrödinger's box",
-      "state_label": "State:",
-      "indeterminate": "undetermined",
-      "collapsing": "collapsing…",
-      "alive": "alive, confirmed"
+    "backToSelect": "Events",
+    "consent": "By completing this form, you agree to share your data with the event organizers and sponsors.",
+    "validation": {
+      "required": "This field is required.",
+      "email": "Enter a valid email address.",
+      "code": "Enter the full 6-digit code.",
+      "team": "Pick how you want to enter, or add a team code."
     },
     "fields": {
       "name": {
@@ -107,18 +129,179 @@
           "intermediate": "Intermediate (already coded a circuit)"
         }
       },
+      "team": {
+        "label": "Team name (optional)",
+        "ghost1": "not sure yet",
+        "ghost2": "The Entanglers"
+      },
       "reason": {
         "label": "Why do you want to come? (optional)",
         "ghost1": "just curious",
         "ghost2": "want to work on this"
+      },
+      "dni": {
+        "label": "ID number",
+        "ghost1": "DNI or passport",
+        "ghost2": "12345678"
+      },
+      "age": {
+        "label": "Age",
+        "ghost1": "years old",
+        "ghost2": "21"
+      },
+      "university": {
+        "label": "University",
+        "ghost1": "where do you study?",
+        "ghost2": "MIT, Stanford..."
+      },
+      "major": {
+        "label": "Degree",
+        "ghost1": "what do you study?",
+        "ghost2": "Computer Science"
+      },
+      "gradYear": {
+        "label": "Expected graduation",
+        "ghost1": "when do you finish?",
+        "ghost2": "2027"
+      },
+      "location": {
+        "label": "Where you live",
+        "ghost1": "neighbourhood and city",
+        "ghost2": "Palermo, CABA"
+      },
+      "diet": {
+        "label": "Dietary restrictions (optional)",
+        "ghost1": "we feed you all weekend",
+        "ghost2": "Vegetarian, gluten-free, etc."
+      },
+      "github": {
+        "label": "GitHub (optional)",
+        "ghost1": "show us your code",
+        "ghost2": "github.com/username"
+      },
+      "linkedin": {
+        "label": "LinkedIn (optional)",
+        "ghost1": "for the sponsors",
+        "ghost2": "linkedin.com/in/username"
+      },
+      "x": {
+        "label": "X (optional)",
+        "ghost1": "if you post",
+        "ghost2": "@username"
+      },
+      "instagram": {
+        "label": "Instagram (optional)",
+        "ghost1": "where we tag you",
+        "ghost2": "@username"
+      },
+      "website": {
+        "label": "Website or portfolio (optional)",
+        "ghost1": "anything you built",
+        "ghost2": "https://..."
+      },
+      "teamName": {
+        "label": "Team name",
+        "ghost1": "pick something",
+        "ghost2": "The Entanglers"
+      },
+      "teamCode": {
+        "label": "Team code",
+        "ghost1": "ask your team for it",
+        "ghost2": "theentanglers"
       }
     },
-    "submit": "Collapse the wavefunction",
-    "submitting": "Measuring the system…",
-    "note": "Email confirmation in the coming days.",
-    "success": {
-      "title": "Measurement made: you are going to QuantumJam",
-      "desc": "The box is open and the cat is fine. Your spot is saved: confirmation lands by email. See you on November 14."
+    "wizard": {
+      "back": "Back",
+      "stepOf": "Step {{current}} of {{total}}",
+      "status": {
+        "started": "Started",
+        "ready": "Ready"
+      },
+      "steps": {
+        "email": "Email",
+        "verify": "Verify",
+        "personal": "Personal Info",
+        "socials": "Contact & Socials",
+        "team": "Team"
+      },
+      "email": {
+        "title": "Your email",
+        "desc": "We start here. Everything about the competition lands in this inbox.",
+        "submit": "Send verification code"
+      },
+      "verify": {
+        "title": "Verify your email",
+        "desc": "We sent a 6-digit code to {{email}}. Enter it below to prove the address is yours.",
+        "codeLabel": "Verification code",
+        "resend": "Resend the code",
+        "resendIn": "Resend available in {{seconds}}s",
+        "changeEmail": "Use a different email",
+        "submit": "Confirm email"
+      },
+      "personal": {
+        "title": "Personal Info",
+        "desc": "Who is showing up at ITBA. We use this for accreditation and catering.",
+        "submit": "Continue"
+      },
+      "socials": {
+        "title": "Contact & Socials",
+        "desc": "All optional. It helps sponsors and teammates find you afterwards.",
+        "submit": "Continue"
+      },
+      "team": {
+        "title": "Your team",
+        "desc": "Teams are up to {{max}} people. Pick how you want to enter.",
+        "submit": "Complete registration",
+        "choices": {
+          "join": {
+            "title": "I already have a team",
+            "desc": "Someone on your team created it and shared the code with you."
+          },
+          "create": {
+            "title": "I want to create a team",
+            "desc": "Pick a name, get a code, and pass it to the rest of your team."
+          },
+          "alone": {
+            "title": "I am signing up alone",
+            "desc": "Stay in superposition: if you are selected, we assign you a team."
+          }
+        },
+        "create": {
+          "idLabel": "Team code",
+          "copy": "Copy",
+          "copied": "Copied",
+          "hint": "Share this code with your teammates so they can join. Up to {{max}} people per team."
+        },
+        "join": {
+          "members": "{{taken}} of {{max}} spots taken. There's room for you.",
+          "full": "This team already has {{max}} members. Ask for another code, or sign up alone."
+        },
+        "alone": {
+          "note": "If you are selected, we assign you to a team of up to {{max}} people before the competition."
+        }
+      }
+    },
+    "workshops": {
+      "title": "Virtual workshops & classes",
+      "description": "Only for the workshops. Registering for the competition is separate.",
+      "submit": "Collapse the wavefunction",
+      "submitting": "Measuring the system…",
+      "note": "We review every application and email you about your status in the coming days.",
+      "success": {
+        "title": "Your application is in",
+        "desc": "We'll review it and email you about your status. If you're accepted, that email includes the Discord server details for the sessions."
+      }
+    },
+    "competition": {
+      "title": "Quantum computing competition",
+      "description": "Only for the in-person competition at ITBA. Registering for the workshops is separate.",
+      "submit": "Collapse the wavefunction",
+      "submitting": "Measuring the system…",
+      "note": "We review every application and email you about your status in the coming days.",
+      "success": {
+        "title": "Your application is in",
+        "desc": "We'll review it and email you about your status ahead of November 14."
+      }
     }
   },
   "footer": {
@@ -128,11 +311,13 @@
       "contact": "Contact"
     },
     "links": {
+      "about": "What is QuantumJam?",
       "hardware": "The hardware",
       "agenda": "Program",
+      "sponsor": "IBM Quantum",
       "register": "Register",
       "email": "computersociety@itba.edu.ar",
-      "place": "ITBA, Sedes Sur Building"
+      "place": "ITBA SDF (San Martín 202)"
     },
     "copyright": "© 2026 Computer Society ITBA",
     "tagline": "QuantumJam, together with IBM Quantum"

@@ -1,130 +1,72 @@
 import { useTranslation } from 'react-i18next'
 
-function BlochSphere() {
+import { SectionHeading } from '@/components/landing/SectionHeading'
+import { cn } from '@/lib/utils'
+
+function ArrowHead({ flip }: { flip?: boolean }) {
   return (
     <svg
-      viewBox="0 0 200 200"
-      fill="none"
+      viewBox="0 0 6 10"
       aria-hidden="true"
-      className="mx-auto block w-full max-w-[260px]"
+      className={cn('h-2.5 w-1.5 flex-shrink-0', flip && 'rotate-180')}
     >
-      <circle
-        cx="100"
-        cy="100"
-        r="70"
-        stroke="var(--brand-line)"
-        strokeWidth="1"
-      />
-      <ellipse
-        cx="100"
-        cy="100"
-        rx="70"
-        ry="22"
-        stroke="var(--brand-warm)"
-        strokeWidth="1"
-        className="animate-bloch-ring origin-[100px_100px]"
-      />
-      <ellipse
-        cx="100"
-        cy="100"
-        rx="22"
-        ry="70"
-        stroke="var(--brand-blue)"
-        strokeWidth="1"
-        className="animate-bloch-ring-reverse origin-[100px_100px]"
-      />
-      <line
-        x1="100"
-        y1="30"
-        x2="100"
-        y2="170"
-        stroke="var(--brand-line)"
-        strokeWidth="1"
-      />
-      <circle cx="100" cy="30" r="3" fill="var(--brand-gold-bright)" />
-      <circle cx="100" cy="170" r="3" fill="var(--brand-gold-bright)" />
-      <line
-        x1="100"
-        y1="100"
-        x2="150"
-        y2="58"
-        stroke="var(--brand-gold-bright)"
-        strokeWidth="1.6"
-      />
-      <circle cx="150" cy="58" r="4" fill="var(--brand-gold-bright)" />
-      <circle cx="100" cy="100" r="2.4" fill="var(--brand-text)" />
+      <path d="M0 0 L6 5 L0 10 Z" fill="var(--brand-magenta)" />
     </svg>
-  )
-}
-
-type Item = {
-  ket: string
-  titleKey: string
-  descKey: string
-  timeKey: string
-  placeKey: string
-}
-
-const items: Item[] = [
-  {
-    ket: '|0⟩',
-    titleKey: 'program.items.fundamentals.title',
-    descKey: 'program.items.fundamentals.desc',
-    timeKey: 'program.items.fundamentals.time',
-    placeKey: 'program.items.fundamentals.place',
-  },
-  {
-    ket: '|1⟩',
-    titleKey: 'program.items.workshop.title',
-    descKey: 'program.items.workshop.desc',
-    timeKey: 'program.items.workshop.time',
-    placeKey: 'program.items.workshop.place',
-  },
-  {
-    ket: '|ψ⟩',
-    titleKey: 'program.items.panel.title',
-    descKey: 'program.items.panel.desc',
-    timeKey: 'program.items.panel.time',
-    placeKey: 'program.items.panel.place',
-  },
-]
-
-function KetCard({ item }: { item: Item }) {
-  const { t } = useTranslation()
-  return (
-    <article className="bg-brand-panel border-brand-line hover:border-brand-warm relative overflow-hidden rounded-lg border px-6 py-7 transition-[border-color,transform] duration-300 hover:translate-x-1">
-      <span className="text-brand-gold-bright mb-3 block text-[1.35rem] font-bold">
-        {item.ket}
-      </span>
-      <h3 className="text-foreground mb-1.5">{t(item.titleKey)}</h3>
-      <p className="text-brand-text-dim mb-3 max-w-[58ch] text-[0.88rem]">
-        {t(item.descKey)}
-      </p>
-      <span className="flex items-baseline gap-[10px] text-[0.72rem]">
-        <span className="text-brand-gold-bright font-semibold">
-          {t(item.timeKey)}
-        </span>
-        <span className="text-brand-text-dim">{t(item.placeKey)}</span>
-      </span>
-    </article>
   )
 }
 
 export function Program() {
   const { t } = useTranslation()
   return (
-    <section className="relative z-10 px-[clamp(20px,6vw,80px)] py-[clamp(56px,9vw,120px)]">
-      <h2 className="text-foreground mb-[0.9rem] text-[clamp(1.5rem,3vw,2.15rem)] font-semibold tracking-tight">
-        {t('program.title')}
-      </h2>
-      <div className="mt-[1.8rem] grid grid-cols-1 gap-14 md:grid-cols-[0.8fr_1.2fr]">
-        <div className="static self-start md:sticky md:top-[100px]">
-          <BlochSphere />
+    <section
+      id="program"
+      className="border-brand-line relative z-10 border-b px-[clamp(20px,6vw,80px)] py-[clamp(40px,6vw,80px)]"
+    >
+      <SectionHeading index="02">{t('program.title')}</SectionHeading>
+
+      <div className="relative z-10 mt-12 md:mt-16">
+        <div className="flex items-start justify-between gap-8">
+          <div>
+            <span className="font-display text-brand-magenta-bright block text-[0.8rem] font-bold tracking-[0.1em] uppercase">
+              {t('program.workshops.label')}
+            </span>
+            <p className="text-brand-text-dim mt-1 max-w-[34ch] text-[0.85rem] font-light">
+              {t('program.workshops.desc')}
+            </p>
+          </div>
+          <div className="text-right">
+            <span className="font-display text-brand-green block text-[0.8rem] font-bold tracking-[0.1em] uppercase">
+              {t('program.competition.label')}
+            </span>
+            <p className="text-brand-text-dim mt-1 max-w-[28ch] text-[0.85rem] font-light">
+              {t('program.competition.desc')}
+            </p>
+          </div>
         </div>
-        <div className="flex flex-col gap-[22px]">
-          {items.map((it) => (
-            <KetCard key={it.ket} item={it} />
-          ))}
+
+        {/* The workshops run across the whole run-up to competition day, so
+            their span is drawn as a delimited stretch of the timeline rather
+            than as discrete points. */}
+        <div className="mt-9 flex items-center gap-1.5 pr-8">
+          <ArrowHead flip />
+          <span className="bg-brand-magenta/40 h-px flex-1" />
+          <ArrowHead />
+        </div>
+
+        <div
+          className="relative mt-3 h-px"
+          style={{
+            background:
+              'linear-gradient(90deg, var(--brand-magenta) 0%, #fff 58%, var(--brand-green) 100%)',
+          }}
+        >
+          <span className="bg-brand-magenta absolute top-1/2 left-0 h-2 w-2 -translate-y-1/2" />
+          <span className="bg-brand-green border-background absolute top-1/2 right-0 h-3.5 w-3.5 translate-x-1/2 -translate-y-1/2 border-2" />
+        </div>
+
+        <div className="mt-3.5 flex justify-between text-[0.72rem]">
+          <span className="text-brand-text-dim">{t('program.now')}</span>
+          <span className="text-brand-green">{t('hero.date')}</span>
         </div>
       </div>
     </section>
