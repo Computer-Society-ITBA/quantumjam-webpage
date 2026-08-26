@@ -5,9 +5,9 @@ import { FieldError, QuantumField } from '@/components/landing/QuantumField'
 import {
   MAX_TEAM_SIZE,
   emptyTeam,
-  previewMembers,
   teamIdFrom,
   type TeamChoice,
+  type TeamLookup,
   type TeamState,
 } from '@/components/registration/wizard'
 import { cn } from '@/lib/utils'
@@ -40,10 +40,14 @@ export function TeamStep({
   value,
   onChange,
   error,
+  lookup,
+  lookupLoading = false,
 }: {
   value: TeamState
   onChange: (next: TeamState) => void
   error?: string
+  lookup: TeamLookup | null
+  lookupLoading?: boolean
 }) {
   const { t } = useTranslation()
   const [copied, setCopied] = useState(false)
@@ -51,8 +55,10 @@ export function TeamStep({
   const generatedId = teamIdFrom(value.name)
   const lookupCode = teamIdFrom(value.code)
   const showLookup = lookupCode.length >= 4
-  const members = showLookup ? previewMembers(lookupCode) : 0
-  const isFull = showLookup && members >= MAX_TEAM_SIZE
+  const members = lookup?.exists ? lookup.memberCount : 0
+  const isFull = lookup?.exists ? lookup.isFull : false
+  const notFound =
+    showLookup && !lookupLoading && lookup !== null && !lookup.exists
 
   const copyId = async () => {
     if (!generatedId) return
@@ -159,7 +165,19 @@ export function TeamStep({
             onChange={(code) => onChange({ ...value, code })}
             required
           />
-          {showLookup && (
+          {showLookup && lookupLoading && (
+            <p className="text-brand-text-dim text-[0.82rem]">
+              {t('registration.wizard.team.join.checking')}
+            </p>
+          )}
+          {notFound && (
+            <div className="border-brand-magenta-bright/35 bg-brand-magenta-bright/[0.04] border p-4">
+              <p className="text-brand-magenta-bright text-[0.82rem]">
+                {t('registration.validation.teamNotFound')}
+              </p>
+            </div>
+          )}
+          {showLookup && !lookupLoading && lookup?.exists && (
             <div
               className={cn(
                 'border p-4 transition-colors',

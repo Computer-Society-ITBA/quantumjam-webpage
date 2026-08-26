@@ -102,23 +102,33 @@
       "required": "Este campo es obligatorio.",
       "email": "Ingresá un email válido.",
       "code": "Ingresá el código completo de 6 dígitos.",
-      "team": "Elegí cómo querés participar, o sumá un código de equipo."
+      "team": "Elegí cómo querés participar, o sumá un código de equipo.",
+      "codeExpired": "Este código venció. Pedí uno nuevo.",
+      "codeInvalid": "Ese código no es correcto. Probá de nuevo.",
+      "tooManyAttempts": "Demasiados intentos incorrectos. Pedí un código nuevo.",
+      "emailTaken": "Este email ya está registrado para este evento.",
+      "teamNotFound": "No encontramos ningún equipo con ese código.",
+      "teamCodeTaken": "Este código de equipo ya está en uso.",
+      "submitFailed": "Algo salió mal. Probá de nuevo.",
+      "numeric": "Ingresá solo números.",
+      "year": "Ingresá un año válido de 4 dígitos.",
+      "invalidId": "Ingresá un DNI o pasaporte válido."
     },
     "fields": {
       "name": {
         "label": "Nombre y apellido",
         "ghost1": "¿Quién sos?",
-        "ghost2": "Ada Lovelace"
+        "ghost2": "Niels Bohr"
       },
       "email": {
         "label": "Email",
-        "ghost1": "tu@mail.com",
-        "ghost2": "donde te avisamos"
+        "ghost1": "MaxPlanck@mail.com",
+        "ghost2": "Donde te avisamos"
       },
       "career": {
         "label": "Universidad y carrera",
         "ghost1": "ITBA, Ing. Informática",
-        "ghost2": "carrera y año"
+        "ghost2": "Carrera y año"
       },
       "level": {
         "label": "Experiencia previa en cuántica",
@@ -131,13 +141,13 @@
       },
       "team": {
         "label": "Nombre de equipo (opcional)",
-        "ghost1": "todavía no sé",
-        "ghost2": "Los Entrelazados"
+        "ghost1": "Todavía no sé",
+        "ghost2": "Los qubitos"
       },
       "reason": {
-        "label": "¿Por qué querés venir? (opcional)",
-        "ghost1": "curiosidad nomás",
-        "ghost2": "quiero laburar en esto"
+        "label": "¿Por qué querés participar? (opcional)",
+        "ghost1": "Curiosidad nomás",
+        "ghost2": "Quiero laburar en esto"
       },
       "dni": {
         "label": "Documento",
@@ -146,68 +156,68 @@
       },
       "age": {
         "label": "Edad",
-        "ghost1": "¿cuántos años tenés?",
+        "ghost1": "¿Cuántos años tenés?",
         "ghost2": "21"
       },
       "university": {
         "label": "Universidad",
-        "ghost1": "¿dónde estudiás?",
-        "ghost2": "ITBA, UBA..."
+        "ghost1": "¿Dónde estudiás?",
+        "ghost2": "UBA, ITBA, UTN..."
       },
       "major": {
         "label": "Carrera",
-        "ghost1": "¿qué estudiás?",
+        "ghost1": "¿Qué estudiás?",
         "ghost2": "Ingeniería Informática"
       },
       "gradYear": {
         "label": "Año de graduación",
-        "ghost1": "¿cuándo terminás?",
+        "ghost1": "¿Cuándo terminás?",
         "ghost2": "2027"
       },
       "location": {
         "label": "Dónde vivís",
-        "ghost1": "barrio y ciudad",
+        "ghost1": "Barrio y ciudad",
         "ghost2": "Palermo, CABA"
       },
       "diet": {
         "label": "Restricciones alimentarias (opcional)",
-        "ghost1": "te damos de comer todo el finde",
+        "ghost1": "Te damos de comer todo el día",
         "ghost2": "Vegetariano, sin gluten, etc."
       },
       "github": {
         "label": "GitHub (opcional)",
-        "ghost1": "mostranos tu código",
+        "ghost1": "Mostranos tu código",
         "ghost2": "github.com/usuario"
       },
       "linkedin": {
         "label": "LinkedIn (opcional)",
-        "ghost1": "para los sponsors",
+        "ghost1": "Para los sponsors",
         "ghost2": "linkedin.com/in/usuario"
       },
       "x": {
         "label": "X (opcional)",
-        "ghost1": "si posteás",
+        "ghost1": "Si posteás",
         "ghost2": "@usuario"
       },
       "instagram": {
         "label": "Instagram (opcional)",
-        "ghost1": "para etiquetarte",
+        "ghost1": "Para poder etiquetarte",
         "ghost2": "@usuario"
       },
       "website": {
         "label": "Sitio o portfolio (opcional)",
-        "ghost1": "algo que hayas hecho",
+        "ghost1": "Algo que hayas hecho",
         "ghost2": "https://..."
       },
       "teamName": {
         "label": "Nombre del equipo",
-        "ghost1": "elegí uno",
-        "ghost2": "Los Entrelazados"
+        "ghost1": "Elegí uno",
+        "ghost2": "Los qubitos"
       },
       "teamCode": {
         "label": "Código del equipo",
-        "ghost1": "pedíselo a tu equipo",
-        "ghost2": "losentrelazados"
+        "ghost1": "Pedíselo a tu equipo",
+        "ghost2": "losqubitos"
       }
     },
     "wizard": {
@@ -218,6 +228,7 @@
         "ready": "Listo"
       },
       "steps": {
+        "details": "Datos",
         "email": "Email",
         "verify": "Verificación",
         "personal": "Datos personales",
@@ -273,11 +284,12 @@
           "hint": "Compartí este código con tu equipo para que se sumen. Hasta {{max}} personas por equipo."
         },
         "join": {
+          "checking": "Comprobando…",
           "members": "{{taken}} de {{max}} lugares ocupados: hay lugar para vos.",
           "full": "Este equipo ya tiene {{max}} integrantes. Pedí otro código o anotate solo."
         },
         "alone": {
-          "note": "Si entrás, te asignamos a un equipo de hasta {{max}} personas antes de la competencia."
+          "note": "Si entrás, te vamos a asignar a un equipo de hasta {{max}} personas antes de la competencia."
         }
       }
     },
@@ -286,10 +298,9 @@
       "description": "Solo para los workshops. La inscripción a la competencia es aparte.",
       "submit": "Colapsar función de onda",
       "submitting": "Midiendo el sistema…",
-      "note": "Revisamos cada postulación y te avisamos tu estado por mail en los próximos días.",
       "success": {
-        "title": "Tu postulación está en revisión",
-        "desc": "La vamos a revisar y te avisamos tu estado por mail. Si quedás seleccionado, ese mail incluye los datos para sumarte al servidor de Discord."
+        "title": "¡Ya estás adentro!",
+        "desc": "Revisá tu casilla: te acabamos de mandar los datos del servidor de Discord."
       }
     },
     "competition": {
@@ -297,7 +308,7 @@
       "description": "Solo para la competencia presencial en el ITBA. La inscripción a los workshops es aparte.",
       "submit": "Colapsar función de onda",
       "submitting": "Midiendo el sistema…",
-      "note": "Revisamos cada postulación y te avisamos tu estado por mail en los próximos días.",
+      "note": "Vamos a revisar cada postulación y te vamos a avisar tu estado por mail en los próximos días.",
       "success": {
         "title": "Tu postulación está en revisión",
         "desc": "La vamos a revisar y te avisamos tu estado por mail antes del 14 de noviembre."

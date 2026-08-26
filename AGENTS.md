@@ -5,10 +5,12 @@ consistent across contributors - human or AI.
 
 ## Project
 
-quantum-jam-csitba is a React + TypeScript SPA that will consume
-Firebase (Auth, Firestore, Functions, Hosting). Frontend is
-scaffolded with Vite; UI comes from shadcn/ui on Tailwind v4; copy
-runs through react-i18next (en / es today).
+quantum-jam-csitba is a React + TypeScript SPA that consumes
+Firebase (Firestore, Functions, Hosting). Frontend is scaffolded
+with Vite; UI comes from shadcn/ui on Tailwind v4; copy runs through
+react-i18next (en / es today). The workshops and competition sign-up
+flows are the main feature - see `functions/` and `## Firebase`
+below.
 
 ## Stack
 
@@ -16,7 +18,8 @@ runs through react-i18next (en / es today).
 - Tailwind CSS v4 via `@tailwindcss/vite`
 - shadcn/ui - New York style, Zinc base, CSS-variable tokens
 - react-i18next + `i18next-browser-languagedetector`
-- Firebase - Hosting, Firestore, Functions (configured, not yet consumed)
+- Firebase - Hosting, Firestore, Functions (event sign-up backend)
+- Gmail SMTP via `nodemailer` for verification/confirmation emails
 - oxlint for linting; husky + lint-staged for the pre-commit gate
 
 ## Layout
@@ -28,7 +31,7 @@ src/
   lib/             shared helpers (`firebase.ts`, `cn()`)
   App.tsx          landing page
   main.tsx         entry point
-functions/         Firebase Cloud Functions subproject (own lint, own tsconfig)
+functions/         Firebase Cloud Functions - sign-up backend + email (own lint, own tsconfig)
 firebase.json .firebaserc firestore.rules firestore.indexes.json
 .github/workflows/ CI (ci.yml) + Firebase Hosting deploy workflows
 .agents/skills/    Firebase Agent Skills reference docs (not app code)
@@ -50,6 +53,17 @@ firebase.json .firebaserc firestore.rules firestore.indexes.json
   red build.
 - Preview a Hosting change without touching the live site:
   `firebase hosting:channel:deploy preview`.
+- **This Firebase project hosts other apps' Cloud Functions too.**
+  Never run `firebase deploy --only functions` (no filter) - it will
+  offer to delete any function this repo doesn't define, including
+  ones that belong to those other apps. Always deploy by name:
+  `firebase deploy --only functions:requestVerificationCode,functions:submitWorkshopSignup,...`.
+- `firestore.rules` is deny-all on purpose: the sign-up collections
+  (`emailVerifications`, `workshopSignups`, `competitionSignups`,
+  `teams`) are written only by `functions/` via the Admin SDK, which
+  bypasses rules entirely. See the README's "Firebase" section
+  (Functions / Email delivery subsections) for the full data model
+  and SMTP setup.
 
 ## Commands
 
