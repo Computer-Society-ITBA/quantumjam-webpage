@@ -102,7 +102,14 @@
       "required": "Este campo es obligatorio.",
       "email": "Ingresá un email válido.",
       "code": "Ingresá el código completo de 6 dígitos.",
-      "team": "Elegí cómo querés participar, o sumá un código de equipo."
+      "team": "Elegí cómo querés participar, o sumá un código de equipo.",
+      "codeExpired": "Este código venció. Pedí uno nuevo.",
+      "codeInvalid": "Ese código no es correcto. Probá de nuevo.",
+      "tooManyAttempts": "Demasiados intentos incorrectos. Pedí un código nuevo.",
+      "emailTaken": "Este email ya está registrado para este evento.",
+      "teamNotFound": "No encontramos ningún equipo con ese código.",
+      "teamCodeTaken": "Este código de equipo ya está en uso.",
+      "submitFailed": "Algo salió mal. Probá de nuevo."
     },
     "fields": {
       "name": {
@@ -218,6 +225,7 @@
         "ready": "Listo"
       },
       "steps": {
+        "details": "Datos",
         "email": "Email",
         "verify": "Verificación",
         "personal": "Datos personales",
@@ -273,6 +281,7 @@
           "hint": "Compartí este código con tu equipo para que se sumen. Hasta {{max}} personas por equipo."
         },
         "join": {
+          "checking": "Comprobando…",
           "members": "{{taken}} de {{max}} lugares ocupados: hay lugar para vos.",
           "full": "Este equipo ya tiene {{max}} integrantes. Pedí otro código o anotate solo."
         },

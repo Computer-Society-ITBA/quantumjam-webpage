@@ -6,20 +6,31 @@ import { QuantumField } from '@/components/landing/QuantumField'
 import { StepRail, type StepRailItem } from '@/components/registration/StepRail'
 import { VerifyCodeInput } from '@/components/registration/VerifyCodeInput'
 import { TeamStep } from '@/components/registration/TeamStep'
+import { useResendCooldown } from '@/components/registration/useResendCooldown'
 import {
+  MAX_TEAM_SIZE,
   canLeaveTeamStep,
   emptyCode,
   emptyTeam,
   isCodeComplete,
+  teamIdFrom,
+  type TeamLookup,
   type TeamState,
 } from '@/components/registration/wizard'
+import {
+  confirmCode,
+  errorCode,
+  lookupTeam,
+  requestCode,
+  submitCompetition,
+  type TeamChoicePayload,
+} from '@/lib/registrationApi'
 import { cn } from '@/lib/utils'
 
 const STEPS = ['email', 'verify', 'personal', 'socials', 'team'] as const
 
 type StepId = (typeof STEPS)[number]
 
-const RESEND_COOLDOWN = 30
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const REQUIRED_PERSONAL_FIELDS = [
   'dni',
@@ -62,28 +73,55 @@ const emptyDetails: Details = {
 
 type FieldErrors = Partial<Record<keyof Details, string>>
 
+function teamPayload(team: TeamState): TeamChoicePayload {
+  if (team.choice === 'create') return { choice: 'create', name: team.name }
+  if (team.choice === 'join') return { choice: 'join', code: team.code }
+  return { choice: 'alone' }
+}
+
 export function CompetitionWizard() {
   const { t } = useTranslation()
   const [step, setStep] = useState(0)
   const [details, setDetails] = useState<Details>(emptyDetails)
   const [team, setTeam] = useState<TeamState>(emptyTeam)
   const [code, setCode] = useState(emptyCode)
-  const [cooldown, setCooldown] = useState(RESEND_COOLDOWN)
-  const [submitting, setSubmitting] = useState(false)
+  const [busy, setBusy] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({})
   const [codeError, setCodeError] = useState('')
   const [teamError, setTeamError] = useState('')
+  const [verificationToken, setVerificationToken] = useState<string | null>(
+    null,
+  )
+  const [teamLookup, setTeamLookup] = useState<TeamLookup | null>(null)
+  const [teamLookupLoading, setTeamLookupLoading] = useState(false)
 
   const current: StepId = STEPS[step]
+  const { cooldown, reset: resetCooldown } = useResendCooldown(
+    current === 'verify',
+  )
 
   useEffect(() => {
-    if (current !== 'verify') return
-    const timer = window.setInterval(() => {
-      setCooldown((c) => Math.max(c - 1, 0))
-    }, 1000)
-    return () => window.clearInterval(timer)
-  }, [current])
+    if (team.choice !== 'join') {
+      setTeamLookup(null)
+      setTeamLookupLoading(false)
+      return
+    }
+    const slug = teamIdFrom(team.code)
+    if (slug.length < 4) {
+      setTeamLookup(null)
+      setTeamLookupLoading(false)
+      return
+    }
+    setTeamLookupLoading(true)
+    const handle = window.setTimeout(() => {
+      lookupTeam(slug)
+        .then((result) => setTeamLookup(result))
+        .catch(() => setTeamLookup(null))
+        .finally(() => setTeamLookupLoading(false))
+    }, 400)
+    return () => window.clearTimeout(handle)
+  }, [team.choice, team.code])
 
   const set =
     <K extends keyof Details>(key: K) =>
@@ -96,6 +134,11 @@ export function CompetitionWizard() {
         return next
       })
     }
+
+  const setEmail = (value: string) => {
+    set('email')(value)
+    setVerificationToken(null)
+  }
 
   const field = (key: keyof Details, required = false) => ({
     label: t(`registration.fields.${key}.label`),
@@ -138,7 +181,7 @@ export function CompetitionWizard() {
       return Object.keys(next).length === 0
     }
     if (current === 'team') {
-      if (!canLeaveTeamStep(team)) {
+      if (!canLeaveTeamStep(team, teamLookup)) {
         setTeamError(t('registration.validation.team'))
         return false
       }
@@ -152,20 +195,104 @@ export function CompetitionWizard() {
     setStep((s) => Math.max(s - 1, 0))
   }
 
-  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const requestVerification = async () => {
+    setBusy(true)
+    try {
+      await requestCode(details.email, 'competition')
+      resetCooldown()
+      return true
+    } catch (err) {
+      const code = errorCode(err)
+      setFieldErrors({
+        email:
+          code === 'already-exists'
+            ? t('registration.validation.emailTaken')
+            : t('registration.validation.submitFailed'),
+      })
+      return false
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    if (submitting) return
+    if (busy) return
     if (!validateCurrentStep()) return
-    if (current === 'email') setCooldown(RESEND_COOLDOWN)
+
+    if (current === 'email') {
+      if (await requestVerification()) setStep(step + 1)
+      return
+    }
+
+    if (current === 'verify') {
+      setBusy(true)
+      try {
+        const result = await confirmCode(details.email, 'competition', code)
+        setVerificationToken(result.verificationToken)
+        setStep(step + 1)
+      } catch (err) {
+        const errCode = errorCode(err)
+        if (errCode === 'deadline-exceeded' || errCode === 'not-found') {
+          setCodeError(t('registration.validation.codeExpired'))
+        } else if (errCode === 'resource-exhausted') {
+          setCodeError(t('registration.validation.tooManyAttempts'))
+        } else {
+          setCodeError(t('registration.validation.codeInvalid'))
+        }
+      } finally {
+        setBusy(false)
+      }
+      return
+    }
+
     if (step < STEPS.length - 1) {
       setStep(step + 1)
       return
     }
-    setSubmitting(true)
-    window.setTimeout(() => {
-      setSubmitting(false)
+
+    if (!verificationToken) {
+      setTeamError(t('registration.validation.submitFailed'))
+      return
+    }
+    setBusy(true)
+    try {
+      await submitCompetition({
+        email: details.email,
+        verificationToken,
+        dni: details.dni,
+        age: details.age,
+        university: details.university,
+        major: details.major,
+        gradYear: details.gradYear,
+        location: details.location,
+        diet: details.diet,
+        github: details.github,
+        linkedin: details.linkedin,
+        x: details.x,
+        instagram: details.instagram,
+        website: details.website,
+        team: teamPayload(team),
+      })
       setSubmitted(true)
-    }, 1300)
+    } catch (err) {
+      const errCode = errorCode(err)
+      if (errCode === 'already-exists') {
+        setTeamError(t('registration.validation.teamCodeTaken'))
+      } else if (errCode === 'not-found') {
+        setTeamError(t('registration.validation.teamNotFound'))
+      } else if (errCode === 'resource-exhausted') {
+        setTeamError(
+          t('registration.wizard.team.join.full', { max: MAX_TEAM_SIZE }),
+        )
+      } else if (errCode === 'failed-precondition') {
+        setTeamError(t('registration.validation.codeExpired'))
+      } else {
+        setTeamError(t('registration.validation.submitFailed'))
+      }
+    } finally {
+      setBusy(false)
+    }
   }
 
   const railSteps: StepRailItem[] = STEPS.map((id) => ({
@@ -250,7 +377,11 @@ export function CompetitionWizard() {
           </div>
 
           {current === 'email' && (
-            <QuantumField variant="email" {...field('email', true)} />
+            <QuantumField
+              variant="email"
+              {...field('email', true)}
+              onChange={setEmail}
+            />
           )}
 
           {current === 'verify' && (
@@ -267,10 +398,24 @@ export function CompetitionWizard() {
               <div className="text-brand-text-dim flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[0.82rem]">
                 <button
                   type="button"
-                  disabled={cooldown > 0}
-                  onClick={() => {
-                    setCooldown(RESEND_COOLDOWN)
-                    setCode(emptyCode)
+                  disabled={cooldown > 0 || busy}
+                  onClick={async () => {
+                    setBusy(true)
+                    try {
+                      await requestCode(details.email, 'competition')
+                      resetCooldown()
+                      setCode(emptyCode)
+                      setCodeError('')
+                    } catch (err) {
+                      const errCode = errorCode(err)
+                      setCodeError(
+                        errCode === 'resource-exhausted'
+                          ? t('registration.validation.tooManyAttempts')
+                          : t('registration.validation.submitFailed'),
+                      )
+                    } finally {
+                      setBusy(false)
+                    }
                   }}
                   className="text-brand-magenta-bright hover:text-brand-green transition-colors disabled:cursor-not-allowed disabled:text-current disabled:opacity-70"
                 >
@@ -282,7 +427,12 @@ export function CompetitionWizard() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => setStep(0)}
+                  onClick={() => {
+                    setVerificationToken(null)
+                    setCode(emptyCode)
+                    setCodeError('')
+                    setStep(0)
+                  }}
                   className="hover:text-brand-green transition-colors"
                 >
                   {t('registration.wizard.verify.changeEmail')}
@@ -329,6 +479,8 @@ export function CompetitionWizard() {
                 if (teamError) setTeamError('')
               }}
               error={teamError}
+              lookup={teamLookup}
+              lookupLoading={teamLookupLoading}
             />
           )}
 
@@ -337,13 +489,13 @@ export function CompetitionWizard() {
               type="submit"
               variant="hero"
               size="cta"
-              disabled={submitting}
+              disabled={busy}
               className={cn(
                 'w-full justify-center',
-                submitting && 'cursor-progress opacity-70',
+                busy && 'cursor-progress opacity-70',
               )}
             >
-              {submitting
+              {busy && current === 'team'
                 ? t('registration.competition.submitting')
                 : t(`registration.wizard.${current}.submit`)}
             </Button>

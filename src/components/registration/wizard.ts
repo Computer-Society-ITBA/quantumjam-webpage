@@ -28,19 +28,19 @@ export function teamIdFrom(name: string) {
     .slice(0, 24)
 }
 
-/** Placeholder until the lookup is wired to Firestore. */
-export function previewMembers(code: string) {
-  let sum = 0
-  for (const char of code) sum += char.charCodeAt(0)
-  return (sum % MAX_TEAM_SIZE) + 1
+export type TeamLookup = {
+  exists: boolean
+  memberCount: number
+  isFull: boolean
 }
 
-export function canLeaveTeamStep(team: TeamState) {
+export function canLeaveTeamStep(team: TeamState, lookup: TeamLookup | null) {
   if (team.choice === 'alone') return true
   if (team.choice === 'create') return teamIdFrom(team.name).length >= 3
   if (team.choice === 'join') {
     const code = teamIdFrom(team.code)
-    return code.length >= 4 && previewMembers(code) < MAX_TEAM_SIZE
+    if (code.length < 4) return false
+    return lookup !== null && lookup.exists && !lookup.isFull
   }
   return false
 }
