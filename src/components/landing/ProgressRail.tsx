@@ -25,7 +25,7 @@ export function ProgressRail() {
           style={{
             height: `${pct}%`,
             background:
-              'linear-gradient(180deg, var(--brand-blue), var(--brand-gold-bright), var(--brand-warm))',
+              'linear-gradient(180deg, var(--brand-green), #fff, var(--brand-magenta))',
           }}
         />
       </div>

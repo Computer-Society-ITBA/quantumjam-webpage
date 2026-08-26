@@ -4,18 +4,27 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --brand-bg: #0d0a06;
-  --brand-panel: #17110a;
-  --brand-warm: #c9974f;
-  --brand-bronze: #8a6432;
-  --brand-gold: #b8894a;
-  --brand-gold-bright: #f0c988;
-  --brand-blue: #7ec4dd;
-  --brand-text: #f3ead9;
-  --brand-text-dim: #a8967a;
-  --brand-line: rgba(201, 151, 79, 0.24);
+  /* Interference-field system: void/substrate carry ~70% of every surface,
+     green is the "throughout" brand accent, violet is deliberately muted so
+     it stays a supporting color, magenta is reserved for the interference
+     texture and the RGB-split headline effect. */
+  --brand-bg: #121212;
+  --brand-panel: #161616;
+  --brand-line: #262626;
+  --brand-text: #f4f4f4;
+  --brand-text-dim: #a8a8a8;
+  --brand-text-faint: #868686;
+  --brand-collapse: #ffffff;
+  --brand-green: #b4ff39;
+  --brand-green-strong: #8fe01c;
+  --brand-violet: #9b86d9;
+  --brand-magenta: #d12771;
+  /* Deep magenta reads fine blended into the animated field or as a border
+     tint, but fails contrast as flat text on the void background. This is
+     the readable version, used anywhere magenta appears as copy. */
+  --brand-magenta-bright: #ff5fa8;
 
-  --radius: 0.5rem;
+  --radius: 0.25rem;
 
   --background: var(--brand-bg);
   --foreground: var(--brand-text);
@@ -23,35 +32,36 @@
   --card-foreground: var(--brand-text);
   --popover: var(--brand-panel);
   --popover-foreground: var(--brand-text);
-  --primary: var(--brand-gold-bright);
-  --primary-foreground: #1a1206;
+  --primary: var(--brand-green);
+  --primary-foreground: #0c1400;
   --secondary: var(--brand-panel);
   --secondary-foreground: var(--brand-text);
   --muted: var(--brand-panel);
   --muted-foreground: var(--brand-text-dim);
-  --accent: var(--brand-blue);
-  --accent-foreground: #1a1206;
+  --accent: var(--brand-violet);
+  --accent-foreground: #0c1400;
   --destructive: oklch(0.577 0.245 27.325);
   --border: var(--brand-line);
   --input: var(--brand-line);
-  --ring: var(--brand-gold-bright);
-  --chart-1: var(--brand-gold-bright);
-  --chart-2: var(--brand-blue);
-  --chart-3: var(--brand-gold);
-  --chart-4: var(--brand-warm);
-  --chart-5: var(--brand-bronze);
+  --ring: var(--brand-green);
+  --chart-1: var(--brand-green);
+  --chart-2: var(--brand-violet);
+  --chart-3: var(--brand-magenta);
+  --chart-4: var(--brand-text-dim);
+  --chart-5: var(--brand-line);
   --sidebar: var(--brand-panel);
   --sidebar-foreground: var(--brand-text);
-  --sidebar-primary: var(--brand-gold-bright);
-  --sidebar-primary-foreground: #1a1206;
-  --sidebar-accent: var(--brand-blue);
-  --sidebar-accent-foreground: #1a1206;
+  --sidebar-primary: var(--brand-green);
+  --sidebar-primary-foreground: #0c1400;
+  --sidebar-accent: var(--brand-violet);
+  --sidebar-accent-foreground: #0c1400;
   --sidebar-border: var(--brand-line);
-  --sidebar-ring: var(--brand-gold-bright);
+  --sidebar-ring: var(--brand-green);
 }
 
 @theme inline {
   --font-sans: 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Archivo', ui-sans-serif, system-ui, sans-serif;
 
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -79,14 +89,16 @@
 
   --color-brand-bg: var(--brand-bg);
   --color-brand-panel: var(--brand-panel);
-  --color-brand-warm: var(--brand-warm);
-  --color-brand-bronze: var(--brand-bronze);
-  --color-brand-gold: var(--brand-gold);
-  --color-brand-gold-bright: var(--brand-gold-bright);
-  --color-brand-blue: var(--brand-blue);
+  --color-brand-line: var(--brand-line);
   --color-brand-text: var(--brand-text);
   --color-brand-text-dim: var(--brand-text-dim);
-  --color-brand-line: var(--brand-line);
+  --color-brand-text-faint: var(--brand-text-faint);
+  --color-brand-collapse: var(--brand-collapse);
+  --color-brand-green: var(--brand-green);
+  --color-brand-green-strong: var(--brand-green-strong);
+  --color-brand-violet: var(--brand-violet);
+  --color-brand-magenta: var(--brand-magenta);
+  --color-brand-magenta-bright: var(--brand-magenta-bright);
 }
 
 @layer base {
@@ -96,18 +108,32 @@
   html {
     scroll-behavior: smooth;
   }
+  /* The page scrollbar is replaced by <ScrollbarOverlay>, which floats over
+     the content instead of reserving an opaque gutter beside it. A native
+     track cannot be transparent-over-content, so the native one is hidden.
+     Scoped to the document scroller so nested scroll areas keep their own. */
+  html,
+  body {
+    scrollbar-width: none;
+  }
+  html::-webkit-scrollbar,
+  body::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+  }
   body {
     @apply bg-background text-foreground font-sans;
-    line-height: 1.55;
+    line-height: 1.6;
     overflow-x: clip;
     position: relative;
+    font-weight: 300;
   }
   ::selection {
-    background: var(--brand-warm);
-    color: #1a1206;
+    background: var(--brand-green);
+    color: #0c1400;
   }
   :focus-visible {
-    outline: 2px solid var(--brand-gold-bright);
+    outline: 2px solid var(--brand-green);
     outline-offset: 2px;
   }
 }
@@ -128,18 +154,87 @@
     transform: translateY(0) scale(1);
   }
 
-  .quantum-gradient {
-    background: linear-gradient(
-      135deg,
-      var(--brand-gold-bright) 0%,
-      var(--brand-warm) 55%,
-      var(--brand-gold) 100%
-    );
-    color: #1a1206;
-    box-shadow: 0 10px 36px -10px rgba(201, 151, 79, 0.55);
+  /* The two ghost hints share one slot and alternate, a second each, so the
+     field reads as one value in superposition rather than two stacked lines. */
+  .ghost-alt {
+    position: absolute;
+    top: 50%;
+    right: 0.875rem;
+    left: 0.875rem;
+    overflow: hidden;
+    font-size: 0.85rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    opacity: 0.72;
+    transform: translateY(-50%);
+    animation: ghost-alt 2s ease-in-out infinite;
   }
-  .quantum-gradient:hover {
-    box-shadow: 0 14px 42px -8px rgba(201, 151, 79, 0.75);
+  .ghost-alt-top {
+    top: 0.875rem;
+    transform: none;
+  }
+  .ghost-alt-b {
+    opacity: 0;
+    animation-delay: 1s;
+  }
+
+  .btn-quantum {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    isolation: isolate;
+  }
+  .btn-quantum::before,
+  .btn-quantum::after {
+    font-family: var(--font-sans);
+    font-weight: 400;
+    letter-spacing: 0;
+    opacity: 0.65;
+    transition: opacity 0.3s ease;
+  }
+  .btn-quantum::before {
+    content: '⟨';
+    margin-right: 0.6em;
+  }
+  .btn-quantum::after {
+    content: '⟩';
+    margin-left: 0.6em;
+  }
+  .btn-quantum:hover::before,
+  .btn-quantum:hover::after {
+    opacity: 1;
+  }
+
+  /* Two ghost copies (green + magenta) offset a few px behind a solid white
+     top layer, screen-blended so the overlaps read as pure white - the
+     "collapse" moment. Reserved for the wordmark and hero title only. */
+  .rgb-split {
+    position: relative;
+    isolation: isolate;
+  }
+  .rgb-split > * {
+    grid-area: 1 / 1;
+  }
+  .rgb-split {
+    display: grid;
+  }
+  .rgb-split-ghost {
+    mix-blend-mode: screen;
+  }
+}
+
+@keyframes ghost-alt {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  10%,
+  40% {
+    opacity: 0.72;
+  }
+  50% {
+    opacity: 0;
   }
 }
 
@@ -155,57 +250,8 @@
   }
 }
 
-@keyframes orbit-spin {
-  from {
-    transform: rotate(0);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes bloch-spin {
-  from {
-    transform: rotate(0);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes hint-bounce {
-  0%,
-  100% {
-    transform: translateY(0);
-    opacity: 0.6;
-  }
-  50% {
-    transform: translateY(6px);
-    opacity: 1;
-  }
-}
-
 .animate-pulse-dot {
   animation: pulse-dot 2.4s ease-in-out infinite;
-}
-.animate-orbit-forward {
-  transform-origin: 30px 30px;
-  animation: orbit-spin 5s linear infinite;
-}
-.animate-orbit-reverse {
-  transform-origin: 30px 30px;
-  animation: orbit-spin 5s linear infinite reverse;
-}
-.animate-bloch-ring {
-  transform-origin: center;
-  animation: bloch-spin 14s linear infinite;
-}
-.animate-bloch-ring-reverse {
-  transform-origin: center;
-  animation: bloch-spin 10s linear infinite reverse;
-}
-.animate-hint {
-  animation: hint-bounce 1.8s ease-in-out infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
