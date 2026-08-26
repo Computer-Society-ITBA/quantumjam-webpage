@@ -289,7 +289,7 @@
           "full": "Este equipo ya tiene {{max}} integrantes. Pedí otro código o anotate solo."
         },
         "alone": {
-          "note": "Si entrás, te asignamos a un equipo de hasta {{max}} personas antes de la competencia."
+          "note": "Si entrás, te vamos a asignar a un equipo de hasta {{max}} personas antes de la competencia."
         }
       }
     },
@@ -298,7 +298,6 @@
       "description": "Solo para los workshops. La inscripción a la competencia es aparte.",
       "submit": "Colapsar función de onda",
       "submitting": "Midiendo el sistema…",
-      "note": "Apenas te inscribas, te mandamos por mail los datos del servidor de Discord.",
       "success": {
         "title": "¡Ya estás adentro!",
         "desc": "Revisá tu casilla: te acabamos de mandar los datos del servidor de Discord."
@@ -309,7 +308,7 @@
       "description": "Solo para la competencia presencial en el ITBA. La inscripción a los workshops es aparte.",
       "submit": "Colapsar función de onda",
       "submitting": "Midiendo el sistema…",
-      "note": "Revisamos cada postulación y te avisamos tu estado por mail en los próximos días.",
+      "note": "Vamos a revisar cada postulación y te vamos a avisar tu estado por mail en los próximos días.",
       "success": {
         "title": "Tu postulación está en revisión",
         "desc": "La vamos a revisar y te avisamos tu estado por mail antes del 14 de noviembre."

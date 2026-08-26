@@ -298,7 +298,6 @@
       "description": "Only for the workshops. Registering for the competition is separate.",
       "submit": "Collapse the wavefunction",
       "submitting": "Measuring the system…",
-      "note": "Right after you submit, we'll email you the Discord server details for the sessions.",
       "success": {
         "title": "You're in!",
         "desc": "Check your inbox — we just sent you the Discord server details for the sessions."

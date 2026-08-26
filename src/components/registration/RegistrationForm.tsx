@@ -392,9 +392,6 @@ export function RegistrationForm({
                       ? t('registration.wizard.email.submit')
                       : t('registration.wizard.verify.submit')}
                 </Button>
-                <p className="text-brand-text-dim text-[0.76rem]">
-                  {t(`registration.${event}.note`)}
-                </p>
                 <p className="text-brand-text-dim max-w-[46ch] text-[0.76rem]">
                   {t('registration.consent')}
                 </p>
