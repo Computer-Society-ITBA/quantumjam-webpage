@@ -101,11 +101,16 @@ and `firebase-hosting-merge.yml` (deploy on merge to `main`) each
 run the same format/lint/typecheck/test/build sequence as `ci.yml`
 before deploying, so a broken build or a failing test/lint blocks
 the deploy. Their `npm run build` step also needs the six
-`VITE_FIREBASE_*` values (same names as `.env.example`) set as
-**repository secrets** (Settings → Secrets and variables → Actions),
-since Vite bakes them in at build time - without them, the deployed
-site silently calls `us-central1-undefined.cloudfunctions.net` and
-every sign-up request fails.
+`VITE_FIREBASE_*` values (same names as `.env.example`) - without
+them, Vite bakes in `undefined` and the deployed site silently calls
+`us-central1-undefined.cloudfunctions.net`, failing every sign-up
+request. Each workflow reads them from a GitHub **Environment**
+(Settings → Environments), not plain repository secrets: the PR
+workflow's job declares `environment: staging`, the merge workflow's
+declares `environment: prod`, and each environment holds its own
+copy of the six secrets. A job only receives environment secrets
+when its YAML names that environment - adding them at the repo level
+instead would silently not reach either workflow.
 
 ### Functions
 
