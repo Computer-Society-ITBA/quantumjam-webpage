@@ -16,10 +16,8 @@
     "prepare": "husky"
   },
   "lint-staged": {
-    "*.{ts,tsx,js,jsx,mjs,cjs}": [
-      "prettier --write",
-      "oxlint"
-    ],
+    "*.{ts,tsx,js,jsx,mjs,cjs}": "prettier --write",
+    "{src/**/*,vite.config}.{ts,tsx,js,jsx,mjs,cjs}": "oxlint",
     "*.{json,css,md,yml,yaml}": "prettier --write"
   },
   "dependencies": {
