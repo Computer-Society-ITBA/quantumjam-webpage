@@ -1,7 +1,7 @@
 # Agent instructions
 
 Read this before making changes. Its purpose is to keep the repo
-consistent across contributors — human or AI.
+consistent across contributors - human or AI.
 
 ## Project
 
@@ -14,16 +14,16 @@ runs through react-i18next (en / es today).
 
 - Vite 8 + React 19 + TypeScript 6
 - Tailwind CSS v4 via `@tailwindcss/vite`
-- shadcn/ui — New York style, Zinc base, CSS-variable tokens
+- shadcn/ui - New York style, Zinc base, CSS-variable tokens
 - react-i18next + `i18next-browser-languagedetector`
-- Firebase — Hosting, Firestore, Functions (configured, not yet consumed)
+- Firebase - Hosting, Firestore, Functions (configured, not yet consumed)
 - oxlint for linting; husky + lint-staged for the pre-commit gate
 
 ## Layout
 
 ```
 src/
-  components/ui/   shadcn primitives — copy in with `npx shadcn@latest add <name>`
+  components/ui/   shadcn primitives - copy in with `npx shadcn@latest add <name>`
   i18n/            i18next bootstrap + locale JSON
   lib/             shared helpers (`firebase.ts`, `cn()`)
   App.tsx          landing page
@@ -34,10 +34,10 @@ firebase.json .firebaserc firestore.rules firestore.indexes.json
 
 ## Commands
 
-- `npm run dev` — Vite dev server
-- `npm run build` — `tsc -b` + `vite build`
-- `npm run lint` — oxlint
-- `npm run typecheck` — `tsc -b`
+- `npm run dev` - Vite dev server
+- `npm run build` - `tsc -b` + `vite build`
+- `npm run lint` - oxlint
+- `npm run typecheck` - `tsc -b`
 
 ## Conventions
 
@@ -67,7 +67,7 @@ Every commit subject starts with a bracketed tag. Common ones:
 | `[VERSION]`   | version bump                                        |
 | `[CHERRY]`    | cherry-pick (include original commit hash)          |
 | `[GIT]`       | generic git action (prefer something more specific) |
-| `[HACK]`      | intentional hack — explain what and why in the body |
+| `[HACK]`      | intentional hack - explain what and why in the body |
 | `[IMPORTANT]` | load-bearing change worth flagging                  |
 
 Rules:
@@ -75,7 +75,7 @@ Rules:
 - Subject in the imperative mood, ≤50 characters. English.
 - Blank line between subject and body.
 - Body lines wrapped at 72 characters. Explain the what and the
-  why, not the how — the diff shows how.
+  why, not the how - the diff shows how.
 - The subject must complete the sentence "If applied, this commit
   will <subject>."
 
@@ -100,5 +100,5 @@ commit; warnings do not.
   commits on the human's behalf. Stage changes and let them commit.
 - Never add `Co-Authored-By:` lines that name an AI assistant.
 - Never commit `.env` files. Only `.env.example` is tracked.
-- Do not lint or touch `functions/` from root tooling — it is a
+- Do not lint or touch `functions/` from root tooling - it is a
   separate subproject with its own ESLint and tsconfig.

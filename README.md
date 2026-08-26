@@ -12,9 +12,9 @@ Firebase surface is wired but no feature consumes it yet.
 | Bundler   | Vite 8                                    |
 | Framework | React 19 + TypeScript                     |
 | Styling   | Tailwind CSS v4 (via `@tailwindcss/vite`) |
-| UI kit    | shadcn/ui — New York style, Zinc base     |
+| UI kit    | shadcn/ui - New York style, Zinc base     |
 | i18n      | react-i18next, en / es, browser detector  |
-| Backend   | Firebase — Hosting, Firestore, Functions  |
+| Backend   | Firebase - Hosting, Firestore, Functions  |
 | Lint      | oxlint                                    |
 | Hooks     | husky + lint-staged (blocks bad commits)  |
 
@@ -47,7 +47,7 @@ installs the git hooks defined in `.husky/`.
 src/
   components/ui/   shadcn primitives (add more via `npx shadcn@latest add …`)
   i18n/            i18next bootstrap + locale JSON (en, es)
-  lib/             shared helpers — `firebase.ts`, `cn()`
+  lib/             shared helpers - `firebase.ts`, `cn()`
   App.tsx          landing page (demo of the stack)
   main.tsx         entry point
 functions/         Firebase Cloud Functions subproject
@@ -57,7 +57,7 @@ firestore.rules    Firestore security rules (permissive stub)
 
 ## Firebase
 
-Client config comes from `VITE_FIREBASE_*` env vars — see
+Client config comes from `VITE_FIREBASE_*` env vars - see
 `.env.example`. `src/lib/firebase.ts` initializes the app and
 exports `db` (Firestore); other services can be added there.
 
