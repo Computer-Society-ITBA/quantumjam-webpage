@@ -61,8 +61,37 @@ Client config comes from `VITE_FIREBASE_*` env vars - see
 `.env.example`. `src/lib/firebase.ts` initializes the app and
 exports `db` (Firestore); other services can be added there.
 
+The Firebase project (`webpage-36e40`) hosts multiple apps, each
+with its own Firestore database. This app is pinned to the
+`quantumjam` database (`getFirestore(app, 'quantumjam')`), not the
+project's `(default)` one - a plain `getFirestore(app)` would
+silently read/write the wrong database. Hosting likewise deploys to
+the `csitba-quantumjam` site, not the project's default site.
+
 Local emulator suite (Hosting on 5000, Firestore on 8080, Auth on
 9099, UI on default) is preconfigured in `firebase.json`.
+
+### Deploying
+
+`npm run build` outputs to `dist/`, which Hosting serves with a
+catch-all rewrite to `/index.html` so client-side routes survive a
+refresh or direct link.
+
+- Preview a change without touching the live site:
+  `firebase hosting:channel:deploy preview`
+- Deploy for real: `firebase deploy --only hosting`
+
+`.github/workflows/firebase-hosting-pull-request.yml` (PR preview)
+and `firebase-hosting-merge.yml` (deploy on merge to `main`) each
+run the same format/lint/typecheck/test/build sequence as `ci.yml`
+before deploying, so a broken build or a failing test/lint blocks
+the deploy.
+
+### Functions
+
+`functions/` is scaffolded (TypeScript, ESLint, its own
+`package.json`) but has no custom functions yet - see
+`functions/src/index.ts`.
 
 ## Adding UI components
 
