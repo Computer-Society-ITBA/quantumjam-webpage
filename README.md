@@ -100,7 +100,12 @@ refresh or direct link.
 and `firebase-hosting-merge.yml` (deploy on merge to `main`) each
 run the same format/lint/typecheck/test/build sequence as `ci.yml`
 before deploying, so a broken build or a failing test/lint blocks
-the deploy.
+the deploy. Their `npm run build` step also needs the six
+`VITE_FIREBASE_*` values (same names as `.env.example`) set as
+**repository secrets** (Settings → Secrets and variables → Actions),
+since Vite bakes them in at build time - without them, the deployed
+site silently calls `us-central1-undefined.cloudfunctions.net` and
+every sign-up request fails.
 
 ### Functions
 
