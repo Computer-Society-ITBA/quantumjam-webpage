@@ -1,7 +1,17 @@
 import {onCall, HttpsError} from "firebase-functions/https";
-import {FieldValue, Timestamp} from "firebase-admin/firestore";
+import {
+  DocumentReference,
+  FieldValue,
+  Timestamp,
+} from "firebase-admin/firestore";
+import * as logger from "firebase-functions/logger";
 
 import {db} from "./admin";
+import {
+  GMAIL_APP_PASSWORD,
+  sendCompetitionConfirmationEmail,
+  type CompetitionConfirmationTeam,
+} from "./lib/email";
 import {isValidEmail, normalizeEmail, verificationId} from "./lib/otp";
 import {MAX_TEAM_SIZE, teamIdFrom} from "./lib/slug";
 
@@ -72,155 +82,210 @@ function optionalPattern(
   return str;
 }
 
-export const submitCompetitionSignup = onCall(async (request) => {
-  const body = request.data as Record<string, unknown> | null;
-  const email =
-    typeof body?.email === "string" ? normalizeEmail(body.email) : "";
-  if (!isValidEmail(email)) {
-    throw new HttpsError("invalid-argument", "A valid email is required.");
-  }
-  const verificationToken = requireString(
-    body?.verificationToken,
-    "verificationToken",
-  );
-
-  const dni = requirePattern(body?.dni, "dni", ID_RE);
-  const age = requirePattern(body?.age, "age", AGE_RE);
-  const university = requireString(body?.university, "university");
-  const location = requireString(body?.location, "location");
-  const major = optionalString(body?.major);
-  const gradYear = optionalPattern(body?.gradYear, "gradYear", GRAD_YEAR_RE);
-  const diet = optionalString(body?.diet);
-  const github = optionalString(body?.github);
-  const linkedin = optionalString(body?.linkedin);
-  const x = optionalString(body?.x);
-  const instagram = optionalString(body?.instagram);
-  const website = optionalString(body?.website);
-
-  const team = body?.team as Record<string, unknown> | undefined;
-  const rawChoice = team?.choice;
-  if (rawChoice !== "join" && rawChoice !== "create" && rawChoice !== "alone") {
-    throw new HttpsError(
-      "invalid-argument",
-      "A valid team choice is required.",
+export const submitCompetitionSignup = onCall(
+  {secrets: [GMAIL_APP_PASSWORD]},
+  async (request) => {
+    const body = request.data as Record<string, unknown> | null;
+    const email =
+      typeof body?.email === "string" ? normalizeEmail(body.email) : "";
+    if (!isValidEmail(email)) {
+      throw new HttpsError("invalid-argument", "A valid email is required.");
+    }
+    const verificationToken = requireString(
+      body?.verificationToken,
+      "verificationToken",
     );
-  }
-  const choice = rawChoice as TeamChoice;
 
-  let teamSlug: string | null = null;
-  let teamName: string | null = null;
-  if (choice === "create") {
-    teamName = requireString(team?.name, "team name");
-    teamSlug = teamIdFrom(teamName);
-    if (teamSlug.length < 3) {
-      throw new HttpsError("invalid-argument", "Team name is too short.");
-    }
-  } else if (choice === "join") {
-    const code = requireString(team?.code, "team code");
-    teamSlug = teamIdFrom(code);
-    if (teamSlug.length < 4) {
-      throw new HttpsError("invalid-argument", "Team code is too short.");
-    }
-  }
+    const dni = requirePattern(body?.dni, "dni", ID_RE);
+    const age = requirePattern(body?.age, "age", AGE_RE);
+    const university = requireString(body?.university, "university");
+    const location = requireString(body?.location, "location");
+    const major = optionalString(body?.major);
+    const gradYear = optionalPattern(
+      body?.gradYear,
+      "gradYear",
+      GRAD_YEAR_RE,
+    );
+    const diet = optionalString(body?.diet);
+    const github = optionalString(body?.github);
+    const linkedin = optionalString(body?.linkedin);
+    const x = optionalString(body?.x);
+    const instagram = optionalString(body?.instagram);
+    const website = optionalString(body?.website);
 
-  const verRef = db
-    .collection("emailVerifications")
-    .doc(verificationId("competition", email));
-  const signupRef = db.collection("competitionSignups").doc(email);
-  const teamRef = teamSlug ? db.collection("teams").doc(teamSlug) : null;
-
-  await db.runTransaction(async (tx) => {
-    const verSnap = await tx.get(verRef);
-    const signupSnap = await tx.get(signupRef);
-    const teamSnap = teamRef ? await tx.get(teamRef) : null;
-
-    if (!verSnap.exists) {
-      throw new HttpsError("failed-precondition", "Email not verified.");
-    }
-    const ver = verSnap.data()!;
+    const team = body?.team as Record<string, unknown> | undefined;
+    const rawChoice = team?.choice;
     if (
-      !ver.verified ||
-      ver.verificationToken !== verificationToken ||
-      ver.consumedAt
+      rawChoice !== "join" &&
+      rawChoice !== "create" &&
+      rawChoice !== "alone"
     ) {
-      throw new HttpsError("failed-precondition", "Email not verified.");
-    }
-    const expiresAt = ver.expiresAt as Timestamp;
-    if (Timestamp.now().toMillis() > expiresAt.toMillis()) {
       throw new HttpsError(
-        "failed-precondition",
-        "Verification expired, request a new code.",
+        "invalid-argument",
+        "A valid team choice is required.",
       );
     }
-    if (signupSnap.exists) {
-      throw new HttpsError(
-        "already-exists",
-        "This email is already registered.",
-      );
+    const choice = rawChoice as TeamChoice;
+
+    let teamSlug: string | null = null;
+    let teamName: string | null = null;
+    if (choice === "create") {
+      teamName = requireString(team?.name, "team name");
+      teamSlug = teamIdFrom(teamName);
+      if (teamSlug.length < 3) {
+        throw new HttpsError("invalid-argument", "Team name is too short.");
+      }
+    } else if (choice === "join") {
+      const code = requireString(team?.code, "team code");
+      teamSlug = teamIdFrom(code);
+      if (teamSlug.length < 4) {
+        throw new HttpsError("invalid-argument", "Team code is too short.");
+      }
     }
 
-    if (choice === "create" && teamSnap!.exists) {
-      throw new HttpsError(
-        "already-exists",
-        "This team code is already taken.",
-      );
-    }
-    if (choice === "join") {
-      if (!teamSnap!.exists) {
-        throw new HttpsError("not-found", "Team not found.");
+    const verRef = db
+      .collection("emailVerifications")
+      .doc(verificationId("competition", email));
+    const signupRef = db.collection("competitionSignups").doc(email);
+    const teamRef = teamSlug ? db.collection("teams").doc(teamSlug) : null;
+
+    await db.runTransaction(async (tx) => {
+      const verSnap = await tx.get(verRef);
+      const signupSnap = await tx.get(signupRef);
+      const teamSnap = teamRef ? await tx.get(teamRef) : null;
+
+      if (!verSnap.exists) {
+        throw new HttpsError("failed-precondition", "Email not verified.");
       }
-      const memberCount = (teamSnap!.data()!.memberCount as number) ?? 0;
-      if (memberCount >= MAX_TEAM_SIZE) {
+      const ver = verSnap.data()!;
+      if (
+        !ver.verified ||
+        ver.verificationToken !== verificationToken ||
+        ver.consumedAt
+      ) {
+        throw new HttpsError("failed-precondition", "Email not verified.");
+      }
+      const expiresAt = ver.expiresAt as Timestamp;
+      if (Timestamp.now().toMillis() > expiresAt.toMillis()) {
         throw new HttpsError(
-          "resource-exhausted",
-          "This team is already full.",
+          "failed-precondition",
+          "Verification expired, request a new code.",
         );
       }
-    }
+      if (signupSnap.exists) {
+        throw new HttpsError(
+          "already-exists",
+          "This email is already registered.",
+        );
+      }
 
-    const now = Timestamp.now();
+      if (choice === "create" && teamSnap!.exists) {
+        throw new HttpsError(
+          "already-exists",
+          "This team code is already taken.",
+        );
+      }
+      if (choice === "join") {
+        if (!teamSnap!.exists) {
+          throw new HttpsError("not-found", "Team not found.");
+        }
+        const memberCount = (teamSnap!.data()!.memberCount as number) ?? 0;
+        if (memberCount >= MAX_TEAM_SIZE) {
+          throw new HttpsError(
+            "resource-exhausted",
+            "This team is already full.",
+          );
+        }
+      }
 
-    if (choice === "create") {
-      tx.create(teamRef!, {
-        id: teamSlug,
-        name: teamName,
-        memberCount: 1,
-        memberEmails: [email],
+      const now = Timestamp.now();
+
+      if (choice === "create") {
+        tx.create(teamRef!, {
+          id: teamSlug,
+          name: teamName,
+          memberCount: 1,
+          memberEmails: [email],
+          createdAt: now,
+          updatedAt: now,
+        });
+      } else if (choice === "join") {
+        tx.update(teamRef!, {
+          memberCount: FieldValue.increment(1),
+          memberEmails: FieldValue.arrayUnion(email),
+          updatedAt: now,
+        });
+      }
+
+      tx.create(signupRef, {
+        email,
+        dni,
+        age,
+        university,
+        major,
+        gradYear,
+        location,
+        diet,
+        github,
+        linkedin,
+        x,
+        instagram,
+        website,
+        teamChoice: choice,
+        teamId: teamSlug,
+        status: "pending",
         createdAt: now,
-        updatedAt: now,
       });
-    } else if (choice === "join") {
-      tx.update(teamRef!, {
-        memberCount: FieldValue.increment(1),
-        memberEmails: FieldValue.arrayUnion(email),
-        updatedAt: now,
+      tx.update(verRef, {consumedAt: now});
+    });
+
+    // Best-effort: the signup itself already succeeded, so a confirmation
+    // email failure shouldn't fail the request.
+    try {
+      const teamInfo = await loadTeamConfirmationInfo(
+        choice,
+        teamRef,
+        teamName,
+      );
+      await sendCompetitionConfirmationEmail(email, teamInfo);
+    } catch (err) {
+      logger.error("Failed to send competition confirmation email", {
+        email,
+        err,
       });
     }
 
-    tx.create(signupRef, {
-      email,
-      dni,
-      age,
-      university,
-      major,
-      gradYear,
-      location,
-      diet,
-      github,
-      linkedin,
-      x,
-      instagram,
-      website,
-      teamChoice: choice,
-      teamId: teamSlug,
-      status: "pending",
-      createdAt: now,
-    });
-    tx.update(verRef, {consumedAt: now});
-  });
+    return {ok: true, teamId: teamSlug};
+  },
+);
 
-  return {ok: true, teamId: teamSlug};
-});
+/**
+ * Builds the team info for the confirmation email, re-reading the team
+ * doc so the member count reflects this signup's own join/create.
+ * @param {TeamChoice} choice The signer's team choice.
+ * @param {DocumentReference | null} teamRef The team doc reference, or
+ *   null for "alone".
+ * @param {string | null} teamName The team name, known already for
+ *   "create" without a re-read.
+ * @return {Promise<CompetitionConfirmationTeam>} Team info to email.
+ */
+async function loadTeamConfirmationInfo(
+  choice: TeamChoice,
+  teamRef: DocumentReference | null,
+  teamName: string | null,
+): Promise<CompetitionConfirmationTeam> {
+  if (choice === "alone" || !teamRef) {
+    return {choice: "alone"};
+  }
+  const snap = await teamRef.get();
+  const data = snap.data();
+  return {
+    choice,
+    name: (data?.name as string | undefined) ?? teamName ?? "",
+    code: teamRef.id,
+    memberCount: (data?.memberCount as number | undefined) ?? 1,
+  };
+}
 
 export const lookupTeam = onCall(async (request) => {
   const body = request.data as Record<string, unknown> | null;

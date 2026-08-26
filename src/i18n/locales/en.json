@@ -118,17 +118,17 @@
       "name": {
         "label": "Full name",
         "ghost1": "Who are you?",
-        "ghost2": "Ada Lovelace"
+        "ghost2": "Niels Bohr"
       },
       "email": {
         "label": "Email",
-        "ghost1": "you@mail.com",
-        "ghost2": "where we reach you"
+        "ghost1": "MaxPlanck@mail.com",
+        "ghost2": "Where we reach you"
       },
       "career": {
         "label": "University and degree",
         "ghost1": "ITBA, CS Engineering",
-        "ghost2": "degree and year"
+        "ghost2": "Degree and year"
       },
       "level": {
         "label": "Prior quantum experience",
@@ -141,13 +141,13 @@
       },
       "team": {
         "label": "Team name (optional)",
-        "ghost1": "not sure yet",
-        "ghost2": "The Entanglers"
+        "ghost1": "Not sure yet",
+        "ghost2": "The Qubits"
       },
       "reason": {
-        "label": "Why do you want to come? (optional)",
-        "ghost1": "just curious",
-        "ghost2": "want to work on this"
+        "label": "Why do you want to participate? (optional)",
+        "ghost1": "Just curious",
+        "ghost2": "Want to work on this"
       },
       "dni": {
         "label": "ID number",
@@ -156,68 +156,68 @@
       },
       "age": {
         "label": "Age",
-        "ghost1": "years old",
+        "ghost1": "Years old",
         "ghost2": "21"
       },
       "university": {
         "label": "University",
-        "ghost1": "where do you study?",
-        "ghost2": "MIT, Stanford..."
+        "ghost1": "Where do you study?",
+        "ghost2": "UBA, ITBA, UTN..."
       },
       "major": {
         "label": "Degree",
-        "ghost1": "what do you study?",
+        "ghost1": "What do you study?",
         "ghost2": "Computer Science"
       },
       "gradYear": {
         "label": "Expected graduation",
-        "ghost1": "when do you finish?",
+        "ghost1": "When do you finish?",
         "ghost2": "2027"
       },
       "location": {
         "label": "Where you live",
-        "ghost1": "neighbourhood and city",
+        "ghost1": "Neighbourhood and city",
         "ghost2": "Palermo, CABA"
       },
       "diet": {
         "label": "Dietary restrictions (optional)",
-        "ghost1": "we feed you all weekend",
+        "ghost1": "We'll feed you all day",
         "ghost2": "Vegetarian, gluten-free, etc."
       },
       "github": {
         "label": "GitHub (optional)",
-        "ghost1": "show us your code",
+        "ghost1": "Show us your code",
         "ghost2": "github.com/username"
       },
       "linkedin": {
         "label": "LinkedIn (optional)",
-        "ghost1": "for the sponsors",
+        "ghost1": "For the sponsors",
         "ghost2": "linkedin.com/in/username"
       },
       "x": {
         "label": "X (optional)",
-        "ghost1": "if you post",
+        "ghost1": "If you post",
         "ghost2": "@username"
       },
       "instagram": {
         "label": "Instagram (optional)",
-        "ghost1": "where we tag you",
+        "ghost1": "Where we can tag you",
         "ghost2": "@username"
       },
       "website": {
         "label": "Website or portfolio (optional)",
-        "ghost1": "anything you built",
+        "ghost1": "Anything you built",
         "ghost2": "https://..."
       },
       "teamName": {
         "label": "Team name",
-        "ghost1": "pick something",
-        "ghost2": "The Entanglers"
+        "ghost1": "Pick something",
+        "ghost2": "The Qubits"
       },
       "teamCode": {
         "label": "Team code",
-        "ghost1": "ask your team for it",
-        "ghost2": "theentanglers"
+        "ghost1": "Ask your team for it",
+        "ghost2": "thequbits"
       }
     },
     "wizard": {
@@ -298,10 +298,10 @@
       "description": "Only for the workshops. Registering for the competition is separate.",
       "submit": "Collapse the wavefunction",
       "submitting": "Measuring the system…",
-      "note": "We review every application and email you about your status in the coming days.",
+      "note": "Right after you submit, we'll email you the Discord server details for the sessions.",
       "success": {
-        "title": "Your application is in",
-        "desc": "We'll review it and email you about your status. If you're accepted, that email includes the Discord server details for the sessions."
+        "title": "You're in!",
+        "desc": "Check your inbox — we just sent you the Discord server details for the sessions."
       }
     },
     "competition": {
