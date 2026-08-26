@@ -30,7 +30,26 @@ src/
   main.tsx         entry point
 functions/         Firebase Cloud Functions subproject (own lint, own tsconfig)
 firebase.json .firebaserc firestore.rules firestore.indexes.json
+.github/workflows/ CI (ci.yml) + Firebase Hosting deploy workflows
+.agents/skills/    Firebase Agent Skills reference docs (not app code)
 ```
+
+## Firebase
+
+- Project `webpage-36e40` hosts multiple apps, each with its own
+  Firestore database. This app uses `quantumjam`, not `(default)` -
+  always pass the database ID explicitly:
+  `getFirestore(app, 'quantumjam')`.
+- Hosting deploys to the `csitba-quantumjam` site, not the
+  project's default site. `firebase.json` builds from `dist/` (the
+  Vite output, not the raw `public/` dir) and rewrites every path to
+  `/index.html` for the SPA.
+- `firebase-hosting-pull-request.yml` and `firebase-hosting-merge.yml`
+  run the same format/lint/typecheck/test/build sequence as `ci.yml`
+  before deploying - a PR preview or a live deploy can't happen on a
+  red build.
+- Preview a Hosting change without touching the live site:
+  `firebase hosting:channel:deploy preview`.
 
 ## Commands
 
@@ -91,8 +110,11 @@ Example:
 ## Pre-commit gate
 
 `.husky/pre-commit` runs `npx lint-staged`, which runs `oxlint` on
-staged JS/TS files. Errors (e.g. `react/rules-of-hooks`) abort the
-commit; warnings do not.
+staged files under `src/` and `vite.config.ts`, and `prettier` on
+everything staged. Errors (e.g. `react/rules-of-hooks`) abort the
+commit; warnings do not. `oxlint` is deliberately not run on
+`functions/` (see "Do not" below) - passing it a path outside
+`.oxlintrc.json`'s scope makes it exit non-zero instead of skipping.
 
 ## Do not
 
