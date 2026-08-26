@@ -1,9 +1,11 @@
 # quantum-jam-csitba
 
 React + TypeScript SPA scaffolded with Vite, styled with Tailwind CSS
-v4 and shadcn/ui, translated with react-i18next, and configured to
-sit on top of Firebase (Hosting, Firestore, Cloud Functions). The
-Firebase surface is wired but no feature consumes it yet.
+v4 and shadcn/ui, translated with react-i18next, and backed by
+Firebase (Hosting, Firestore, Cloud Functions). The workshops and
+competition sign-up flows are live: email verification, Firestore
+writes, and transactional emails all run through Cloud Functions —
+see [Firebase](#firebase) below.
 
 ## Stack
 
@@ -50,26 +52,39 @@ src/
   lib/             shared helpers - `firebase.ts`, `cn()`
   App.tsx          landing page (demo of the stack)
   main.tsx         entry point
-functions/         Firebase Cloud Functions subproject
+functions/         Firebase Cloud Functions - event sign-up backend
 firebase.json      Firebase Hosting + Firestore + emulator config
-firestore.rules    Firestore security rules (permissive stub)
+firestore.rules    Firestore security rules (deny-all; see below)
 ```
 
 ## Firebase
 
 Client config comes from `VITE_FIREBASE_*` env vars - see
 `.env.example`. `src/lib/firebase.ts` initializes the app and
-exports `db` (Firestore); other services can be added there.
+exports `db` (Firestore) and `functions` (Cloud Functions callables).
 
 The Firebase project (`webpage-36e40`) hosts multiple apps, each
-with its own Firestore database. This app is pinned to the
-`quantumjam` database (`getFirestore(app, 'quantumjam')`), not the
-project's `(default)` one - a plain `getFirestore(app)` would
-silently read/write the wrong database. Hosting likewise deploys to
-the `csitba-quantumjam` site, not the project's default site.
+with its own Firestore database **and its own Cloud Functions in the
+same project** - `firebase deploy --only functions` (no filter) will
+offer to delete any function it doesn't find in this repo's
+`functions/` source, which includes functions that belong to those
+other apps. **Always deploy by name**, e.g.
+`firebase deploy --only functions:requestVerificationCode,functions:submitWorkshopSignup`,
+never a bare `--only functions`.
 
-Local emulator suite (Hosting on 5000, Firestore on 8080, Auth on
-9099, UI on default) is preconfigured in `firebase.json`.
+This app is pinned to the `quantumjam` Firestore database
+(`getFirestore(app, 'quantumjam')`), not the project's `(default)`
+one - a plain `getFirestore(app)` would silently read/write the
+wrong database. The same applies inside `functions/src/admin.ts`.
+Hosting likewise deploys to the `csitba-quantumjam` site, not the
+project's default site.
+
+Local emulator suite (Hosting on 5000, Firestore on 8080, Functions
+on 5001, Auth on 9099, UI on default) is preconfigured in
+`firebase.json`. Point the frontend at it with
+`VITE_USE_FIREBASE_EMULATORS=true` in `.env.local` (see
+`.env.example`) - without that flag, `npm run dev` talks to the real
+project even in development.
 
 ### Deploying
 
@@ -89,9 +104,68 @@ the deploy.
 
 ### Functions
 
-`functions/` is scaffolded (TypeScript, ESLint, its own
-`package.json`) but has no custom functions yet - see
-`functions/src/index.ts`.
+`functions/` backs the workshops and competition sign-up flows, all
+under `functions/src/`:
+
+| File              | Exports                                                                                                                  |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `verification.ts` | `requestVerificationCode`, `confirmVerificationCode` - the shared email-OTP flow both events use                         |
+| `workshops.ts`    | `submitWorkshopSignup`                                                                                                   |
+| `competition.ts`  | `submitCompetitionSignup`, `lookupTeam`                                                                                  |
+| `admin.ts`        | Admin SDK bootstrap, pinned to the `quantumjam` database                                                                 |
+| `lib/otp.ts`      | Code generation/hashing, email normalization, rate-limit constants                                                       |
+| `lib/slug.ts`     | `teamIdFrom()` (kept in sync by hand with the frontend copy in `src/components/registration/wizard.ts`), `MAX_TEAM_SIZE` |
+| `lib/email.ts`    | Branded HTML email templates + sending (see below)                                                                       |
+
+**Verification** is server-mediated: `requestVerificationCode`
+generates a 6-digit code (rate-limited: 30s resend cooldown, 5
+requests/hour, 5 wrong-code attempts), emails it, and
+`confirmVerificationCode` checks it and mints a short-lived,
+single-use `verificationToken`. The two `submit*` functions require
+that token and consume it inside the same Firestore transaction that
+writes the sign-up doc, so a token can't be replayed. Competition
+team create/join (capacity check, code-uniqueness check, member
+count) happens in that same transaction for atomicity.
+
+**Firestore collections** (`emailVerifications`, `workshopSignups`,
+`competitionSignups`, `teams`) are written exclusively by these
+functions via the Admin SDK, which bypasses `firestore.rules`
+entirely - the rules file is a deliberate deny-all. There's nothing
+to add there when adding a new field; add it in the relevant
+`functions/src/*.ts` file and the matching frontend call in
+`src/lib/registrationApi.ts` instead.
+
+### Email delivery (SMTP)
+
+Both the verification code and the post-registration confirmation
+emails (`functions/src/lib/email.ts`) send through direct Gmail SMTP
+as `computersociety@itba.edu.ar`, via `nodemailer`, not a
+third-party transactional-email service. SendGrid, Brevo, Mailjet,
+and Resend were each tried first; every one hit new-account friction
+(trial expiry, phone 2FA, an auto-fraud block) within a single test
+session. Gmail SMTP through the club's own Workspace mailbox
+sidesteps that whole category of problem, and its ~500 emails/day
+cap is far more than this event needs.
+
+Setup, if the app password ever needs to be rotated:
+
+1. Sign into `computersociety@itba.edu.ar` and enable 2-Step
+   Verification if it isn't already on (required for App Passwords).
+2. Generate an app password at
+   [myaccount.google.com/apppasswords](https://myaccount.google.com/apppasswords).
+3. Store it as a Functions secret (never in `.env` or committed
+   anywhere): `firebase functions:secrets:set GMAIL_APP_PASSWORD`,
+   then redeploy the functions that use it (`requestVerificationCode`,
+   `submitWorkshopSignup`, `submitCompetitionSignup`).
+
+Under the Functions emulator (`FUNCTIONS_EMULATOR=true`, set
+automatically by `firebase emulators:start`), `lib/email.ts` logs
+the email instead of sending it, since there's no real SMTP
+credential available locally.
+
+The workshops confirmation email currently links a **mocked** Discord
+invite (`DISCORD_INVITE_URL` in `lib/email.ts`, flagged with a
+`TODO`) - swap it for the real one once the server exists.
 
 ## Adding UI components
 
