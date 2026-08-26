@@ -7,6 +7,11 @@ import {MAX_TEAM_SIZE, teamIdFrom} from "./lib/slug";
 
 type TeamChoice = "join" | "create" | "alone";
 
+// DNI or passport, per the field's own copy — passports can contain letters.
+const ID_RE = /^[a-zA-Z0-9]{5,20}$/;
+const AGE_RE = /^\d{1,3}$/;
+const GRAD_YEAR_RE = /^\d{4}$/;
+
 /**
  * Asserts a value is a non-empty string, trimmed.
  * @param {unknown} value The value to check.
@@ -29,6 +34,44 @@ function optionalString(value: unknown): string {
   return typeof value === "string" ? value.trim() : "";
 }
 
+/**
+ * Asserts a required field matches a pattern (e.g. digits only).
+ * @param {unknown} value The value to check.
+ * @param {string} field Field name used in the error message.
+ * @param {RegExp} pattern Pattern the trimmed value must match.
+ * @return {string} The trimmed, validated string.
+ */
+function requirePattern(
+  value: unknown,
+  field: string,
+  pattern: RegExp,
+): string {
+  const str = requireString(value, field);
+  if (!pattern.test(str)) {
+    throw new HttpsError("invalid-argument", `${field} is not valid.`);
+  }
+  return str;
+}
+
+/**
+ * Reads an optional field, validating its format only if present.
+ * @param {unknown} value The value to check.
+ * @param {string} field Field name used in the error message.
+ * @param {RegExp} pattern Pattern the trimmed value must match if non-empty.
+ * @return {string} The trimmed string, or "" if not provided.
+ */
+function optionalPattern(
+  value: unknown,
+  field: string,
+  pattern: RegExp,
+): string {
+  const str = optionalString(value);
+  if (str && !pattern.test(str)) {
+    throw new HttpsError("invalid-argument", `${field} is not valid.`);
+  }
+  return str;
+}
+
 export const submitCompetitionSignup = onCall(async (request) => {
   const body = request.data as Record<string, unknown> | null;
   const email =
@@ -41,12 +84,12 @@ export const submitCompetitionSignup = onCall(async (request) => {
     "verificationToken",
   );
 
-  const dni = requireString(body?.dni, "dni");
-  const age = requireString(body?.age, "age");
+  const dni = requirePattern(body?.dni, "dni", ID_RE);
+  const age = requirePattern(body?.age, "age", AGE_RE);
   const university = requireString(body?.university, "university");
   const location = requireString(body?.location, "location");
   const major = optionalString(body?.major);
-  const gradYear = optionalString(body?.gradYear);
+  const gradYear = optionalPattern(body?.gradYear, "gradYear", GRAD_YEAR_RE);
   const diet = optionalString(body?.diet);
   const github = optionalString(body?.github);
   const linkedin = optionalString(body?.linkedin);

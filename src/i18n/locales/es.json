@@ -109,7 +109,10 @@
       "emailTaken": "Este email ya está registrado para este evento.",
       "teamNotFound": "No encontramos ningún equipo con ese código.",
       "teamCodeTaken": "Este código de equipo ya está en uso.",
-      "submitFailed": "Algo salió mal. Probá de nuevo."
+      "submitFailed": "Algo salió mal. Probá de nuevo.",
+      "numeric": "Ingresá solo números.",
+      "year": "Ingresá un año válido de 4 dígitos.",
+      "invalidId": "Ingresá un DNI o pasaporte válido."
     },
     "fields": {
       "name": {

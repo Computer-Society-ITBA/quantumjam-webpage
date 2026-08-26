@@ -109,7 +109,10 @@
       "emailTaken": "This email is already registered for this event.",
       "teamNotFound": "No team found with that code.",
       "teamCodeTaken": "This team code is already taken.",
-      "submitFailed": "Something went wrong. Please try again."
+      "submitFailed": "Something went wrong. Please try again.",
+      "numeric": "Enter numbers only.",
+      "year": "Enter a valid 4-digit year.",
+      "invalidId": "Enter a valid ID or passport number."
     },
     "fields": {
       "name": {

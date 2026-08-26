@@ -32,6 +32,10 @@ const STEPS = ['email', 'verify', 'personal', 'socials', 'team'] as const
 type StepId = (typeof STEPS)[number]
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+// DNI or passport, per the field's own copy — passports can contain letters.
+const ID_RE = /^[a-zA-Z0-9]{5,20}$/
+const AGE_RE = /^\d{1,3}$/
+const GRAD_YEAR_RE = /^\d{4}$/
 const REQUIRED_PERSONAL_FIELDS = [
   'dni',
   'age',
@@ -177,6 +181,18 @@ export function CompetitionWizard() {
       for (const key of REQUIRED_PERSONAL_FIELDS) {
         if (!details[key].trim()) next[key] = required
       }
+      if (!next.dni && !ID_RE.test(details.dni.trim())) {
+        next.dni = t('registration.validation.invalidId')
+      }
+      if (!next.age && !AGE_RE.test(details.age.trim())) {
+        next.age = t('registration.validation.numeric')
+      }
+      if (
+        details.gradYear.trim() &&
+        !GRAD_YEAR_RE.test(details.gradYear.trim())
+      ) {
+        next.gradYear = t('registration.validation.year')
+      }
       setFieldErrors(next)
       return Object.keys(next).length === 0
     }
@@ -260,11 +276,11 @@ export function CompetitionWizard() {
       await submitCompetition({
         email: details.email,
         verificationToken,
-        dni: details.dni,
-        age: details.age,
+        dni: details.dni.trim(),
+        age: details.age.trim(),
         university: details.university,
         major: details.major,
-        gradYear: details.gradYear,
+        gradYear: details.gradYear.trim(),
         location: details.location,
         diet: details.diet,
         github: details.github,
