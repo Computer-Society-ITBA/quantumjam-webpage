@@ -40,9 +40,6 @@ const STYLE = {
     `margin:0 0 24px;font-family:${FONT_DISPLAY};font-weight:800;` +
     "font-size:24px;letter-spacing:0.02em;text-transform:uppercase;" +
     `color:${COLOR.green};`,
-  footer:
-    "text-align:center;margin:24px 0 0;font-size:12px;" +
-    `line-height:1.6;color:${COLOR.textDim};`,
   bodyText:
     "margin:0 0 16px;font-size:15px;line-height:1.6;" +
     `color:${COLOR.text};`,
@@ -58,13 +55,6 @@ const STYLE = {
     `font-family:${FONT_MONO};font-size:38px;font-weight:700;` +
     `letter-spacing:0.35em;color:${COLOR.green};`,
   fine: `margin:0;font-size:13px;line-height:1.6;color:${COLOR.textDim};`,
-  infoBox:
-    `margin-top:20px;padding:16px 18px;background:${COLOR.bg};` +
-    `border:1px solid ${COLOR.line};`,
-  infoLabel:
-    `margin:0 0 8px;font-family:${FONT_DISPLAY};font-weight:700;` +
-    "font-size:11px;letter-spacing:0.08em;text-transform:uppercase;" +
-    `color:${COLOR.textDim};`,
   teamName: `margin:0 0 4px;font-size:15px;color:${COLOR.text};`,
   teamCode:
     `margin:0 0 8px;font-family:${FONT_MONO};font-size:16px;` +
@@ -75,11 +65,68 @@ const STYLE = {
     `border:2px solid ${COLOR.green};color:${COLOR.green};` +
     `font-family:${FONT_DISPLAY};font-weight:700;font-size:13px;` +
     "letter-spacing:0.08em;text-transform:uppercase;text-decoration:none;",
+  // -- "Pending approval" style competition email --
+  divider: `border:none;border-top:1px solid ${COLOR.line};margin:24px 0;`,
+  dateBadge:
+    `border:1px solid ${COLOR.line};text-align:center;` +
+    "padding:8px 0;width:56px;",
+  dateBadgeMonth:
+    "margin:0;font-size:11px;letter-spacing:0.08em;" +
+    `text-transform:uppercase;color:${COLOR.textDim};`,
+  dateBadgeDay:
+    `margin:0;font-family:${FONT_DISPLAY};font-weight:800;` +
+    `font-size:20px;color:${COLOR.text};`,
+  detailLabel:
+    `margin:0 0 2px;font-family:${FONT_DISPLAY};font-weight:700;` +
+    "font-size:11px;letter-spacing:0.08em;text-transform:uppercase;" +
+    `color:${COLOR.textDim};`,
+  detailValue: `margin:0 0 20px;font-size:15px;color:${COLOR.text};`,
+  // Blockquote-style callout: a left accent bar with indented text.
+  // Used for the intro (pending-approval explainer) and the closing
+  // "still subject to confirmation" disclaimer.
+  calloutBox:
+    `border-left:3px solid ${COLOR.line};margin:0 0 24px;` +
+    "padding:2px 0 2px 18px;",
+  calloutTitle:
+    `margin:0 0 10px;font-size:15px;font-weight:700;color:${COLOR.text};`,
+  calloutText:
+    `margin:0;font-size:15px;line-height:1.6;color:${COLOR.text};`,
+  transitionText:
+    "margin:0 0 20px;font-size:14px;line-height:1.6;" +
+    `color:${COLOR.textDim};`,
+  // -- Shared footer, used by every email --
+  footerWrap:
+    `border-top:1px solid ${COLOR.line};margin-top:32px;` +
+    "padding-top:24px;text-align:center;",
+  footerText:
+    "margin:12px 0 12px;font-size:12px;line-height:1.6;" +
+    `color:${COLOR.textDim};`,
+  footerLinks:
+    `margin:0 0 8px;font-size:12px;line-height:1.8;color:${COLOR.textDim};`,
+  footerLink: `color:${COLOR.textDim};text-decoration:none;`,
+  footerCopy: `margin:12px 0 0;font-size:11px;color:${COLOR.textDim};`,
 };
 
 // TODO: swap for the real invite once the Discord server is set up —
 // this is mocked so the confirmation email is fully wired end to end.
-const DISCORD_INVITE_URL = "https://discord.gg/quantumjam";
+const DISCORD_INVITE_URL = "https://quantumjam.com.ar";
+
+// TODO: swap for the real event page once the site is live — mocked
+// so the pending-approval email links somewhere in the meantime.
+const EVENT_PAGE_URL = "https://quantumjam.com.ar";
+
+const INSTAGRAM_URL = "https://instagram.com/csitba";
+const LINKEDIN_URL = "https://linkedin.com/company/csitba";
+const CONTACT_EMAIL_MAILTO = `mailto:${FROM_EMAIL}`;
+
+// TODO: fill in with the real date, time, location and duration once
+// the venue for the competition is confirmed.
+const COMPETITION_DATE_MONTH = "NOV";
+const COMPETITION_DATE_DAY = "14";
+const COMPETITION_DATE_LABEL = "Viernes 14 de noviembre";
+const COMPETITION_TIME_RANGE = "A confirmar";
+const COMPETITION_LOCATION = "A confirmar";
+const COMPETITION_DURATION_LABEL = "A confirmar";
 
 let transporter: nodemailer.Transporter | null = null;
 let logoBuffer: Buffer | null = null;
@@ -105,7 +152,9 @@ function getTransporter(): nodemailer.Transporter {
 
 /**
  * Lazily reads the Computer Society ITBA logo, cached for the lifetime
- * of the function instance.
+ * of the function instance. Reused for both the header mark and the
+ * smaller footer mark — the same cid attachment can be referenced by
+ * more than one <img> in the same email.
  * @return {Buffer} The logo PNG bytes.
  */
 function getLogoBuffer(): Buffer {
@@ -131,8 +180,42 @@ function escapeHtml(value: string): string {
 }
 
 /**
+ * Renders the compressed, classic-style footer shared by every email:
+ * logo mark, one-line blurb, social/contact links, address and
+ * copyright — no event-specific content.
+ * @return {string} Footer HTML.
+ */
+function renderFooter(): string {
+  return `
+    <tr>
+      <td style="${STYLE.footerWrap}">
+        <p style="${STYLE.footerText}">
+        QuantumJam es nuestra jornada anual de computación cuántica, sponsoreada por IBM Quantum. 
+        </p>
+        <p style="${STYLE.footerLinks}">
+          <a href="${INSTAGRAM_URL}" style="${STYLE.footerLink}">Instagram</a>
+          &nbsp;&middot;&nbsp;
+          <a href="${CONTACT_EMAIL_MAILTO}" style="${STYLE.footerLink}">
+            ${FROM_EMAIL}
+          </a>
+          &nbsp;&middot;&nbsp;
+          <a href="${LINKEDIN_URL}" style="${STYLE.footerLink}">LinkedIn</a>
+        </p>
+        <p style="${STYLE.footerLinks}">
+          ITBA SDF, San Mart&iacute;n 202, CABA
+        </p>
+        <p style="${STYLE.footerCopy}">
+          &copy; 2026 Computer Society ITBA
+        </p>
+      </td>
+    </tr>
+  `;
+}
+
+/**
  * Wraps email body HTML in the shared QNTMJAM-branded shell (dark
- * panel, Archivo display font, brand-green accent) matching the site.
+ * panel, Archivo display font, brand-green accent) matching the site,
+ * plus the shared compressed footer below it.
  *
  * Built as nested tables with explicit `bgcolor` attributes rather than
  * a plain `<body>`/`<div>` background — mobile Gmail's auto dark-mode
@@ -177,9 +260,10 @@ function renderEmailShell(bodyHtml: string): string {
                     </td>
                   </tr>
                 </table>
-                <p style="${STYLE.footer}">
-                  Computer Society ITBA, San Mart&iacute;n 202, CABA
-                </p>
+                <table role="presentation" width="100%" cellpadding="0"
+                  cellspacing="0" border="0">
+                  ${renderFooter()}
+                </table>
               </td>
             </tr>
           </table>
@@ -240,18 +324,7 @@ export async function sendVerificationCodeEmail(
   email: string,
   code: string,
 ): Promise<void> {
-  const html = renderEmailShell(`
-    <p style="${STYLE.label}">
-      Tu c&oacute;digo de verificaci&oacute;n
-    </p>
-    <div style="${STYLE.codeBox}">
-      <span style="${STYLE.code}">${code}</span>
-    </div>
-    <p style="${STYLE.fine}">
-      Expira en 10 minutos. Si no lo pediste vos, ignor&aacute; este
-      mensaje.
-    </p>
-  `);
+  const html = renderVerificationCodeHtml(code);
   const text =
     `Tu código de verificación es ${code}. Expira en 10 minutos.\n` +
     "Si no lo pediste vos, ignorá este mensaje.";
@@ -266,21 +339,7 @@ export async function sendVerificationCodeEmail(
 export async function sendWorkshopConfirmationEmail(
   email: string,
 ): Promise<void> {
-  const html = renderEmailShell(`
-    <p style="${STYLE.bodyText}">
-      &iexcl;Recibimos tu inscripci&oacute;n a los
-      <strong>workshops y clases virtuales</strong>!
-    </p>
-    <p style="${STYLE.dimText}">
-      Sumate a nuestro servidor de Discord: ah&iacute; vamos a compartir
-      los links de las sesiones y todas las novedades.
-    </p>
-    <p style="text-align:center;margin:0;">
-      <a href="${DISCORD_INVITE_URL}" style="${STYLE.ctaButton}">
-        Unirme al Discord
-      </a>
-    </p>
-  `);
+  const html = renderWorkshopConfirmationHtml();
   const text =
     "Recibimos tu inscripción a los workshops y clases virtuales.\n" +
     "Sumate a nuestro servidor de Discord: ahí vamos a compartir los " +
@@ -303,31 +362,30 @@ export type CompetitionConfirmationTeam =
     };
 
 /**
- * Renders the team-status section of the competition confirmation email.
+ * Renders the team-status detail rows for the competition confirmation
+ * email, styled as flat label/value pairs to match the rest of the
+ * event-detail block.
  * @param {CompetitionConfirmationTeam} team Team info to render.
  * @return {string} HTML for the team section.
  */
 function renderTeamSection(team: CompetitionConfirmationTeam): string {
   if (team.choice === "alone") {
     return `
-      <div style="${STYLE.infoBox}">
-        <p style="${STYLE.teamMeta}">
-          Te anotaste sin equipo. Si qued&aacute;s seleccionado, te
-          asignamos a un equipo de hasta ${MAX_TEAM_SIZE} personas antes
-          de la competencia.
-        </p>
-      </div>
+      <p style="${STYLE.detailLabel}">Equipo</p>
+      <p style="${STYLE.detailValue}">
+        Te anotaste sin equipo. Si qued&aacute;s seleccionado, te
+        asignamos a un equipo de hasta ${MAX_TEAM_SIZE} personas antes
+        de la competencia.
+      </p>
     `;
   }
   return `
-    <div style="${STYLE.infoBox}">
-      <p style="${STYLE.infoLabel}">Tu equipo</p>
-      <p style="${STYLE.teamName}">${escapeHtml(team.name)}</p>
-      <p style="${STYLE.teamCode}">${escapeHtml(team.code)}</p>
-      <p style="${STYLE.teamMeta}">
-        ${team.memberCount} de ${MAX_TEAM_SIZE} integrantes
-      </p>
-    </div>
+    <p style="${STYLE.detailLabel}">Equipo</p>
+    <p style="${STYLE.teamName}">${escapeHtml(team.name)}</p>
+    <p style="${STYLE.teamCode}">${escapeHtml(team.code)}</p>
+    <p style="${STYLE.detailValue}">
+      ${team.memberCount} de ${MAX_TEAM_SIZE} integrantes
+    </p>
   `;
 }
 
@@ -340,20 +398,22 @@ function renderTeamSection(team: CompetitionConfirmationTeam): string {
 function renderTeamText(team: CompetitionConfirmationTeam): string {
   if (team.choice === "alone") {
     return (
-      "Te anotaste sin equipo. Si quedás seleccionado, te asignamos a " +
-      `un equipo de hasta ${MAX_TEAM_SIZE} personas antes de la ` +
-      "competencia."
+      "Equipo: te anotaste sin equipo. Si quedás seleccionado, te " +
+      `asignamos a un equipo de hasta ${MAX_TEAM_SIZE} personas antes ` +
+      "de la competencia."
     );
   }
   return (
-    `Tu equipo: ${team.name} (código: ${team.code}), ` +
+    `Equipo: ${team.name} (código: ${team.code}), ` +
     `${team.memberCount} de ${MAX_TEAM_SIZE} integrantes.`
   );
 }
 
 /**
  * Sends the post-registration confirmation email for the competition
- * flow, including team status (name, code, member count) when relevant.
+ * flow: a pending-approval explainer, the event details card (date,
+ * time, location, duration, team), and a closing disclaimer noting
+ * those details and the team's spot are still unconfirmed.
  * @param {string} email Recipient address.
  * @param {CompetitionConfirmationTeam} team Team info to include.
  * @return {Promise<void>} Resolves once the send is accepted.
@@ -362,25 +422,126 @@ export async function sendCompetitionConfirmationEmail(
   email: string,
   team: CompetitionConfirmationTeam,
 ): Promise<void> {
-  const html = renderEmailShell(`
-    <p style="${STYLE.bodyText}">
-      &iexcl;Recibimos tu inscripci&oacute;n a la
-      <strong>competencia de computaci&oacute;n cu&aacute;ntica</strong>!
-    </p>
-    <p style="${STYLE.dimText}">
-      Revisamos cada postulaci&oacute;n y te avisamos tu estado por mail
-      antes del 14 de noviembre.
-    </p>
-    ${renderTeamSection(team)}
-  `);
+  const html = renderCompetitionConfirmationHtml(team);
   const text =
-    "Recibimos tu inscripción a la competencia de computación cuántica.\n" +
-    "Revisamos cada postulación y te avisamos tu estado por mail antes " +
-    `del 14 de noviembre.\n\n${renderTeamText(team)}`;
+    "Tu postulación está pendiente de aprobación.\n\n" +
+    "Gracias por postularte a la Competencia de Computación Cuántica " +
+    "QuantumJam. Tu equipo fue registrado correctamente y se encuentra " +
+    "actualmente en proceso de revisión. Te enviaremos un correo para " +
+    "informarte si tu postulación fue aprobada antes del 14 de " +
+    "noviembre.\n\n" +
+    "Después, la información del evento:\n\n" +
+    `Fecha y hora: ${COMPETITION_DATE_LABEL} · ${COMPETITION_TIME_RANGE}\n` +
+    `Ubicación: ${COMPETITION_LOCATION}\n` +
+    `Duración: ${COMPETITION_DURATION_LABEL}\n\n` +
+    `${renderTeamText(team)}\n\n` +
+    `Página del evento: ${EVENT_PAGE_URL}\n\n` +
+    "Importante: la fecha, el horario y la ubicación del evento " +
+    "todavía están sujetos a confirmación. La participación de tu " +
+    "equipo no está confirmada hasta recibir la aprobación por correo.";
   await sendEmail(
     email,
-    "QNTMJAM: Recibimos tu inscripción a la competencia",
+    "QNTMJAM: Tu inscripción a la competencia está pendiente de aprobación",
     text,
     html,
   );
+}
+
+export function renderVerificationCodeHtml(code: string): string {
+  return renderEmailShell(`
+    <p style="${STYLE.label}">
+      Tu c&oacute;digo de verificaci&oacute;n
+    </p>
+    <div style="${STYLE.codeBox}">
+      <span style="${STYLE.code}">${code}</span>
+    </div>
+    <p style="${STYLE.fine}">
+      Expira en 10 minutos. Si no lo pediste vos, ignor&aacute; este mensaje.
+    </p>
+  `);
+}
+
+export function renderWorkshopConfirmationHtml(): string {
+  return renderEmailShell(`
+    <p style="${STYLE.bodyText}">
+      &iexcl;Recibimos tu inscripci&oacute;n a los <strong>workshops y clases virtuales</strong>!
+    </p>
+    <p style="${STYLE.dimText}">
+      Sumate a nuestro servidor de Discord: ah&iacute; vamos a compartir los links de las sesiones y todas las novedades.
+    </p>
+    <p style="text-align:center;margin:0;">
+      <a href="${DISCORD_INVITE_URL}" style="${STYLE.ctaButton}">
+        Unirme al Discord
+      </a>
+    </p>
+  `);
+}
+
+/**
+ * Renders the competition confirmation email: an intro callout
+ * explaining the pending-approval status, the event-details card
+ * (date/time, location, duration, team — unchanged from before), the
+ * event-page CTA, and a closing callout noting those details and the
+ * team's spot are still unconfirmed.
+ * @param {CompetitionConfirmationTeam} team Team info to include.
+ * @return {string} The full HTML document.
+ */
+export function renderCompetitionConfirmationHtml(
+  team: CompetitionConfirmationTeam,
+): string {
+  return renderEmailShell(`
+    <div style="${STYLE.calloutBox}">
+      <p style="${STYLE.calloutTitle}">
+        Tu postulaci&oacute;n est&aacute; pendiente de aprobaci&oacute;n
+      </p>
+      <p style="${STYLE.calloutText}">
+        Gracias por postularte a la
+        <strong>Competencia de Computaci&oacute;n Cu&aacute;ntica QuantumJam</strong>.
+        Estamos revisando tu postulaci&oacute;n y te enviaremos un correo para informarte si fue
+        aprobada <strong>antes del 14 de noviembre</strong>.
+      </p>
+    </div>
+
+    <hr style="${STYLE.divider}">
+
+    <table role="presentation" width="100%" cellpadding="0"
+      cellspacing="0" border="0" style="margin:0 0 20px;">
+      <tr>
+        <td width="56" valign="top" style="${STYLE.dateBadge}">
+          <p style="${STYLE.dateBadgeMonth}">${COMPETITION_DATE_MONTH}</p>
+          <p style="${STYLE.dateBadgeDay}">${COMPETITION_DATE_DAY}</p>
+        </td>
+        <td valign="top" style="padding-left:16px;">
+          <p style="${STYLE.teamName}">${COMPETITION_DATE_LABEL}</p>
+          <p style="${STYLE.teamMeta}">${COMPETITION_TIME_RANGE}</p>
+        </td>
+      </tr>
+    </table>
+
+    <p style="${STYLE.detailLabel}">Ubicaci&oacute;n</p>
+    <p style="${STYLE.detailValue}">${COMPETITION_LOCATION}</p>
+
+    <p style="${STYLE.detailLabel}">Duraci&oacute;n</p>
+    <p style="${STYLE.detailValue}">${COMPETITION_DURATION_LABEL}</p>
+
+    ${renderTeamSection(team)}
+
+    <hr style="${STYLE.divider}">
+
+    <p style="text-align:center;margin:0 0 24px;">
+      <a href="${EVENT_PAGE_URL}" style="${STYLE.ctaButton}">
+        Ver p&aacute;gina del evento
+      </a>
+    </p>
+
+    <div style="${STYLE.calloutBox}">
+      <p style="${STYLE.calloutText}">
+        La fecha, el horario y la
+        ubicaci&oacute;n del evento todav&iacute;a est&aacute;n sujetos a
+        confirmaci&oacute;n. La participaci&oacute;n de tu equipo
+        <strong>no est&aacute; confirmada hasta recibir la aprobaci&oacute;n
+        de la misma</strong>.
+      </p>
+    </div>
+  `);
 }
