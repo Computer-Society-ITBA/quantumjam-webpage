@@ -4,8 +4,11 @@ import { cn } from '@/lib/utils'
 
 type Props = {
   className?: string
-  /** Lower intensity for use as a smaller decorative texture. */
-  dim?: boolean
+  /**
+   * Lower intensity for use as a smaller decorative texture. `true` uses
+   * the default 0.6 alpha scale; pass a number (0-1) to dial it in.
+   */
+  dim?: boolean | number
   density?: number
   speed?: number
   weight?: number
@@ -193,7 +196,7 @@ export function HeroField({
     gl.uniform1f(u.weight, weight)
     gl.uniform1f(u.mouseAmt, mouseAmt)
     gl.uniform1f(u.glow, glow)
-    gl.uniform1f(u.alphaScale, dim ? 0.6 : 1)
+    gl.uniform1f(u.alphaScale, typeof dim === 'number' ? dim : dim ? 0.6 : 1)
     gl.uniform3f(u.c1, c1r, c1g, c1b)
     gl.uniform3f(u.c2, c2r, c2g, c2b)
 

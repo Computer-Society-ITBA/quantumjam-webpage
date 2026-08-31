@@ -237,6 +237,33 @@
   .btn-quantum:hover::after {
     opacity: 1;
   }
+
+  /* Two ghost copies (cyan + magenta) offset behind a solid collapse-white
+     top layer, screen-blended so the overlap reads as pure white. Drift is
+     the same motion as the hero wordmark's cyan/magenta paths, so the two
+     effects read as one system. Reserved for standalone headline digits
+     (e.g. the 404 page) since the hero wordmark itself is an SVG. */
+  .rgb-split {
+    position: relative;
+    isolation: isolate;
+    display: grid;
+  }
+  .rgb-split > * {
+    grid-area: 1 / 1;
+  }
+  .rgb-split-ghost {
+    mix-blend-mode: screen;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .rgb-split-ghost.text-brand-cyan {
+      animation: hero-cyan-drift 7.2s ease-in-out infinite;
+      will-change: transform;
+    }
+    .rgb-split-ghost.text-brand-magenta {
+      animation: hero-magenta-drift 8.6s ease-in-out -3.1s infinite;
+      will-change: transform;
+    }
+  }
 }
 
 @keyframes hero-cyan-drift-active {
