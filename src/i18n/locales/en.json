@@ -95,6 +95,11 @@
     },
     "backHome": "Home"
   },
+  "notFound": {
+    "description": "This page doesn't exist. Probability of finding it: 0%.",
+    "cta": "Back to |0⟩",
+    "backHome": "Home"
+  },
   "registration": {
     "backToSelect": "Events",
     "consent": "By completing this form, you agree to share your data with the event organizers and sponsors.",
