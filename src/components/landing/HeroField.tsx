@@ -207,7 +207,7 @@ export function HeroField({
       canvas.height = Math.round(h * dpr)
       gl.viewport(0, 0, canvas.width, canvas.height)
       gl.uniform2f(u.res, canvas.width, canvas.height)
-      gl.uniform1f(u.motionScale, Math.min(1, MOTION_REFERENCE_HEIGHT / h))
+      gl.uniform1f(u.motionScale, MOTION_REFERENCE_HEIGHT / h)
     }
     setSize(width, height)
 

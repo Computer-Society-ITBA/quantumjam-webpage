@@ -69,7 +69,7 @@ export function Hero() {
   return (
     <section className="border-brand-line relative flex min-h-screen flex-col items-center justify-center overflow-hidden border-b px-[clamp(20px,6vw,80px)] py-[clamp(80px,10vh,140px)] text-center">
       <Nav />
-      <HeroField />
+      <HeroField glow={1.7} />
 
       <div
         aria-hidden="true"
