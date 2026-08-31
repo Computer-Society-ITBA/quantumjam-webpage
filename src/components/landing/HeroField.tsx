@@ -13,6 +13,8 @@ type Props = {
   glow?: number
 }
 
+const MOTION_REFERENCE_HEIGHT = 520
+
 // Full-screen triangle via gl_VertexID - no vertex buffer needed.
 const vertexShaderSource = /* glsl */ `#version 300 es
 void main() {
@@ -36,7 +38,7 @@ uniform vec2  uRes;
 uniform float uTime;
 uniform vec2  uMouse;
 uniform vec3  uPulse;
-uniform float uDensity, uSpeed, uWeight, uMouseAmt, uGlow, uAlphaScale;
+uniform float uDensity, uSpeed, uMotionScale, uWeight, uMouseAmt, uGlow, uAlphaScale;
 uniform vec3  uC1, uC2;
 
 float ln(float v, float w){
@@ -56,7 +58,7 @@ float pulse(vec2 p){
 
 void main(){
   vec2 p = (gl_FragCoord.xy - 0.5 * uRes) / uRes.y;
-  float t = uTime * uSpeed;
+  float t = uTime * uSpeed * uMotionScale;
   vec2 m = uMouse * uMouseAmt;
 
   vec2 s1 = vec2(-0.75, -0.55) + m * 0.16;
@@ -174,6 +176,7 @@ export function HeroField({
       pulse: gl.getUniformLocation(program, 'uPulse'),
       density: gl.getUniformLocation(program, 'uDensity'),
       speed: gl.getUniformLocation(program, 'uSpeed'),
+      motionScale: gl.getUniformLocation(program, 'uMotionScale'),
       weight: gl.getUniformLocation(program, 'uWeight'),
       mouseAmt: gl.getUniformLocation(program, 'uMouseAmt'),
       glow: gl.getUniformLocation(program, 'uGlow'),
@@ -204,6 +207,7 @@ export function HeroField({
       canvas.height = Math.round(h * dpr)
       gl.viewport(0, 0, canvas.width, canvas.height)
       gl.uniform2f(u.res, canvas.width, canvas.height)
+      gl.uniform1f(u.motionScale, Math.min(1, MOTION_REFERENCE_HEIGHT / h))
     }
     setSize(width, height)
 
