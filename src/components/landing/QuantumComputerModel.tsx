@@ -105,12 +105,12 @@ export function QuantumComputerModel({ className, motion }: Props) {
         <directionalLight
           position={[3, 4, 4]}
           intensity={2.2}
-          color="#b4ff39"
+          color="#c8ff00"
         />
         <directionalLight
           position={[-4, -1, -3]}
           intensity={0.7}
-          color="#d12771"
+          color="#ff2fb0"
         />
         <Suspense fallback={null}>
           <Model motion={motion} />

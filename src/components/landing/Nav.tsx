@@ -21,7 +21,7 @@ export function Nav() {
       className="pointer-events-none absolute inset-x-0 top-0 z-30 flex items-start justify-between px-[clamp(20px,6vw,80px)] pt-4 pb-20"
       style={{
         background:
-          'linear-gradient(to bottom, rgba(18,18,18,0.92) 0%, rgba(18,18,18,0.65) 40%, rgba(18,18,18,0) 100%)',
+          'linear-gradient(to bottom, rgba(7,7,7,0.92) 0%, rgba(7,7,7,0.65) 40%, rgba(7,7,7,0) 100%)',
       }}
     >
       <Link

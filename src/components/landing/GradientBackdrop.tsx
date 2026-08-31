@@ -1,4 +1,4 @@
-import { InterferenceField } from '@/components/landing/InterferenceField'
+import { HeroField } from '@/components/landing/HeroField'
 import { cn } from '@/lib/utils'
 
 /**
@@ -27,7 +27,7 @@ export function GradientBackdrop({
       )}
       style={vignette ? { maskImage: fade, WebkitMaskImage: fade } : undefined}
     >
-      <InterferenceField dim />
+      <HeroField dim />
     </div>
   )
 }

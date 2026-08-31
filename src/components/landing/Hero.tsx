@@ -2,11 +2,16 @@ import { useEffect, useState } from 'react'
 import { Calendar, MapPin, Ticket } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
+import quantumJamLogo from '@/assets/quantum-jam-logo-primary.svg?raw'
+import { HeroField } from '@/components/landing/HeroField'
 import { IbmLogo } from '@/components/landing/IbmLogo'
-import { InterferenceField } from '@/components/landing/InterferenceField'
-import { RgbSplitText } from '@/components/landing/RgbSplitText'
 import { cn } from '@/lib/utils'
 import { Nav } from './Nav'
+
+const heroWordmarkSvg = quantumJamLogo.replace(
+  '<svg ',
+  '<svg aria-hidden="true" focusable="false" ',
+)
 
 function MetaChip({
   icon: Icon,
@@ -64,14 +69,14 @@ export function Hero() {
   return (
     <section className="border-brand-line relative flex min-h-screen flex-col items-center justify-center overflow-hidden border-b px-[clamp(20px,6vw,80px)] py-[clamp(80px,10vh,140px)] text-center">
       <Nav />
-      <InterferenceField />
+      <HeroField />
 
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 z-0"
         style={{
           background:
-            'radial-gradient(120% 90% at 50% 42%, rgba(18,18,18,0) 0%, rgba(18,18,18,0.55) 55%, var(--brand-bg) 92%)',
+            'radial-gradient(120% 90% at 50% 42%, rgba(7,7,7,0) 0%, rgba(7,7,7,0.55) 55%, var(--brand-bg) 92%)',
         }}
       />
 
@@ -84,15 +89,11 @@ export function Hero() {
         </Settle>
 
         <Settle delay={0.15} className="w-full">
-          <h1 className="font-display bg-brand-bg/85 mx-auto mb-5 inline-block px-3 py-1">
-            <RgbSplitText
-              offset={8}
-              className="text-[clamp(2.5rem,13vw,9rem)] leading-[0.86] font-black tracking-[-0.03em] uppercase"
-              style={{ fontVariationSettings: '"wdth" 112, "wght" 900' }}
-            >
-              QNTMJAM
-            </RgbSplitText>
-          </h1>
+          <h1
+            aria-label={t('nav.brand')}
+            className="hero-wordmark mx-auto mb-5 w-[clamp(240px,70vw,760px)] -translate-y-2"
+            dangerouslySetInnerHTML={{ __html: heroWordmarkSvg }}
+          />
         </Settle>
 
         <Settle delay={0.25}>

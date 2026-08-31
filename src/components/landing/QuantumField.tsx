@@ -88,7 +88,7 @@ export function QuantumField(props: QuantumFieldProps) {
       <FieldLabel htmlFor={id} label={label} required={required} />
       <div
         className={cn(
-          'bg-brand-panel focus-within:border-brand-green relative overflow-hidden border transition-[border-color,box-shadow] duration-200 focus-within:shadow-[0_0_0_3px_rgba(180,255,57,0.16)]',
+          'bg-brand-panel focus-within:border-brand-green relative overflow-hidden border transition-[border-color,box-shadow] duration-200 focus-within:shadow-[0_0_0_3px_rgba(200,255,0,0.16)]',
           error ? 'border-brand-magenta-bright' : 'border-brand-line',
           isTextarea ? 'h-[88px]' : 'h-[58px]',
         )}

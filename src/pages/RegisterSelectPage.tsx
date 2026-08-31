@@ -28,7 +28,7 @@ function EventRow({ option }: { option: EventOption }) {
           'font-display mt-0.5 flex h-[38px] w-10 flex-shrink-0 items-center justify-center border-2 text-[0.82rem] font-extrabold transition-colors',
           isMagenta
             ? 'border-brand-magenta-bright/50 text-brand-magenta-bright group-hover:bg-brand-magenta-bright/10'
-            : 'border-brand-line text-brand-green group-hover:bg-brand-green/10',
+            : 'border-brand-green/50 text-brand-green group-hover:bg-brand-green/10',
         )}
       >
         {t(`registerSelect.${option.event}.ket`)}

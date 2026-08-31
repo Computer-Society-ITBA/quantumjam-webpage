@@ -4,25 +4,22 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Interference-field system: void/substrate carry ~70% of every surface,
-     green is the "throughout" brand accent, violet is deliberately muted so
-     it stays a supporting color, magenta is reserved for the interference
-     texture and the RGB-split headline effect. */
-  --brand-bg: #121212;
-  --brand-panel: #161616;
+  /* Interference-field system: void/carbon carry ~85% of every surface,
+     acid is the "throughout" brand accent, phase-c (cyan) is deliberately
+     muted so it stays a supporting color, phase-m (magenta) is reserved for
+     the interference texture and the RGB-split headline effect. */
+  --brand-bg: #070707;
+  --brand-panel: #101010;
   --brand-line: #262626;
-  --brand-text: #f4f4f4;
+  --brand-text: #f7f7f2;
   --brand-text-dim: #a8a8a8;
   --brand-text-faint: #868686;
-  --brand-collapse: #ffffff;
-  --brand-green: #b4ff39;
-  --brand-green-strong: #8fe01c;
-  --brand-violet: #9b86d9;
-  --brand-magenta: #d12771;
-  /* Deep magenta reads fine blended into the animated field or as a border
-     tint, but fails contrast as flat text on the void background. This is
-     the readable version, used anywhere magenta appears as copy. */
-  --brand-magenta-bright: #ff5fa8;
+  --brand-collapse: #f7f7f2;
+  --brand-green: #c8ff00;
+  --brand-green-strong: #9fe000;
+  --brand-cyan: #00e5ff;
+  --brand-magenta: #ff2fb0;
+  --brand-magenta-bright: #ff2fb0;
 
   --radius: 0.25rem;
 
@@ -38,14 +35,14 @@
   --secondary-foreground: var(--brand-text);
   --muted: var(--brand-panel);
   --muted-foreground: var(--brand-text-dim);
-  --accent: var(--brand-violet);
+  --accent: var(--brand-cyan);
   --accent-foreground: #0c1400;
   --destructive: oklch(0.577 0.245 27.325);
   --border: var(--brand-line);
   --input: var(--brand-line);
   --ring: var(--brand-green);
   --chart-1: var(--brand-green);
-  --chart-2: var(--brand-violet);
+  --chart-2: var(--brand-cyan);
   --chart-3: var(--brand-magenta);
   --chart-4: var(--brand-text-dim);
   --chart-5: var(--brand-line);
@@ -53,7 +50,7 @@
   --sidebar-foreground: var(--brand-text);
   --sidebar-primary: var(--brand-green);
   --sidebar-primary-foreground: #0c1400;
-  --sidebar-accent: var(--brand-violet);
+  --sidebar-accent: var(--brand-cyan);
   --sidebar-accent-foreground: #0c1400;
   --sidebar-border: var(--brand-line);
   --sidebar-ring: var(--brand-green);
@@ -96,7 +93,7 @@
   --color-brand-collapse: var(--brand-collapse);
   --color-brand-green: var(--brand-green);
   --color-brand-green-strong: var(--brand-green-strong);
-  --color-brand-violet: var(--brand-violet);
+  --color-brand-cyan: var(--brand-cyan);
   --color-brand-magenta: var(--brand-magenta);
   --color-brand-magenta-bright: var(--brand-magenta-bright);
 }
@@ -154,6 +151,52 @@
     transform: translateY(0) scale(1);
   }
 
+  .hero-wordmark svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+    transition: transform 420ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .hero-wordmark path[fill='#00E5FF'],
+  .hero-wordmark path[fill='#FF2FB0'] {
+    transition: transform 420ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .hero-wordmark path[fill='#00E5FF'] {
+      animation: hero-cyan-drift 7.2s ease-in-out infinite;
+      will-change: transform;
+    }
+    .hero-wordmark path[fill='#FF2FB0'] {
+      animation: hero-magenta-drift 8.6s ease-in-out -3.1s infinite;
+      will-change: transform;
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) and (hover: hover) and (pointer: fine) {
+    .hero-wordmark:hover path[fill='#00E5FF'] {
+      animation-name: hero-cyan-drift-active;
+      animation-duration: 3.8s;
+    }
+    .hero-wordmark:hover path[fill='#FF2FB0'] {
+      animation-name: hero-magenta-drift-active;
+      animation-duration: 4.6s;
+    }
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .hero-wordmark:hover svg {
+      transform: translateY(-3px);
+    }
+    .hero-wordmark:hover path[fill='#00E5FF'] {
+      transform: translate(-3px, 1.5px);
+    }
+    .hero-wordmark:hover path[fill='#FF2FB0'] {
+      transform: translate(3px, -1.5px);
+    }
+  }
+
   /* The two ghost hints share one slot and alternate, a second each, so the
      field reads as one value in superposition rather than two stacked lines. */
   .ghost-alt {
@@ -205,22 +248,69 @@
   .btn-quantum:hover::after {
     opacity: 1;
   }
+}
 
-  /* Two ghost copies (green + magenta) offset a few px behind a solid white
-     top layer, screen-blended so the overlaps read as pure white - the
-     "collapse" moment. Reserved for the wordmark and hero title only. */
-  .rgb-split {
-    position: relative;
-    isolation: isolate;
+@keyframes hero-cyan-drift {
+  0%,
+  100% {
+    translate: 0 0;
   }
-  .rgb-split > * {
-    grid-area: 1 / 1;
+  25% {
+    translate: -0.75px 0.6px;
   }
-  .rgb-split {
-    display: grid;
+  50% {
+    translate: 0.4px 1.1px;
   }
-  .rgb-split-ghost {
-    mix-blend-mode: screen;
+  75% {
+    translate: 0.9px -0.35px;
+  }
+}
+
+@keyframes hero-magenta-drift {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  25% {
+    translate: 0.65px -0.85px;
+  }
+  50% {
+    translate: -0.55px -1.1px;
+  }
+  75% {
+    translate: -0.9px 0.4px;
+  }
+}
+
+@keyframes hero-cyan-drift-active {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  25% {
+    translate: -1.1px 0.9px;
+  }
+  50% {
+    translate: 0.6px 1.5px;
+  }
+  75% {
+    translate: 1.2px -0.5px;
+  }
+}
+
+@keyframes hero-magenta-drift-active {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  25% {
+    translate: 1px -1.2px;
+  }
+  50% {
+    translate: -0.8px -1.5px;
+  }
+  75% {
+    translate: -1.2px 0.6px;
   }
 }
 
@@ -264,6 +354,12 @@
   .settle {
     opacity: 1;
     filter: none;
+    transform: none;
+  }
+  .hero-wordmark:hover path {
+    transform: none;
+  }
+  .hero-wordmark:hover svg {
     transform: none;
   }
 }
