@@ -1,7 +1,7 @@
 {
   "nav": {
-    "brand": "Computer Society ITBA",
-    "cta": "Register"
+    "brand": "QuantumJam",
+    "cta": "Sign Up"
   },
   "hero": {
     "eyebrow": "Computer Society ITBA × IBM Quantum",
@@ -10,7 +10,7 @@
     "date": "Sat, November 14",
     "place": "ITBA SDF (San Martín 202)",
     "capacity": "Limited spots",
-    "cta": "Register"
+    "cta": "Sign Up"
   },
   "about": {
     "title": "What is QuantumJam?",
@@ -76,10 +76,10 @@
   },
   "registerCta": {
     "title": "Ready to sign up?",
-    "cta": "Register"
+    "cta": "Sign Up"
   },
   "registerSelect": {
-    "title": "Register",
+    "title": "Sign Up",
     "description": "Registration is separate for each part. You don't need to sign up for both.",
     "workshops": {
       "ket": "|0⟩",
@@ -331,7 +331,7 @@
       "hardware": "The hardware",
       "agenda": "Program",
       "sponsor": "IBM Quantum",
-      "register": "Register",
+      "register": "Sign Up",
       "email": "computersociety@itba.edu.ar",
       "place": "ITBA SDF (San Martín 202)"
     },

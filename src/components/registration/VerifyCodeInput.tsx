@@ -81,7 +81,7 @@ export function VerifyCodeInput({
               className={cn(
                 'bg-brand-panel text-foreground h-[58px] w-full min-w-0 border text-center font-sans text-[1.15rem] tabular-nums',
                 'transition-[border-color,box-shadow,color] duration-200',
-                'focus:border-brand-green focus:shadow-[0_0_0_3px_rgba(180,255,57,0.16)] focus:outline-none',
+                'focus:border-brand-green focus:shadow-[0_0_0_3px_rgba(200,255,0,0.16)] focus:outline-none',
                 error
                   ? 'border-brand-magenta-bright'
                   : digit

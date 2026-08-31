@@ -63,7 +63,7 @@ export function CustomSelect({
         onClick={() => setOpen((o) => !o)}
         className={cn(
           'bg-brand-panel relative flex h-[58px] w-full items-center justify-between border px-3.5 text-left text-[0.92rem] transition-[border-color,box-shadow] duration-200 focus:outline-none',
-          open && 'border-brand-green shadow-[0_0_0_3px_rgba(180,255,57,0.16)]',
+          open && 'border-brand-green shadow-[0_0_0_3px_rgba(200,255,0,0.16)]',
           !open &&
             (error ? 'border-brand-magenta-bright' : 'border-brand-line'),
         )}
