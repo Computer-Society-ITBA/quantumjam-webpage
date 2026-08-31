@@ -57,6 +57,23 @@ function LinkedInIcon() {
   )
 }
 
+function YoutubeIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.7"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="size-4"
+    >
+      <rect x="3" y="5.5" width="18" height="13" rx="4" />
+      <path d="M10.3 9.3l5 2.7-5 2.7z" fill="currentColor" stroke="none" />
+    </svg>
+  )
+}
+
 function Social({
   href,
   labelKey,
@@ -84,18 +101,38 @@ export function Footer() {
     <footer className="bg-brand-panel border-brand-line relative z-10 border-t px-[clamp(20px,6vw,80px)] pt-[60px] pb-7">
       <div className="flex flex-wrap justify-between gap-12 pb-9">
         <div className="flex max-w-[300px] flex-col gap-3">
-          <LogoMark />
+          <a
+            href="https://www.csitba.com.ar/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <LogoMark />
+          </a>
+
           <p className="text-brand-text-dim text-[0.82rem] font-light">
             {t('footer.brand_desc')}
           </p>
           <div className="-ml-[3px] flex gap-4">
             <Social
-              href="#"
+              href="https://www.instagram.com/computer.society.itba/"
               labelKey="a11y.instagram"
               icon={<InstagramIcon />}
             />
-            <Social href="#" labelKey="a11y.email" icon={<EmailIcon />} />
-            <Social href="#" labelKey="a11y.linkedin" icon={<LinkedInIcon />} />
+            <Social
+              href="mailto:computersociety@itba.edu.ar"
+              labelKey="a11y.email"
+              icon={<EmailIcon />}
+            />
+            <Social
+              href="https://www.youtube.com/channel/UCGRu7ac5g1M5fuVYPYX8Ifg"
+              labelKey="a11y.youtube"
+              icon={<YoutubeIcon />}
+            />
+            <Social
+              href="https://www.linkedin.com/company/30092847/"
+              labelKey="a11y.linkedin"
+              icon={<LinkedInIcon />}
+            />
           </div>
         </div>
         <div className="flex flex-wrap gap-14">
@@ -145,7 +182,7 @@ export function Footer() {
               {t('footer.links.email')}
             </a>
             <a
-              href="#"
+              href="https://www.itba.edu.ar/"
               className="text-brand-text-dim hover:text-foreground text-[0.85rem] transition-colors"
             >
               {t('footer.links.place')}
