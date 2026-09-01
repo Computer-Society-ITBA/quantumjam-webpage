@@ -2,6 +2,7 @@ import { createBrowserRouter } from 'react-router'
 
 import { RootLayout } from './layouts/RootLayout'
 import LandingPage from './pages/LandingPage'
+import NotFoundPage from './pages/NotFoundPage'
 import RegisterSelectPage from './pages/RegisterSelectPage'
 import RegisterWorkshopsPage from './pages/RegisterWorkshopsPage'
 import RegisterCompetitionPage from './pages/RegisterCompetitionPage'
@@ -14,6 +15,7 @@ export const router = createBrowserRouter([
       { path: '/register', element: <RegisterSelectPage /> },
       { path: '/register/workshops', element: <RegisterWorkshopsPage /> },
       { path: '/register/competition', element: <RegisterCompetitionPage /> },
+      { path: '*', element: <NotFoundPage /> },
     ],
   },
 ])

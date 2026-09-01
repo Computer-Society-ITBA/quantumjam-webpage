@@ -1,4 +1,4 @@
-import { InterferenceField } from '@/components/landing/InterferenceField'
+import { HeroField } from '@/components/landing/HeroField'
 import { cn } from '@/lib/utils'
 
 /**
@@ -8,6 +8,8 @@ import { cn } from '@/lib/utils'
 export function GradientBackdrop({
   className,
   vignette = false,
+  glow = 1.6,
+  dim = 0.85,
 }: {
   className?: string
   /**
@@ -16,6 +18,10 @@ export function GradientBackdrop({
    * off at a hard line by the section's `overflow-hidden`.
    */
   vignette?: boolean
+  /** Passed through to the field; higher = brighter fringe halo. */
+  glow?: number
+  /** Passed through to the field's alpha scale (0-1, or the legacy `true` = 0.6). */
+  dim?: boolean | number
 }) {
   const fade = 'radial-gradient(ellipse at center, #000 30%, transparent 75%)'
   return (
@@ -27,7 +33,7 @@ export function GradientBackdrop({
       )}
       style={vignette ? { maskImage: fade, WebkitMaskImage: fade } : undefined}
     >
-      <InterferenceField dim />
+      <HeroField dim={dim} glow={glow} />
     </div>
   )
 }

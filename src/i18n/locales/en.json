@@ -1,6 +1,6 @@
 {
   "nav": {
-    "brand": "Computer Society ITBA",
+    "brand": "QuantumJam",
     "cta": "Sign Up"
   },
   "hero": {
@@ -9,20 +9,20 @@
     "sponsored_by": "Sponsored by",
     "date": "Sat, November 14",
     "place": "ITBA SDF (San Martín 202)",
-    "capacity": "Limited spots",
+    "capacity": "Free · Limited spots",
     "cta": "Sign Up"
   },
   "about": {
     "title": "What is QuantumJam?",
-    "description": "A Computer Society ITBA event in two independent parts: a series of virtual workshops and classes, followed by an in-person quantum computing competition at ITBA.",
+    "description": "A Computer Society ITBA event in two independent parts: a series of virtual workshops and classes, followed by a one-day, in-person quantum computing competition at ITBA. Both are 100% free — competition day (about 8 hours) includes food, a workspace, and mentors for every team.",
     "features": {
       "beginner": {
         "title": "No prior experience needed",
-        "desc": "We start from scratch: what a qubit is and what superposition means."
+        "desc": "New to quantum computing? Perfect — you'll leave knowing what a qubit is, what superposition means, and how to code with them."
       },
       "hands_on": {
         "title": "Hands-on with Qiskit",
-        "desc": "Build and run your first circuit on real IBM hardware."
+        "desc": "Build and run your first quantum circuit using Qiskit's simulator, modeled on IBM's real processors."
       },
       "community": {
         "title": "Community",
@@ -32,16 +32,16 @@
   },
   "hardware": {
     "title": "The hardware",
-    "description": "IBM Quantum processors hold each qubit in a superconducting chip cooled to millikelvins above absolute zero. Every gold plate of the cryostat shields and progressively cools the chip: gold is the material that best conducts and protects at those temperatures.",
+    "description": "This is what an IBM Quantum processor looks like: each qubit lives in a superconducting circuit, cooled to a fraction of a degree above absolute zero. At QuantumJam you won't need a cryostat — every circuit you build runs on Qiskit's simulator, modeled faithfully on this real IBM architecture.",
     "specs": {
       "qubit_label": "Qubit",
-      "qubit_value": "Josephson junction, superconducting",
-      "temp_label": "Temperature",
-      "temp_value": "~15 millikelvin",
+      "qubit_value": "Simulated superconducting qubit (IBM design)",
+      "temp_label": "Backend",
+      "temp_value": "Qiskit Aer simulator",
       "control_label": "Control",
-      "control_value": "microwave pulses",
+      "control_value": "Python & Qiskit SDK",
       "arch_label": "Architecture",
-      "arch_value": "heavy-hex lattice"
+      "arch_value": "Same topology as IBM's real devices"
     }
   },
   "program": {
@@ -53,24 +53,24 @@
     },
     "competition": {
       "label": "Competition day",
-      "desc": "November 14, in person at ITBA SDF."
+      "desc": "November 14 · ~8 hours, in person at ITBA SDF."
     }
   },
   "sponsor": {
     "title": "IBM Quantum",
-    "description": "IBM Quantum provides the workshop with real quantum hardware: superconducting processors at millikelvin temperatures, controlled with microwave pulses.",
+    "description": "IBM Quantum powers QuantumJam with Qiskit, the open-source framework used to build, simulate, and run every circuit — modeled on IBM's real quantum processors.",
     "items": {
       "hardware": {
-        "label": "Hardware",
-        "value": "Live access to IBM's superconducting quantum processors, the same ones used in production."
+        "label": "Simulator",
+        "value": "Qiskit's simulator, modeled on the same superconducting processors IBM runs in production."
       },
       "software": {
         "label": "Software",
-        "value": "Qiskit, the open-source SDK used to build and run every circuit at the workshops."
+        "value": "Qiskit, the open-source SDK used to build and run every circuit."
       },
       "support": {
         "label": "Support",
-        "value": "Technical guidance for teams throughout the competition."
+        "value": "Mentors on-site, guiding every team throughout the day."
       }
     }
   },
@@ -90,9 +90,14 @@
     "competition": {
       "ket": "|1⟩",
       "title": "Quantum computing competition",
-      "desc": "The main event, live at ITBA.",
+      "desc": "Free, one day, live at ITBA — food, workspace, and mentors included.",
       "mode": "In person"
     },
+    "backHome": "Home"
+  },
+  "notFound": {
+    "description": "This page doesn't exist. Probability of finding it: 0%.",
+    "cta": "Back to |0⟩",
     "backHome": "Home"
   },
   "registration": {
@@ -305,7 +310,7 @@
     },
     "competition": {
       "title": "Quantum computing competition",
-      "description": "Only for the in-person competition at ITBA. Registering for the workshops is separate.",
+      "description": "Free, in-person at ITBA — one day (about 8 hours) with food, workspace, and mentors included. Registering for the workshops is separate.",
       "submit": "Collapse the wavefunction",
       "submitting": "Measuring the system…",
       "note": "We review every application and email you about your status in the coming days.",
