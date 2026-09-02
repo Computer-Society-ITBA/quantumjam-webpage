@@ -65,7 +65,7 @@ export default function RegisterSelectPage() {
   return (
     <>
       <BackLink to="/" label={t('registerSelect.backHome')} />
-      <main className="relative z-10 flex min-h-screen flex-col justify-center px-[clamp(20px,6vw,80px)] pt-20 pb-16">
+      <main className="relative z-10 flex min-h-screen flex-col justify-center px-[clamp(40px,6vw,80px)] pt-20 pb-16">
         <div className="mx-auto w-full max-w-[620px]">
           <h1
             className="font-display text-foreground mb-[0.9rem] text-[clamp(1.6rem,3.4vw,2.3rem)] leading-none font-extrabold tracking-[-0.02em] uppercase"

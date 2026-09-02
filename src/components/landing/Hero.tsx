@@ -102,7 +102,7 @@ export function Hero() {
         </Settle>
 
         <Settle delay={0.3}>
-          <div className="flex flex-wrap items-center justify-center gap-3">
+          <div className="flex flex-nowrap items-stretch justify-center gap-3 overflow-x-auto">
             <MetaChip icon={Calendar}>{t('hero.date')}</MetaChip>
             <MetaChip icon={MapPin}>{t('hero.place')}</MetaChip>
             <MetaChip icon={Ticket}>{t('hero.capacity')}</MetaChip>
