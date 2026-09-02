@@ -35,3 +35,9 @@ jobs:
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_WEBPAGE_36E40 }}
           channelId: live
           projectId: webpage-36e40
+      - name: Deploy Firebase Functions
+        uses: w9jds/firebase-action@v2.2.2
+        with:
+          args: deploy --only functions
+        env:
+          GCP_SA_KEY: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_WEBPAGE_36E40 }}
