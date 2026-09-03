@@ -10,6 +10,8 @@ export type Purpose = "workshops" | "competition";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+const DOT_ALIAS_DOMAINS = new Set(["gmail.com", "googlemail.com"]);
+
 /**
  * Trims and lowercases an email so it's stable as a Firestore doc ID.
  * @param {string} email Raw email as typed by the user.
@@ -17,6 +19,25 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
  */
 export function normalizeEmail(email: string): string {
   return email.trim().toLowerCase();
+}
+
+/**
+ * Collapses provider aliases (plus-tags, and dots on Gmail) so that
+ * hola+123@gmail.com and hola@gmail.com resolve to the same identity.
+ * Use this ONLY as a dedup / rate-limit key: mail is still delivered to
+ * the address the user actually typed.
+ * @param {string} email Email to canonicalize.
+ * @return {string} The canonical form of the email.
+ */
+export function canonicalEmail(email: string): string {
+  const normalized = normalizeEmail(email);
+  const [rawLocal, domain] = normalized.split("@");
+  if (!rawLocal || !DOT_ALIAS_DOMAINS.has(domain)) {
+    return normalized;
+  }
+
+  const local = rawLocal.split("+")[0].replace(/\./g, "");
+  return local ? `${local}@gmail.com` : normalized;
 }
 
 /**
@@ -56,7 +77,7 @@ export function hashCode(code: string): string {
 export function verificationId(purpose: Purpose, email: string): string {
   const hash = crypto
     .createHash("sha256")
-    .update(normalizeEmail(email))
+    .update(canonicalEmail(email))
     .digest("hex")
     .slice(0, 32);
   return `${purpose}_${hash}`;

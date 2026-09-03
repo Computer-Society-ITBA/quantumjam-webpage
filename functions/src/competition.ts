@@ -12,7 +12,12 @@ import {
   sendCompetitionConfirmationEmail,
   type CompetitionConfirmationTeam,
 } from "./lib/email";
-import {isValidEmail, normalizeEmail, verificationId} from "./lib/otp";
+import {
+  canonicalEmail,
+  isValidEmail,
+  normalizeEmail,
+  verificationId,
+} from "./lib/otp";
 import {MAX_TEAM_SIZE, teamIdFrom} from "./lib/slug";
 
 type TeamChoice = "join" | "create" | "alone";
@@ -146,7 +151,9 @@ export const submitCompetitionSignup = onCall(
     const verRef = db
       .collection("emailVerifications")
       .doc(verificationId("competition", email));
-    const signupRef = db.collection("competitionSignups").doc(email);
+    const signupRef = db
+      .collection("competitionSignups")
+      .doc(canonicalEmail(email));
     const teamRef = teamSlug ? db.collection("teams").doc(teamSlug) : null;
 
     await db.runTransaction(async (tx) => {
