@@ -318,7 +318,7 @@ export function CompetitionWizard() {
 
   if (submitted) {
     return (
-      <section className="relative z-10 px-[clamp(20px,6vw,80px)] pt-20 pb-16">
+      <section className="relative z-10 px-[clamp(40px,6vw,80px)] pt-20 pb-16">
         <div className="border-brand-line bg-brand-panel mx-auto max-w-[560px] border p-8 text-center">
           <svg
             viewBox="0 0 64 64"
@@ -354,7 +354,7 @@ export function CompetitionWizard() {
   }
 
   return (
-    <section className="relative z-10 px-[clamp(20px,6vw,80px)] pt-20 pb-16">
+    <section className="relative z-10 px-[clamp(40px,6vw,80px)] pt-20 pb-16">
       <div className="mx-auto max-w-[560px]">
         <h2
           className="font-display text-foreground mb-[0.9rem] text-[clamp(1.5rem,3vw,2.15rem)] leading-none font-extrabold tracking-[-0.02em] uppercase"

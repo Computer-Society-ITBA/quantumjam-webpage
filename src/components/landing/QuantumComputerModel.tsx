@@ -100,6 +100,7 @@ export function QuantumComputerModel({ className, motion }: Props) {
         camera={{ position: [0, 0, CAMERA_Z], fov: CAMERA_FOV }}
         dpr={[1, 1.75]}
         gl={{ antialias: true, alpha: true }}
+        resize={{ scroll: false, debounce: { scroll: 50, resize: 0 } }}
       >
         <ambientLight intensity={0.35} />
         <directionalLight
