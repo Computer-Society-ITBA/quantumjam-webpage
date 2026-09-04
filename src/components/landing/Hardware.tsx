@@ -87,8 +87,7 @@ function useSplineChipSpin(motion: Motion) {
 
       // Restart the clock while hidden so every entrance is identical.
       elapsed = motion.move < CHIP_VISIBLE_FROM ? 0 : elapsed + delta
-      // Derived rather than accumulated, so it can't drift off its target
-      // and always lands exactly on a whole turn (the chip's front).
+
       const angle = chipAngle(elapsed)
 
       const dx = start.camX - start.pivotX
@@ -110,13 +109,6 @@ function useSplineChipSpin(motion: Motion) {
   }
 }
 
-/**
- * Drives the model→chip swap from a single rAF loop. Scroll position is
- * damped toward its target rather than applied raw, which removes the
- * jitter of discrete wheel steps, and every per-frame value is written
- * straight to DOM refs / the shared motion object - so scrolling never
- * re-renders React (which previously re-rendered both WebGL subtrees).
- */
 function useHardwareMotion() {
   const sectionRef = useRef<HTMLDivElement>(null)
   const modelRef = useRef<HTMLDivElement>(null)
@@ -127,20 +119,17 @@ function useHardwareMotion() {
 
   useEffect(() => {
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)')
-    const wide = window.matchMedia('(min-width: 768px)')
 
     const sync = () => {
-      const next = wide.matches && !reduced.matches
+      const next = !reduced.matches
       pinnedRef.current = next
       setPinned(next)
     }
 
     sync()
     reduced.addEventListener('change', sync)
-    wide.addEventListener('change', sync)
     return () => {
       reduced.removeEventListener('change', sync)
-      wide.removeEventListener('change', sync)
     }
   }, [])
 
@@ -148,6 +137,9 @@ function useHardwareMotion() {
     let frame = 0
     let last = performance.now()
     let smooth = 0
+
+    const viewportHeight = () =>
+      window.visualViewport?.height ?? window.innerHeight
 
     const tick = (now: number) => {
       frame = requestAnimationFrame(tick)
@@ -160,11 +152,26 @@ function useHardwareMotion() {
 
       if (!pinnedRef.current) {
         motionRef.current.move = 1
+        smooth = 0
+
+        const chip = chipRef.current
+        if (chip) {
+          chip.style.transform = ''
+          chip.style.opacity = ''
+        }
+        const model = modelRef.current
+        if (model) {
+          model.style.transform = ''
+          model.style.opacity = ''
+        }
         return
       }
 
       const rect = section.getBoundingClientRect()
-      const scrollable = rect.height - window.innerHeight
+      // visualViewport.height is more stable than window.innerHeight on
+      // mobile, where the browser chrome showing/hiding mid-scroll would
+      // otherwise make `scrollable` (and therefore `raw`) jump.
+      const scrollable = rect.height - viewportHeight()
       const raw = scrollable > 0 ? clamp01(-rect.top / scrollable) : 1
       const target = clamp01((raw - MOVE_START) / (1 - MOVE_START))
 
@@ -224,18 +231,18 @@ export function Hardware() {
       ref={sectionRef}
       className="bg-brand-bg border-brand-line relative z-10 border-b"
       style={
-        pinned ? { height: `calc(100vh + ${PIN_SCROLL_VH}vh)` } : undefined
+        pinned ? { height: `calc(100dvh + ${PIN_SCROLL_VH}dvh)` } : undefined
       }
     >
       <div
         className={cn(
           'px-[clamp(20px,6vw,80px)] py-[clamp(40px,6vw,80px)]',
-          pinned && 'sticky top-0 h-screen overflow-hidden',
+          pinned && 'sticky top-0 h-dvh overflow-hidden',
         )}
       >
         <SectionHeading index="03">{t('hardware.title')}</SectionHeading>
         <div className="grid grid-cols-1 items-center gap-14 md:grid-cols-[0.85fr_1.15fr]">
-          <div className="relative aspect-square w-full overflow-hidden">
+          <div className="relative aspect-square min-h-[1px] w-full min-w-[1px] overflow-hidden">
             {pinned && (
               <div
                 ref={modelRef}

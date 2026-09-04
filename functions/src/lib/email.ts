@@ -190,7 +190,8 @@ function renderFooter(): string {
     <tr>
       <td style="${STYLE.footerWrap}">
         <p style="${STYLE.footerText}">
-        QuantumJam es nuestra jornada anual de computación cuántica, sponsoreada por IBM Quantum. 
+          QuantumJam es nuestra jornada anual de computación cuántica,
+          sponsoreada por IBM Quantum.
         </p>
         <p style="${STYLE.footerLinks}">
           <a href="${INSTAGRAM_URL}" style="${STYLE.footerLink}">Instagram</a>
@@ -447,6 +448,11 @@ export async function sendCompetitionConfirmationEmail(
   );
 }
 
+/**
+ * Renders the verification-code email body.
+ * @param {string} code Verification code to display.
+ * @return {string} The full HTML document.
+ */
 export function renderVerificationCodeHtml(code: string): string {
   return renderEmailShell(`
     <p style="${STYLE.label}">
@@ -461,13 +467,19 @@ export function renderVerificationCodeHtml(code: string): string {
   `);
 }
 
+/**
+ * Renders the workshop confirmation email body.
+ * @return {string} The full HTML document.
+ */
 export function renderWorkshopConfirmationHtml(): string {
   return renderEmailShell(`
     <p style="${STYLE.bodyText}">
-      &iexcl;Recibimos tu inscripci&oacute;n a los <strong>workshops y clases virtuales</strong>!
+      &iexcl;Recibimos tu inscripci&oacute;n a los
+      <strong>workshops y clases virtuales</strong>!
     </p>
     <p style="${STYLE.dimText}">
-      Sumate a nuestro servidor de Discord: ah&iacute; vamos a compartir los links de las sesiones y todas las novedades.
+      Sumate a nuestro servidor de Discord: ah&iacute; vamos a compartir los
+      links de las sesiones y todas las novedades.
     </p>
     <p style="text-align:center;margin:0;">
       <a href="${DISCORD_INVITE_URL}" style="${STYLE.ctaButton}">
@@ -496,8 +508,9 @@ export function renderCompetitionConfirmationHtml(
       </p>
       <p style="${STYLE.calloutText}">
         Gracias por postularte a la
-        <strong>Competencia de Computaci&oacute;n Cu&aacute;ntica QuantumJam</strong>.
-        Estamos revisando tu postulaci&oacute;n y te enviaremos un correo para informarte si fue
+        <strong>Competencia de Computaci&oacute;n Cu&aacute;ntica
+        QuantumJam</strong>. Estamos revisando tu postulaci&oacute;n y te
+        enviaremos un correo para informarte si fue
         aprobada <strong>antes del 14 de noviembre</strong>.
       </p>
     </div>

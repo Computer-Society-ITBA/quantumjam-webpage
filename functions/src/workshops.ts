@@ -4,7 +4,12 @@ import * as logger from "firebase-functions/logger";
 
 import {db} from "./admin";
 import {GMAIL_APP_PASSWORD, sendWorkshopConfirmationEmail} from "./lib/email";
-import {isValidEmail, normalizeEmail, verificationId} from "./lib/otp";
+import {
+  canonicalEmail,
+  isValidEmail,
+  normalizeEmail,
+  verificationId,
+} from "./lib/otp";
 
 const LEVELS = ["none", "basic", "intermediate"] as const;
 type Level = (typeof LEVELS)[number];
@@ -48,7 +53,9 @@ export const submitWorkshopSignup = onCall(
     const verRef = db
       .collection("emailVerifications")
       .doc(verificationId("workshops", email));
-    const signupRef = db.collection("workshopSignups").doc(email);
+    const signupRef = db
+      .collection("workshopSignups")
+      .doc(canonicalEmail(email));
 
     await db.runTransaction(async (tx) => {
       const verSnap = await tx.get(verRef);

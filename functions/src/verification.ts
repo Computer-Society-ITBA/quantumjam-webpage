@@ -7,6 +7,7 @@ import {
   MAX_REQUESTS_PER_HOUR,
   MAX_VERIFY_ATTEMPTS,
   RESEND_COOLDOWN_S,
+  canonicalEmail,
   generateCode,
   generateToken,
   hashCode,
@@ -116,7 +117,9 @@ export const requestVerificationCode = onCall(
   async (request) => {
     const {email, purpose} = assertValidRequest(request.data);
 
-    const signupRef = db.collection(signupCollection(purpose)).doc(email);
+    const signupRef = db
+      .collection(signupCollection(purpose))
+      .doc(canonicalEmail(email));
     const signupSnap = await signupRef.get();
     if (signupSnap.exists) {
       throw new HttpsError(
