@@ -38,6 +38,8 @@ jobs:
       - name: Deploy Firebase Functions
         uses: w9jds/firebase-action@v2.2.2
         with:
-          args: deploy --only functions
+          args: >-
+            deploy --project webpage-36e40 --non-interactive
+            --only functions:requestVerificationCode,functions:confirmVerificationCode,functions:submitWorkshopSignup,functions:submitCompetitionSignup,functions:lookupTeam
         env:
           GCP_SA_KEY: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_WEBPAGE_36E40 }}
