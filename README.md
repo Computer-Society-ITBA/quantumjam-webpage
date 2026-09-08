@@ -154,6 +154,7 @@ sync by hand across the two projects - the invite URL lives in
 in `registration.workshops.success.discord.steps` (en/es) and in
 `DISCORD_STEPS` in `email.ts`. Changing the invite or a step means
 editing both sides.
+
 ### Registration feature flags
 
 Both sign-up flows are gated on a single Firestore document,
