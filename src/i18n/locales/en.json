@@ -7,18 +7,18 @@
     "eyebrow": "Computer Society ITBA × IBM Quantum",
     "subtitle": "Virtual workshops and classes leading up to an in-person quantum computing competition at ITBA.",
     "sponsored_by": "Sponsored by",
-    "date": "Sat, November 14",
+    "date": "Sat, November 21",
     "place": "ITBA SDF (San Martín 202)",
-    "capacity": "Free · Limited spots",
+    "capacity": "Free, limited spots",
     "cta": "Sign Up"
   },
   "about": {
     "title": "What is QuantumJam?",
-    "description": "A Computer Society ITBA event in two independent parts: a series of virtual workshops and classes, followed by a one-day, in-person quantum computing competition at ITBA. Both are 100% free — competition day (about 8 hours) includes food, a workspace, and mentors for every team.",
+    "description": "A Computer Society ITBA event in two independent parts: a series of virtual workshops and classes, followed by a one-day, in-person quantum computing competition at ITBA. Both are 100% free, and competition day (about 8 hours) includes food, a workspace, and mentors for every team.",
     "features": {
       "beginner": {
         "title": "No prior experience needed",
-        "desc": "New to quantum computing? Perfect — you'll leave knowing what a qubit is, what superposition means, and how to code with them."
+        "desc": "New to quantum computing? Perfect: you'll leave knowing what a qubit is, what superposition means, and how to code with them."
       },
       "hands_on": {
         "title": "Hands-on with Qiskit",
@@ -32,7 +32,7 @@
   },
   "hardware": {
     "title": "The hardware",
-    "description": "This is what an IBM Quantum processor looks like: each qubit lives in a superconducting circuit, cooled to a fraction of a degree above absolute zero. At QuantumJam you won't need a cryostat — every circuit you build runs on Qiskit's simulator, modeled faithfully on this real IBM architecture.",
+    "description": "This is what an IBM Quantum processor looks like: each qubit lives in a superconducting circuit, cooled to a fraction of a degree above absolute zero. At QuantumJam you won't need a cryostat: every circuit you build runs on Qiskit's simulator, modeled faithfully on this real IBM architecture.",
     "specs": {
       "qubit_label": "Qubit",
       "qubit_value": "Simulated superconducting qubit (IBM design)",
@@ -53,12 +53,12 @@
     },
     "competition": {
       "label": "Competition day",
-      "desc": "November 14 · ~8 hours, in person at ITBA SDF."
+      "desc": "November 21, about 8 hours, in person at ITBA SDF."
     }
   },
   "sponsor": {
     "title": "IBM Quantum",
-    "description": "IBM Quantum powers QuantumJam with Qiskit, the open-source framework used to build, simulate, and run every circuit — modeled on IBM's real quantum processors.",
+    "description": "IBM Quantum powers QuantumJam with Qiskit, the open-source framework used to build, simulate, and run every circuit, modeled on IBM's real quantum processors.",
     "items": {
       "hardware": {
         "label": "Simulator",
@@ -90,7 +90,7 @@
     "competition": {
       "ket": "|1⟩",
       "title": "Quantum computing competition",
-      "desc": "Free, one day, live at ITBA — food, workspace, and mentors included.",
+      "desc": "Free, one day, live at ITBA: food, workspace, and mentors included.",
       "mode": "In person"
     },
     "closedBadge": "Closed",
@@ -264,6 +264,10 @@
         "changeEmail": "Use a different email",
         "submit": "Confirm email"
       },
+      "details": {
+        "title": "Your details",
+        "desc": "Now the part we need to save your spot in the sessions."
+      },
       "personal": {
         "title": "Personal Info",
         "desc": "Who is showing up at ITBA. We use this for accreditation and catering.",
@@ -332,13 +336,13 @@
     },
     "competition": {
       "title": "Quantum computing competition",
-      "description": "Free, in-person at ITBA — one day (about 8 hours) with food, workspace, and mentors included. Registering for the workshops is separate.",
+      "description": "Free, in-person at ITBA: one day (about 8 hours) with food, workspace, and mentors included. Registering for the workshops is separate.",
       "submit": "Collapse the wavefunction",
       "submitting": "Measuring the system…",
       "note": "We review every application and email you about your status in the coming days.",
       "success": {
         "title": "Your application is in",
-        "desc": "We'll review it and email you about your status ahead of November 14."
+        "desc": "We'll review it and email you about your status ahead of November 21."
       }
     }
   },

@@ -36,7 +36,9 @@ const emptyForm: FormState = {
 }
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-const STEPS = ['details', 'verify'] as const
+// Verification comes first: the address is confirmed, and captured, before
+// we ask for anything else.
+const STEPS = ['email', 'verify', 'details'] as const
 type StepId = (typeof STEPS)[number]
 
 type RegistrationFormProps = {
@@ -56,8 +58,12 @@ export function RegistrationForm({
   >({})
   const [code, setCode] = useState(emptyCode)
   const [codeError, setCodeError] = useState('')
+  const [formError, setFormError] = useState('')
   const [busy, setBusy] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const [verificationToken, setVerificationToken] = useState<string | null>(
+    null,
+  )
 
   const current: StepId = STEPS[step]
   const { cooldown, reset: resetCooldown } = useResendCooldown(
@@ -76,29 +82,48 @@ export function RegistrationForm({
       })
     }
 
-  const validate = (): Partial<Record<keyof FormState, string>> => {
+  const setEmail = (value: string) => {
+    set('email')(value)
+    setVerificationToken(null)
+  }
+
+  /** Sends the visitor back to step one to verify a fresh code. */
+  const restartVerification = () => {
+    setVerificationToken(null)
+    setCode(emptyCode)
+    setCodeError('')
+    setStep(0)
+  }
+
+  const validateEmail = () => {
+    if (!form.email.trim()) {
+      setErrors({ email: t('registration.validation.required') })
+      return false
+    }
+    if (!EMAIL_RE.test(form.email)) {
+      setErrors({ email: t('registration.validation.email') })
+      return false
+    }
+    setErrors({})
+    return true
+  }
+
+  const validateDetails = () => {
     const required = t('registration.validation.required')
     const next: Partial<Record<keyof FormState, string>> = {}
     if (!form.name.trim()) next.name = required
-    if (!form.email.trim()) next.email = required
-    else if (!EMAIL_RE.test(form.email))
-      next.email = t('registration.validation.email')
     if (!form.career.trim()) next.career = required
     if (!form.level) next.level = required
-    return next
+    setErrors(next)
+    return Object.keys(next).length === 0
   }
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (busy || submitted) return
 
-    if (current === 'details') {
-      const nextErrors = validate()
-      if (Object.keys(nextErrors).length > 0) {
-        setErrors(nextErrors)
-        return
-      }
-      setErrors({})
+    if (current === 'email') {
+      if (!validateEmail()) return
       setBusy(true)
       try {
         await requestCode(form.email, 'workshops')
@@ -118,18 +143,42 @@ export function RegistrationForm({
       return
     }
 
-    if (!isCodeComplete(code)) {
-      setCodeError(t('registration.validation.code'))
+    if (current === 'verify') {
+      if (!isCodeComplete(code)) {
+        setCodeError(t('registration.validation.code'))
+        return
+      }
+      setCodeError('')
+      setBusy(true)
+      try {
+        const result = await confirmCode(form.email, 'workshops', code)
+        setVerificationToken(result.verificationToken)
+        setStep(2)
+      } catch (err) {
+        const errCode = errorCode(err)
+        if (errCode === 'deadline-exceeded' || errCode === 'not-found') {
+          setCodeError(t('registration.validation.codeExpired'))
+        } else if (errCode === 'resource-exhausted') {
+          setCodeError(t('registration.validation.tooManyAttempts'))
+        } else {
+          setCodeError(t('registration.validation.codeInvalid'))
+        }
+      } finally {
+        setBusy(false)
+      }
       return
     }
-    setCodeError('')
+
+    if (!validateDetails()) return
+    if (!verificationToken) {
+      setFormError(t('registration.validation.codeExpired'))
+      restartVerification()
+      return
+    }
+
+    setFormError('')
     setBusy(true)
     try {
-      const { verificationToken } = await confirmCode(
-        form.email,
-        'workshops',
-        code,
-      )
       await submitWorkshop({
         email: form.email,
         verificationToken,
@@ -141,16 +190,15 @@ export function RegistrationForm({
       setSubmitted(true)
     } catch (err) {
       const errCode = errorCode(err)
-      if (errCode === 'deadline-exceeded' || errCode === 'not-found') {
-        setCodeError(t('registration.validation.codeExpired'))
-      } else if (errCode === 'resource-exhausted') {
-        setCodeError(t('registration.validation.tooManyAttempts'))
-      } else if (errCode === 'already-exists') {
-        setCodeError(t('registration.validation.emailTaken'))
-      } else if (errCode === 'invalid-argument') {
-        setCodeError(t('registration.validation.codeInvalid'))
+      if (errCode === 'already-exists') {
+        setFormError(t('registration.validation.emailTaken'))
+      } else if (errCode === 'failed-precondition') {
+        // The verification expired while the details were being filled
+        // in; a fresh code is the only way forward.
+        setFormError(t('registration.validation.codeExpired'))
+        restartVerification()
       } else {
-        setCodeError(t('registration.validation.submitFailed'))
+        setFormError(t('registration.validation.submitFailed'))
       }
     } finally {
       setBusy(false)
@@ -217,18 +265,16 @@ export function RegistrationForm({
             >
               <div className="mb-2 flex items-center justify-between gap-4">
                 <h3 className="text-foreground text-[1.1rem] font-semibold">
-                  {current === 'details'
-                    ? t('registration.wizard.steps.details')
-                    : t('registration.wizard.verify.title')}
+                  {t(`registration.wizard.${current}.title`)}
                 </h3>
                 {step > 0 && (
                   <button
                     type="button"
-                    onClick={() => {
-                      setCode(emptyCode)
-                      setCodeError('')
-                      setStep(0)
-                    }}
+                    onClick={
+                      current === 'verify'
+                        ? restartVerification
+                        : () => setStep(step - 1)
+                    }
                     className="text-brand-text-dim hover:text-brand-green flex flex-shrink-0 items-center gap-2 text-[0.85rem] leading-none transition-colors"
                   >
                     <span
@@ -244,6 +290,71 @@ export function RegistrationForm({
                 )}
               </div>
 
+              {current === 'email' && (
+                <QuantumField
+                  variant="email"
+                  label={t('registration.fields.email.label')}
+                  ghost1={t('registration.fields.email.ghost1')}
+                  ghost2={t('registration.fields.email.ghost2')}
+                  value={form.email}
+                  onChange={setEmail}
+                  required
+                  error={errors.email}
+                />
+              )}
+
+              {current === 'verify' && (
+                <div className="flex flex-col gap-4">
+                  <VerifyCodeInput
+                    value={code}
+                    onChange={(value) => {
+                      setCode(value)
+                      if (codeError) setCodeError('')
+                    }}
+                    label={t('registration.wizard.verify.codeLabel')}
+                    error={codeError}
+                  />
+                  <div className="text-brand-text-dim flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[0.82rem]">
+                    <button
+                      type="button"
+                      disabled={cooldown > 0 || busy}
+                      onClick={async () => {
+                        setBusy(true)
+                        try {
+                          await requestCode(form.email, 'workshops')
+                          resetCooldown()
+                          setCode(emptyCode)
+                          setCodeError('')
+                        } catch (err) {
+                          const errCode = errorCode(err)
+                          setCodeError(
+                            errCode === 'resource-exhausted'
+                              ? t('registration.validation.tooManyAttempts')
+                              : t('registration.validation.submitFailed'),
+                          )
+                        } finally {
+                          setBusy(false)
+                        }
+                      }}
+                      className="text-brand-magenta-bright hover:text-brand-green transition-colors disabled:cursor-not-allowed disabled:text-current disabled:opacity-70"
+                    >
+                      {cooldown > 0
+                        ? t('registration.wizard.verify.resendIn', {
+                            seconds: cooldown,
+                          })
+                        : t('registration.wizard.verify.resend')}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={restartVerification}
+                      className="hover:text-brand-green transition-colors"
+                    >
+                      {t('registration.wizard.verify.changeEmail')}
+                    </button>
+                  </div>
+                </div>
+              )}
+
               {current === 'details' && (
                 <>
                   <QuantumField
@@ -254,16 +365,6 @@ export function RegistrationForm({
                     onChange={set('name')}
                     required
                     error={errors.name}
-                  />
-                  <QuantumField
-                    variant="email"
-                    label={t('registration.fields.email.label')}
-                    ghost1={t('registration.fields.email.ghost1')}
-                    ghost2={t('registration.fields.email.ghost2')}
-                    value={form.email}
-                    onChange={set('email')}
-                    required
-                    error={errors.email}
                   />
                   <QuantumField
                     label={t('registration.fields.career.label')}
@@ -321,60 +422,13 @@ export function RegistrationForm({
                 </>
               )}
 
-              {current === 'verify' && (
-                <div className="flex flex-col gap-4">
-                  <VerifyCodeInput
-                    value={code}
-                    onChange={(value) => {
-                      setCode(value)
-                      if (codeError) setCodeError('')
-                    }}
-                    label={t('registration.wizard.verify.codeLabel')}
-                    error={codeError}
-                  />
-                  <div className="text-brand-text-dim flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[0.82rem]">
-                    <button
-                      type="button"
-                      disabled={cooldown > 0 || busy}
-                      onClick={async () => {
-                        setBusy(true)
-                        try {
-                          await requestCode(form.email, 'workshops')
-                          resetCooldown()
-                          setCode(emptyCode)
-                          setCodeError('')
-                        } catch (err) {
-                          const errCode = errorCode(err)
-                          setCodeError(
-                            errCode === 'resource-exhausted'
-                              ? t('registration.validation.tooManyAttempts')
-                              : t('registration.validation.submitFailed'),
-                          )
-                        } finally {
-                          setBusy(false)
-                        }
-                      }}
-                      className="text-brand-magenta-bright hover:text-brand-green transition-colors disabled:cursor-not-allowed disabled:text-current disabled:opacity-70"
-                    >
-                      {cooldown > 0
-                        ? t('registration.wizard.verify.resendIn', {
-                            seconds: cooldown,
-                          })
-                        : t('registration.wizard.verify.resend')}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setCode(emptyCode)
-                        setCodeError('')
-                        setStep(0)
-                      }}
-                      className="hover:text-brand-green transition-colors"
-                    >
-                      {t('registration.wizard.verify.changeEmail')}
-                    </button>
-                  </div>
-                </div>
+              {formError && (
+                <p
+                  role="alert"
+                  className="text-brand-magenta-bright text-[0.82rem]"
+                >
+                  {formError}
+                </p>
               )}
 
               <div className="mt-1 flex flex-col items-center gap-3.5 text-center">
@@ -388,11 +442,11 @@ export function RegistrationForm({
                     busy && 'cursor-progress opacity-70',
                   )}
                 >
-                  {busy && current === 'verify'
-                    ? t(`registration.${event}.submitting`)
-                    : current === 'details'
-                      ? t('registration.wizard.email.submit')
-                      : t('registration.wizard.verify.submit')}
+                  {current === 'details'
+                    ? busy
+                      ? t(`registration.${event}.submitting`)
+                      : t(`registration.${event}.submit`)
+                    : t(`registration.wizard.${current}.submit`)}
                 </Button>
                 <p className="text-brand-text-dim max-w-[46ch] text-[0.76rem]">
                   {t('registration.consent')}

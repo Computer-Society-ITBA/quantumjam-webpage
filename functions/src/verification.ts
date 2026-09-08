@@ -3,6 +3,10 @@ import {DocumentReference, Timestamp} from "firebase-admin/firestore";
 
 import {db} from "./admin";
 import {
+  markEmailContactVerified,
+  recordEmailContact,
+} from "./lib/contacts";
+import {
   CODE_TTL_MS,
   MAX_REQUESTS_PER_HOUR,
   MAX_VERIFY_ATTEMPTS,
@@ -53,7 +57,7 @@ function signupCollection(purpose: Purpose): string {
 /**
  * Atomically checks the resend cooldown and hourly request cap, then
  * reserves the slot by writing the new (unsent) code. Pure Firestore work
- * only — no I/O side effects — so it's safe for the transaction to retry
+ * only (no I/O side effects), so it's safe for the transaction to retry
  * on contention.
  * @param {DocumentReference} verRef The emailVerifications doc reference.
  * @param {string} email The email being verified.
@@ -137,6 +141,10 @@ export const requestVerificationCode = onCall(
 
     await claimVerificationSlot(verRef, email, purpose, hashCode(code));
 
+    // Capture the address before the code is even sent: an unverified
+    // contact is still a contact.
+    await recordEmailContact(email, purpose);
+
     try {
       await sendVerificationCodeEmail(email, code);
     } catch {
@@ -200,6 +208,8 @@ export const confirmVerificationCode = onCall(async (request) => {
     });
     return token;
   });
+
+  await markEmailContactVerified(email, purpose);
 
   return {ok: true, verificationToken};
 });
