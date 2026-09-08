@@ -1,12 +1,15 @@
+import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 
 import { BackLink } from '@/components/registration/BackLink'
 import { Footer } from '@/components/landing/Footer'
+import { useRegistrationFlags } from '@/hooks/useRegistrationFlags'
+import { isRegistrationOpen, type RegistrationEvent } from '@/lib/featureFlags'
 import { cn } from '@/lib/utils'
 
 type EventOption = {
-  event: 'workshops' | 'competition'
+  event: RegistrationEvent
   accent: 'magenta' | 'green'
 }
 
@@ -15,20 +18,20 @@ const options: EventOption[] = [
   { event: 'competition', accent: 'green' },
 ]
 
-function EventRow({ option }: { option: EventOption }) {
+function EventRow({ option, open }: { option: EventOption; open: boolean }) {
   const { t } = useTranslation()
   const isMagenta = option.accent === 'magenta'
-  return (
-    <Link
-      to={`/register/${option.event}`}
-      className="group flex items-start gap-5 py-6"
-    >
+
+  const body = (
+    <>
       <div
         className={cn(
           'font-display mt-0.5 flex h-[38px] w-10 flex-shrink-0 items-center justify-center border-2 text-[0.82rem] font-extrabold transition-colors',
-          isMagenta
-            ? 'border-brand-magenta-bright/50 text-brand-magenta-bright group-hover:bg-brand-magenta-bright/10'
-            : 'border-brand-green/50 text-brand-green group-hover:bg-brand-green/10',
+          !open
+            ? 'border-brand-line text-brand-text-dim'
+            : isMagenta
+              ? 'border-brand-magenta-bright/50 text-brand-magenta-bright group-hover:bg-brand-magenta-bright/10'
+              : 'border-brand-green/50 text-brand-green group-hover:bg-brand-green/10',
         )}
       >
         {t(`registerSelect.${option.event}.ket`)}
@@ -36,31 +39,64 @@ function EventRow({ option }: { option: EventOption }) {
       <div className="flex-1">
         <h2
           className={cn(
-            'text-foreground mb-1 text-[1.05rem] font-medium transition-colors',
-            isMagenta
-              ? 'group-hover:text-brand-magenta-bright'
-              : 'group-hover:text-brand-green',
+            'mb-1 text-[1.05rem] font-medium transition-colors',
+            !open
+              ? 'text-brand-text-dim'
+              : cn(
+                  'text-foreground',
+                  isMagenta
+                    ? 'group-hover:text-brand-magenta-bright'
+                    : 'group-hover:text-brand-green',
+                ),
           )}
         >
           {t(`registerSelect.${option.event}.title`)}
         </h2>
         <p className="text-brand-text-dim max-w-[46ch] text-[0.9rem] font-light">
-          {t(`registerSelect.${option.event}.desc`)}
+          {open
+            ? t(`registerSelect.${option.event}.desc`)
+            : t('registerSelect.closedDesc')}
         </p>
       </div>
       <span
         className={cn(
           'font-display mt-1 flex-shrink-0 text-[0.78rem] font-bold tracking-[0.06em] uppercase',
-          isMagenta ? 'text-brand-magenta-bright' : 'text-brand-green',
+          !open
+            ? 'text-brand-text-dim'
+            : isMagenta
+              ? 'text-brand-magenta-bright'
+              : 'text-brand-green',
         )}
       >
-        {t(`registerSelect.${option.event}.mode`)}
+        {open
+          ? t(`registerSelect.${option.event}.mode`)
+          : t('registerSelect.closedBadge')}
       </span>
+    </>
+  )
+
+  if (!open) {
+    return (
+      <div
+        aria-disabled="true"
+        className="flex items-start gap-5 py-6 opacity-60"
+      >
+        {body}
+      </div>
+    )
+  }
+
+  return (
+    <Link
+      to={`/register/${option.event}`}
+      className="group flex items-start gap-5 py-6"
+    >
+      {body}
     </Link>
   )
 }
 
-export default function RegisterSelectPage() {
+function Shell({ children }: { children: ReactNode }) {
   const { t } = useTranslation()
   return (
     <>
@@ -76,14 +112,49 @@ export default function RegisterSelectPage() {
           <p className="text-brand-text-dim mb-4 max-w-[52ch] font-light">
             {t('registerSelect.description')}
           </p>
-          <div className="border-brand-line divide-brand-line divide-y border-y">
-            {options.map((o) => (
-              <EventRow key={o.event} option={o} />
-            ))}
-          </div>
+          {children}
         </div>
       </main>
       <Footer />
     </>
+  )
+}
+
+export default function RegisterSelectPage() {
+  const { t } = useTranslation()
+  const { flags, loading } = useRegistrationFlags()
+
+  if (loading) {
+    return (
+      <Shell>
+        <div
+          role="status"
+          className="text-brand-text-dim animate-pulse text-[0.9rem]"
+        >
+          {t('registration.closed.loading')}
+        </div>
+      </Shell>
+    )
+  }
+
+  const allClosed = options.every((o) => !isRegistrationOpen(flags, o.event))
+
+  return (
+    <Shell>
+      <div className="border-brand-line divide-brand-line divide-y border-y">
+        {options.map((o) => (
+          <EventRow
+            key={o.event}
+            option={o}
+            open={isRegistrationOpen(flags, o.event)}
+          />
+        ))}
+      </div>
+      {allClosed && (
+        <p className="text-brand-text-dim mt-4 max-w-[52ch] text-[0.9rem] font-light">
+          {t('registerSelect.allClosedNote')}
+        </p>
+      )}
+    </Shell>
   )
 }

@@ -93,6 +93,9 @@
       "desc": "Free, one day, live at ITBA — food, workspace, and mentors included.",
       "mode": "In person"
     },
+    "closedBadge": "Closed",
+    "closedDesc": "Registration for this part is not open right now.",
+    "allClosedNote": "Both sign-ups are closed for now. Follow us on Instagram to hear when they reopen.",
     "backHome": "Home"
   },
   "notFound": {
@@ -103,6 +106,13 @@
   "registration": {
     "backToSelect": "Events",
     "consent": "By completing this form, you agree to share your data with the event organizers and sponsors.",
+    "closed": {
+      "title": "Registration is closed",
+      "workshopsDesc": "Sign-ups for the virtual workshops and classes are not open right now. Follow us on Instagram to hear when they reopen.",
+      "competitionDesc": "Sign-ups for the competition are not open right now. Follow us on Instagram to hear when they reopen.",
+      "cta": "Back to |0⟩",
+      "loading": "Checking whether registration is open…"
+    },
     "validation": {
       "required": "This field is required.",
       "email": "Enter a valid email address.",

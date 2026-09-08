@@ -145,6 +145,42 @@ to add there when adding a new field; add it in the relevant
 `functions/src/*.ts` file and the matching frontend call in
 `src/lib/registrationApi.ts` instead.
 
+### Registration feature flags
+
+Both sign-up flows are gated on a single Firestore document,
+`featureFlags/registration`, in the `quantumjam` database:
+
+| Field                         | Type      | Gates                   |
+| ----------------------------- | --------- | ----------------------- |
+| `workshopsRegistrationOpen`   | `boolean` | `/register/workshops`   |
+| `competitionRegistrationOpen` | `boolean` | `/register/competition` |
+
+Set a field to `false` to close that flow. **Only an explicit
+`false` closes it** - a missing document, a missing field, or a
+Firestore read error all leave registration open, so shipping this
+code before the document exists does not take sign-ups down. Create
+the document by hand in the Firebase console (Firestore → database
+`quantumjam` → collection `featureFlags` → document `registration`),
+or with the Admin SDK.
+
+The flag is enforced in two places:
+
+- **Client** - `src/lib/featureFlags.ts` subscribes to the document
+  with `onSnapshot`, so flipping a flag in the console locks or
+  unlocks the page live, no redeploy. `RegistrationGate` renders the
+  locked state instead of the form, and never mounts the form, so
+  `/register/workshops` and `/register/competition` are closed to
+  direct URL access too. `/register` greys out the closed option.
+- **Server** - `functions/src/lib/flags.ts` re-checks the same
+  document inside `requestVerificationCode`,
+  `confirmVerificationCode`, `submitWorkshopSignup` and
+  `submitCompetitionSignup`, rejecting with `failed-precondition`.
+  The client gate is UX; this is what actually enforces it.
+
+This document is the one exception to the deny-all
+`firestore.rules`: it is public-read (and no-write) so the site can
+read it without a round trip through a Cloud Function.
+
 ### Email delivery (SMTP)
 
 Both the verification code and the post-registration confirmation
