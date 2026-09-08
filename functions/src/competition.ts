@@ -22,7 +22,7 @@ import {MAX_TEAM_SIZE, teamIdFrom} from "./lib/slug";
 
 type TeamChoice = "join" | "create" | "alone";
 
-// DNI or passport, per the field's own copy — passports can contain letters.
+// DNI or passport, per the field's own copy: passports can contain letters.
 const ID_RE = /^[a-zA-Z0-9]{5,20}$/;
 const AGE_RE = /^\d{1,3}$/;
 const GRAD_YEAR_RE = /^\d{4}$/;
