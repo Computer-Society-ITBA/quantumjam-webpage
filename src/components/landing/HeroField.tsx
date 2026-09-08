@@ -73,7 +73,11 @@ void main(){
 
   float u = p.x * 44.0 * uDensity + t * 0.12;
   float l = ln(u, uWeight * (0.22 + 2.3 * fr * fr));
-  vec3 col = mix(uC2, uC1, fr);
+  // Bias the color mix toward magenta (uC2). fr spends more time near its
+  // extremes than in the middle, so a linear mix ends up green-dominated;
+  // pow(fr, 1.4) pulls mid values down without changing the underlying
+  // geometry that drives line width and glow.
+  vec3 col = mix(uC2, uC1, pow(fr, 1.4));
   float intensity = (l + halo(u, uWeight) * uGlow * fr * 0.28) * uAlphaScale;
   O = vec4(col * intensity, intensity);
 }

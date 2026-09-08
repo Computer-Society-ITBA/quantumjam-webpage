@@ -7,7 +7,7 @@
     "serve": "npm run build && firebase emulators:start --only functions",
     "shell": "npm run build && firebase functions:shell",
     "start": "npm run shell",
-    "deploy": "firebase deploy --only functions",
+    "deploy": "firebase deploy --project webpage-36e40 --only functions:requestVerificationCode,functions:confirmVerificationCode,functions:submitWorkshopSignup,functions:submitCompetitionSignup,functions:lookupTeam",
     "logs": "firebase functions:log"
   },
   "engines": {

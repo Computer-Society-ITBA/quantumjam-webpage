@@ -124,8 +124,36 @@ under `functions/src/`:
 | `competition.ts`  | `submitCompetitionSignup`, `lookupTeam`                                                                                  |
 | `admin.ts`        | Admin SDK bootstrap, pinned to the `quantumjam` database                                                                 |
 | `lib/otp.ts`      | Code generation/hashing, email normalization, rate-limit constants                                                       |
+| `lib/contacts.ts` | `emailContacts` capture: every address that starts a sign-up, with a verified/unverified status                          |
 | `lib/slug.ts`     | `teamIdFrom()` (kept in sync by hand with the frontend copy in `src/components/registration/wizard.ts`), `MAX_TEAM_SIZE` |
 | `lib/email.ts`    | Branded HTML email templates + sending (see below)                                                                       |
+
+**Verification is the first step of both flows.** The visitor gives
+an email, confirms the 6-digit code, and only then fills in the rest
+of the form - the competition wizard already worked this way, and the
+workshops form now matches it (`email` -> `verify` -> `details`).
+
+**Every address is captured on the way through**, in the
+`emailContacts` collection (doc ID: the canonical email), for later
+outreach:
+
+| Field         | Meaning                                              |
+| ------------- | ---------------------------------------------------- |
+| `email`       | The address as typed (normalized, not canonicalized) |
+| `status`      | `"unverified"` or `"verified"`                       |
+| `purposes`    | Which flows it came from, e.g. `["workshops"]`       |
+| `firstSeenAt` | When the address was first entered                   |
+| `verifiedAt`  | When a code for it was first confirmed, else `null`  |
+| `updatedAt`   | Last write                                           |
+
+`requestVerificationCode` writes the row as `unverified` before the
+code is even sent, and `confirmVerificationCode` flips it to
+`verified`. The status only ever moves forward, so re-entering a
+confirmed address does not send it back to `unverified`. Both writes
+are best-effort: losing a contact row never fails the sign-up the
+visitor is actually trying to complete. An address landing here is
+independent of `workshopSignups` / `competitionSignups` - someone who
+abandons the form after the email step is still on the list.
 
 **Verification** is server-mediated: `requestVerificationCode`
 generates a 6-digit code (rate-limited: 30s resend cooldown, 5
@@ -137,13 +165,91 @@ writes the sign-up doc, so a token can't be replayed. Competition
 team create/join (capacity check, code-uniqueness check, member
 count) happens in that same transaction for atomicity.
 
-**Firestore collections** (`emailVerifications`, `workshopSignups`,
-`competitionSignups`, `teams`) are written exclusively by these
+**Firestore collections** (`emailVerifications`, `emailContacts`,
+`workshopSignups`, `competitionSignups`, `teams`) are written exclusively by these
 functions via the Admin SDK, which bypasses `firestore.rules`
 entirely - the rules file is a deliberate deny-all. There's nothing
 to add there when adding a new field; add it in the relevant
 `functions/src/*.ts` file and the matching frontend call in
 `src/lib/registrationApi.ts` instead.
+
+**Emails are sent in the visitor's language.** The callables take a
+`lang` from the client (`i18n.language`), normalized by
+`resolveLang()` in `functions/src/lib/i18n/`, which falls back to
+Spanish for anything it does not recognize. Copy lives in
+`functions/src/lib/i18n/locales/{en,es}.json` and is looked up with
+`t(lang, "dot.path", {params})`; `{placeholders}` interpolate. The
+chosen language is stored on the sign-up document, so a later mailing
+can use it too.
+
+This is a **separate translation system from the frontend's**
+`src/i18n/`: the emails render inside Cloud Functions, which cannot
+import from `src/`. Copy shown both on the site and in an email (the
+Discord onboarding steps, for one) therefore exists in both places
+and has to be changed in both.
+
+The Discord first-steps list is ordered by `DISCORD_STEP_KEYS` in
+`email.ts`, with the copy under `workshop.steps.<key>` in each
+locale, since `t()` resolves one string at a time rather than a list.
+
+**Discord onboarding.** The workshops confirmation email and the
+confirmation screen on the site show the same thing: the server
+invite plus the first steps to take once inside. They are kept in
+sync by hand across the two projects - the invite URL lives in
+`src/lib/links.ts` for the frontend and at the top of
+`functions/src/lib/email.ts` for the emails, and the four steps live
+in `registration.workshops.success.discord.steps` (en/es) and in
+`DISCORD_STEPS` in `email.ts`. Changing the invite or a step means
+editing both sides.
+
+### Registration feature flags
+
+Both sign-up flows are gated on a single Firestore document,
+`featureFlags/registration`, in the `quantumjam` database:
+
+| Field                         | Type      | Gates                   |
+| ----------------------------- | --------- | ----------------------- |
+| `workshopsRegistrationOpen`   | `boolean` | `/register/workshops`   |
+| `competitionRegistrationOpen` | `boolean` | `/register/competition` |
+
+**Only an explicit `true` opens a flow.** A missing document, a
+missing field, a denied read or an offline visitor all resolve to
+closed, on the client and in the functions alike. Fail closed:
+accepting sign-ups for an event that is meant to be shut is worse
+than turning a few away while Firestore is unreachable.
+
+That also means **the document has to exist before either flow will
+open**. Create it by hand in the Firebase console (Firestore →
+database `quantumjam` → collection `featureFlags` → document
+`registration`) with both booleans, or with the Admin SDK.
+
+**And `firestore.rules` has to be deployed** (`firebase deploy --only
+firestore:rules`), or the client read is denied and every visitor
+sees the closed state no matter what the document says. A denied read
+is logged to the browser console rather than swallowed, because it
+looks exactly like a flag that is switched off.
+
+The flag is enforced in two places:
+
+- **Client** - `src/lib/featureFlags.ts` holds a single `onSnapshot`
+  listener for the whole app: the document is read once, on first
+  use, and every later consumer (a route change, a second component)
+  is served synchronously from the cache, so moving around the site
+  never re-fetches. The listener stays attached, so flipping a flag
+  in the console locks or unlocks open tabs live, no redeploy.
+  `RegistrationGate` renders the locked state instead of the form,
+  and never mounts the form, so `/register/workshops` and
+  `/register/competition` are closed to direct URL access too.
+  `/register` greys out the closed option.
+- **Server** - `functions/src/lib/flags.ts` re-checks the same
+  document inside `requestVerificationCode`,
+  `confirmVerificationCode`, `submitWorkshopSignup` and
+  `submitCompetitionSignup`, rejecting with `failed-precondition`.
+  The client gate is UX; this is what actually enforces it.
+
+This document is the one exception to the deny-all
+`firestore.rules`: it is public-read (and no-write) so the site can
+read it without a round trip through a Cloud Function.
 
 ### Email delivery (SMTP)
 

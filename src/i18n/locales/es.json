@@ -7,9 +7,9 @@
     "eyebrow": "Computer Society ITBA × IBM Quantum",
     "subtitle": "Workshops y clases virtuales que llevan a una competencia de computación cuántica presencial en el ITBA.",
     "sponsored_by": "Sponsoreado por",
-    "date": "Sáb 14 de noviembre",
+    "date": "Sáb 21 de noviembre",
     "place": "ITBA SDF (San Martín 202)",
-    "capacity": "Gratis · Cupo limitado",
+    "capacity": "Gratis, cupo limitado",
     "cta": "Inscribirme"
   },
   "about": {
@@ -26,12 +26,12 @@
       },
       "community": {
         "title": "Comunidad",
-        "desc": "Charla técnica y networking con la comunidad cuántica de Buenos Aires."
+        "desc": "Charla técnica, mentoría y networking con la comunidad cuántica de Buenos Aires."
       }
     }
   },
   "hardware": {
-    "title": "El hardware",
+    "title": "El emulador",
     "description": "Así es un procesador de IBM Quantum: cada qubit vive en un circuito superconductor, enfriado a una fracción de grado sobre el cero absoluto. En QuantumJam no vas a necesitar un criostato: cada circuito que armes corre en el simulador de Qiskit, modelado fielmente sobre esta arquitectura real de IBM.",
     "specs": {
       "qubit_label": "Qubit",
@@ -53,7 +53,7 @@
     },
     "competition": {
       "label": "Día de la competencia",
-      "desc": "14 de noviembre · ~8 horas, presencial en el ITBA SDF."
+      "desc": "21 de noviembre, unas 8 horas, presencial en el ITBA SDF."
     }
   },
   "sponsor": {
@@ -76,7 +76,46 @@
   },
   "registerCta": {
     "title": "¿Te querés inscribir?",
-    "cta": "Inscribirme"
+    "cta": "Inscribirme",
+    "sponsorPrompt": "¿Querés ser sponsor?"
+  },
+  "sponsorInquiry": {
+    "title": "Sponsoreá QuantumJam",
+    "description": "Contanos un poco sobre tu organización y cómo te gustaría participar. Te respondemos por mail.",
+    "fields": {
+      "name": {
+        "label": "Tu nombre",
+        "ghost1": "Persona de contacto",
+        "ghost2": "¿A quién le respondemos?"
+      },
+      "organization": {
+        "label": "Organización",
+        "ghost1": "Empresa o institución",
+        "ghost2": "El nombre que figuraría como sponsor"
+      },
+      "email": {
+        "label": "Email",
+        "ghost1": "vos@empresa.com",
+        "ghost2": "¿Dónde te podemos escribir?"
+      },
+      "message": {
+        "label": "Mensaje (opcional)",
+        "ghost1": "Lo que quieras contarnos",
+        "ghost2": "Presupuesto, objetivos, preguntas, tiempos..."
+      }
+    },
+    "submit": "Enviar",
+    "sending": "Enviando...",
+    "backHome": "Inicio",
+    "validation": {
+      "required": "Requerido",
+      "email": "Ingresá un email válido",
+      "submitFailed": "Algo salió mal. Probá de nuevo en un momento."
+    },
+    "success": {
+      "title": "¡Gracias, nos vamos a comunicar!",
+      "desc": "Tu mensaje llegó a los organizadores. Esperá una respuesta en unos días."
+    }
   },
   "registerSelect": {
     "title": "Inscribite",
@@ -93,6 +132,9 @@
       "desc": "Gratis, un día, en vivo en el ITBA: comida, espacio de trabajo y mentores incluidos.",
       "mode": "Presencial"
     },
+    "closedBadge": "Cerrada",
+    "closedDesc": "La inscripción a esta parte no está abierta por ahora.",
+    "allClosedNote": "Las dos inscripciones están cerradas por ahora. Seguinos en Instagram para enterarte cuando vuelvan a abrir.",
     "backHome": "Inicio"
   },
   "notFound": {
@@ -103,6 +145,13 @@
   "registration": {
     "backToSelect": "Eventos",
     "consent": "Al completar este formulario, aceptás compartir tus datos con los organizadores y sponsors del evento.",
+    "closed": {
+      "title": "Inscripción cerrada",
+      "workshopsDesc": "La inscripción a los workshops y clases virtuales no está abierta por ahora. Seguinos en Instagram para enterarte cuando vuelva a abrir.",
+      "competitionDesc": "La inscripción a la competencia no está abierta por ahora. Seguinos en Instagram para enterarte cuando vuelva a abrir.",
+      "cta": "Volver a |0⟩",
+      "loading": "Verificando si la inscripción está abierta…"
+    },
     "validation": {
       "required": "Este campo es obligatorio.",
       "email": "Ingresá un email válido.",
@@ -254,6 +303,10 @@
         "changeEmail": "Usar otro email",
         "submit": "Confirmar email"
       },
+      "details": {
+        "title": "Tus datos",
+        "desc": "Ahora lo que necesitamos para guardarte el lugar en las sesiones."
+      },
       "personal": {
         "title": "Datos personales",
         "desc": "Quién viene al ITBA. Lo usamos para la acreditación y la comida.",
@@ -305,7 +358,19 @@
       "submitting": "Midiendo el sistema…",
       "success": {
         "title": "¡Ya estás adentro!",
-        "desc": "Revisá tu casilla: te acabamos de mandar los datos del servidor de Discord."
+        "desc": "Revisá tu casilla: te acabamos de mandar los mismos datos de Discord, así los tenés aunque cierres esta pestaña.",
+        "discord": {
+          "intro": "Todo lo de los workshops pasa en nuestro servidor de Discord. Entrá ahora así no te perdés la primera sesión.",
+          "cta": "Unirme al Discord",
+          "stepsTitle": "Primeros pasos una vez adentro",
+          "steps": {
+            "join": "Abrí la invitación y sumate al servidor de QuantumJam.",
+            "rules": "Leé el mensaje de bienvenida, aceptá las reglas y activá las notificaciones del canal de anuncios.",
+            "intro": "Presentate: contanos qué estudiás y qué te trae a la computación cuántica. No hace falta experiencia previa.",
+            "sessions": "Ahí publicamos el link de cada sesión, los materiales y cualquier cambio de horario. Después de esto no mandamos nada más por mail."
+          },
+          "fallback": "Si el botón no funciona, pegá esto en tu navegador: {{url}}"
+        }
       }
     },
     "competition": {
@@ -316,7 +381,7 @@
       "note": "Vamos a revisar cada postulación y te vamos a avisar tu estado por mail en los próximos días.",
       "success": {
         "title": "Tu postulación está en revisión",
-        "desc": "La vamos a revisar y te avisamos tu estado por mail antes del 14 de noviembre."
+        "desc": "La vamos a revisar y te avisamos tu estado por mail antes del 21 de noviembre."
       }
     }
   },
@@ -328,7 +393,7 @@
     },
     "links": {
       "about": "¿Qué es QuantumJam?",
-      "hardware": "El hardware",
+      "hardware": "El emulador",
       "agenda": "Agenda",
       "sponsor": "IBM Quantum",
       "register": "Inscribirme",

@@ -1,11 +1,9 @@
-import { useEffect, useState } from 'react'
 import { Calendar, MapPin, Ticket } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import quantumJamLogo from '@/assets/quantum-jam-logo-primary.svg?raw'
 import { HeroField } from '@/components/landing/HeroField'
 import { IbmLogo } from '@/components/landing/IbmLogo'
-import { cn } from '@/lib/utils'
 import { Nav } from './Nav'
 
 const heroWordmarkSvg = quantumJamLogo.replace(
@@ -36,33 +34,6 @@ function IbmBadge() {
   )
 }
 
-function useSettle() {
-  const [ready, setReady] = useState(false)
-  useEffect(() => {
-    const id = requestAnimationFrame(() => setReady(true))
-    return () => cancelAnimationFrame(id)
-  }, [])
-  return ready
-}
-
-type SettleProps = {
-  delay?: number
-  className?: string
-  children: React.ReactNode
-}
-
-function Settle({ delay = 0, className, children }: SettleProps) {
-  const ready = useSettle()
-  return (
-    <div
-      className={cn('settle', ready && 'in', className)}
-      style={{ transitionDelay: `${delay}s` }}
-    >
-      {children}
-    </div>
-  )
-}
-
 export function Hero() {
   const { t } = useTranslation()
 
@@ -81,34 +52,26 @@ export function Hero() {
       />
 
       <div className="relative z-10 flex max-w-[1200px] flex-col items-center">
-        <Settle delay={0.05}>
-          <div className="bg-brand-bg/85 text-brand-text-dim inline-flex items-center gap-[10px] px-3 py-1.5 text-[0.8rem]">
-            <span>{t('hero.sponsored_by')}</span>
-            <IbmBadge />
-          </div>
-        </Settle>
+        <div className="bg-brand-bg/85 text-brand-text-dim inline-flex items-center gap-[10px] px-3 py-1.5 text-[0.8rem]">
+          <span>{t('hero.sponsored_by')}</span>
+          <IbmBadge />
+        </div>
 
-        <Settle delay={0.15} className="w-full">
-          <h1
-            aria-label={t('nav.brand')}
-            className="hero-wordmark mx-auto mb-5 w-[clamp(240px,70vw,760px)] -translate-y-2"
-            dangerouslySetInnerHTML={{ __html: heroWordmarkSvg }}
-          />
-        </Settle>
+        <h1
+          aria-label={t('nav.brand')}
+          className="hero-wordmark mx-auto mb-5 w-[clamp(240px,70vw,760px)] -translate-y-2"
+          dangerouslySetInnerHTML={{ __html: heroWordmarkSvg }}
+        />
 
-        <Settle delay={0.25}>
-          <p className="bg-brand-bg/85 text-brand-text-dim mx-auto mb-6 inline-block max-w-[46ch] px-3 py-1.5 text-[clamp(1rem,1.5vw,1.15rem)] font-light">
-            {t('hero.subtitle')}
-          </p>
-        </Settle>
+        <p className="bg-brand-bg/85 text-brand-text-dim mx-auto mb-6 inline-block max-w-[46ch] px-3 py-1.5 text-[clamp(1rem,1.5vw,1.15rem)] font-light">
+          {t('hero.subtitle')}
+        </p>
 
-        <Settle delay={0.3}>
-          <div className="flex flex-nowrap items-stretch justify-center gap-3 overflow-x-auto">
-            <MetaChip icon={Calendar}>{t('hero.date')}</MetaChip>
-            <MetaChip icon={MapPin}>{t('hero.place')}</MetaChip>
-            <MetaChip icon={Ticket}>{t('hero.capacity')}</MetaChip>
-          </div>
-        </Settle>
+        <div className="flex flex-nowrap items-stretch justify-center gap-3 overflow-x-auto">
+          <MetaChip icon={Calendar}>{t('hero.date')}</MetaChip>
+          <MetaChip icon={MapPin}>{t('hero.place')}</MetaChip>
+          <MetaChip icon={Ticket}>{t('hero.capacity')}</MetaChip>
+        </div>
       </div>
     </section>
   )

@@ -1,0 +1,61 @@
+{
+  "verification": {
+    "subject": "QNTMJAM: Tu código de verificación",
+    "textBody": "Tu código de verificación es {code}. Expira en 10 minutos.\nSi no lo pediste vos, ignorá este mensaje.",
+    "label": "Tu código de verificación",
+    "fine": "Expira en 10 minutos. Si no lo pediste vos, ignorá este mensaje."
+  },
+  "workshop": {
+    "subject": "QNTMJAM: Sumate al Discord de los workshops",
+    "textIntro": "¡Recibimos tu inscripción a los workshops y clases virtuales!",
+    "textDiscord": "Todo lo de los workshops pasa en nuestro servidor de Discord. Entrá ahora así no te perdés la primera sesión:",
+    "textFallback": "Si el link no funciona, pegá esta dirección en tu navegador: {url}",
+    "introHtml": "¡Recibimos tu inscripción a los <strong>workshops y clases virtuales</strong>!",
+    "discordBlurb": "Todo lo de los workshops pasa en nuestro servidor de Discord. Entrá ahora así no te perdés la primera sesión.",
+    "cta": "Unirme al Discord",
+    "stepsTitle": "Primeros pasos una vez adentro",
+    "htmlFallback": "Si el botón no funciona, pegá esta dirección en tu navegador:",
+    "steps": {
+      "join": "Abrí la invitación y sumate al servidor de QuantumJam.",
+      "rules": "Leé el mensaje de bienvenida, aceptá las reglas y activá las notificaciones del canal de anuncios.",
+      "intro": "Presentate: contanos qué estudiás y qué te trae a la computación cuántica. No hace falta experiencia previa.",
+      "sessions": "Ahí publicamos el link de cada sesión, los materiales y cualquier cambio de horario. Después de esto no mandamos nada más por mail."
+    }
+  },
+  "competition": {
+    "subject": "QNTMJAM: Tu inscripción a la competencia está pendiente de aprobación",
+    "textIntro": "Tu postulación está pendiente de aprobación.\n\nGracias por postularte a la Competencia de Computación Cuántica QuantumJam. Tu equipo fue registrado correctamente y se encuentra actualmente en proceso de revisión. Te enviaremos un correo para informarte si tu postulación fue aprobada antes del 21 de noviembre.",
+    "textEventInfoHeading": "Después, la información del evento:",
+    "textDateTime": "Fecha y hora: {dateLabel}, {timeRange}",
+    "textLocation": "Ubicación: {location}",
+    "textDuration": "Duración: {duration}",
+    "textEventPage": "Página del evento: {url}",
+    "textDisclaimer": "Importante: la fecha, el horario y la ubicación del evento todavía están sujetos a confirmación. La participación de tu equipo no está confirmada hasta recibir la aprobación por correo.",
+    "calloutTitle": "Tu postulación está pendiente de aprobación",
+    "calloutTextHtml": "Gracias por postularte a la <strong>Competencia de Computación Cuántica QuantumJam</strong>. Estamos revisando tu postulación y te enviaremos un correo para informarte si fue aprobada <strong>antes del 21 de noviembre</strong>.",
+    "locationLabel": "Ubicación",
+    "durationLabel": "Duración",
+    "ctaEventPage": "Ver página del evento",
+    "disclaimerHtml": "La fecha, el horario y la ubicación del evento todavía están sujetos a confirmación. La participación de tu equipo <strong>no está confirmada hasta recibir la aprobación de la misma</strong>.",
+    "team": {
+      "label": "Equipo",
+      "aloneHtml": "Te anotaste sin equipo. Si quedás seleccionado, te asignamos a un equipo de hasta {maxTeamSize} personas antes de la competencia.",
+      "aloneText": "te anotaste sin equipo. Si quedás seleccionado, te asignamos a un equipo de hasta {maxTeamSize} personas antes de la competencia.",
+      "memberCount": "{count} de {max} integrantes",
+      "textLine": "Equipo: {name} (código: {code}), {count} de {max} integrantes."
+    },
+    "details": {
+      "dateMonth": "NOV",
+      "dateDay": "21",
+      "dateLabel": "Sábado 21 de noviembre",
+      "timeRange": "A confirmar",
+      "location": "A confirmar",
+      "duration": "A confirmar"
+    }
+  },
+  "footer": {
+    "blurb": "QuantumJam es nuestra jornada anual de computación cuántica, sponsoreada por IBM Quantum.",
+    "address": "ITBA SDF, San Martín 202, CABA",
+    "copyright": "© 2026 Computer Society ITBA"
+  }
+}

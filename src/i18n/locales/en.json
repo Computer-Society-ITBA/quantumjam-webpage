@@ -7,18 +7,18 @@
     "eyebrow": "Computer Society ITBA × IBM Quantum",
     "subtitle": "Virtual workshops and classes leading up to an in-person quantum computing competition at ITBA.",
     "sponsored_by": "Sponsored by",
-    "date": "Sat, November 14",
+    "date": "Sat, November 21",
     "place": "ITBA SDF (San Martín 202)",
-    "capacity": "Free · Limited spots",
+    "capacity": "Free, limited spots",
     "cta": "Sign Up"
   },
   "about": {
     "title": "What is QuantumJam?",
-    "description": "A Computer Society ITBA event in two independent parts: a series of virtual workshops and classes, followed by a one-day, in-person quantum computing competition at ITBA. Both are 100% free — competition day (about 8 hours) includes food, a workspace, and mentors for every team.",
+    "description": "A Computer Society ITBA event in two independent parts: a series of virtual workshops and classes, followed by a one-day, in-person quantum computing competition at ITBA. Both are 100% free, and competition day (about 8 hours) includes food, a workspace, and mentors for every team.",
     "features": {
       "beginner": {
         "title": "No prior experience needed",
-        "desc": "New to quantum computing? Perfect — you'll leave knowing what a qubit is, what superposition means, and how to code with them."
+        "desc": "New to quantum computing? Perfect: you'll leave knowing what a qubit is, what superposition means, and how to code with them."
       },
       "hands_on": {
         "title": "Hands-on with Qiskit",
@@ -26,13 +26,13 @@
       },
       "community": {
         "title": "Community",
-        "desc": "Technical talks and networking with the Buenos Aires quantum community."
+        "desc": "Technical talks, mentoring and networking with the Buenos Aires quantum community."
       }
     }
   },
   "hardware": {
-    "title": "The hardware",
-    "description": "This is what an IBM Quantum processor looks like: each qubit lives in a superconducting circuit, cooled to a fraction of a degree above absolute zero. At QuantumJam you won't need a cryostat — every circuit you build runs on Qiskit's simulator, modeled faithfully on this real IBM architecture.",
+    "title": "The emulator",
+    "description": "This is what an IBM Quantum processor looks like: each qubit lives in a superconducting circuit, cooled to a fraction of a degree above absolute zero. At QuantumJam you won't need a cryostat: every circuit you build runs on Qiskit's simulator, modeled faithfully on this real IBM architecture.",
     "specs": {
       "qubit_label": "Qubit",
       "qubit_value": "Simulated superconducting qubit (IBM design)",
@@ -53,12 +53,12 @@
     },
     "competition": {
       "label": "Competition day",
-      "desc": "November 14 · ~8 hours, in person at ITBA SDF."
+      "desc": "November 21, about 8 hours, in person at ITBA SDF."
     }
   },
   "sponsor": {
     "title": "IBM Quantum",
-    "description": "IBM Quantum powers QuantumJam with Qiskit, the open-source framework used to build, simulate, and run every circuit — modeled on IBM's real quantum processors.",
+    "description": "IBM Quantum powers QuantumJam with Qiskit, the open-source framework used to build, simulate, and run every circuit, modeled on IBM's real quantum processors.",
     "items": {
       "hardware": {
         "label": "Simulator",
@@ -76,7 +76,46 @@
   },
   "registerCta": {
     "title": "Ready to sign up?",
-    "cta": "Sign Up"
+    "cta": "Sign Up",
+    "sponsorPrompt": "Want to be a sponsor?"
+  },
+  "sponsorInquiry": {
+    "title": "Sponsor QuantumJam",
+    "description": "Tell us a bit about your organization and how you'd like to get involved. We'll get back to you by email.",
+    "fields": {
+      "name": {
+        "label": "Your name",
+        "ghost1": "Contact person",
+        "ghost2": "Who should we reply to?"
+      },
+      "organization": {
+        "label": "Organization",
+        "ghost1": "Company or institution",
+        "ghost2": "The name we should list as sponsor"
+      },
+      "email": {
+        "label": "Email",
+        "ghost1": "you@company.com",
+        "ghost2": "Where should we reach you?"
+      },
+      "message": {
+        "label": "Message (optional)",
+        "ghost1": "Anything you want to share",
+        "ghost2": "Budget, goals, questions, timing..."
+      }
+    },
+    "submit": "Send",
+    "sending": "Sending...",
+    "backHome": "Home",
+    "validation": {
+      "required": "Required",
+      "email": "Enter a valid email",
+      "submitFailed": "Something went wrong. Try again in a moment."
+    },
+    "success": {
+      "title": "Thanks, we'll be in touch!",
+      "desc": "Your message reached the organizers. Expect a reply within a few days."
+    }
   },
   "registerSelect": {
     "title": "Sign Up",
@@ -90,9 +129,12 @@
     "competition": {
       "ket": "|1⟩",
       "title": "Quantum computing competition",
-      "desc": "Free, one day, live at ITBA — food, workspace, and mentors included.",
+      "desc": "Free, one day, live at ITBA: food, workspace, and mentors included.",
       "mode": "In person"
     },
+    "closedBadge": "Closed",
+    "closedDesc": "Registration for this part is not open right now.",
+    "allClosedNote": "Both sign-ups are closed for now. Follow us on Instagram to hear when they reopen.",
     "backHome": "Home"
   },
   "notFound": {
@@ -103,6 +145,13 @@
   "registration": {
     "backToSelect": "Events",
     "consent": "By completing this form, you agree to share your data with the event organizers and sponsors.",
+    "closed": {
+      "title": "Registration is closed",
+      "workshopsDesc": "Sign-ups for the virtual workshops and classes are not open right now. Follow us on Instagram to hear when they reopen.",
+      "competitionDesc": "Sign-ups for the competition are not open right now. Follow us on Instagram to hear when they reopen.",
+      "cta": "Back to |0⟩",
+      "loading": "Checking whether registration is open…"
+    },
     "validation": {
       "required": "This field is required.",
       "email": "Enter a valid email address.",
@@ -254,6 +303,10 @@
         "changeEmail": "Use a different email",
         "submit": "Confirm email"
       },
+      "details": {
+        "title": "Your details",
+        "desc": "Now the part we need to save your spot in the sessions."
+      },
       "personal": {
         "title": "Personal Info",
         "desc": "Who is showing up at ITBA. We use this for accreditation and catering.",
@@ -305,18 +358,30 @@
       "submitting": "Measuring the system…",
       "success": {
         "title": "You're in!",
-        "desc": "Check your inbox — we just sent you the Discord server details for the sessions."
+        "desc": "Check your inbox: we just sent you the same Discord details, so you have them even if you close this tab.",
+        "discord": {
+          "intro": "Everything about the workshops happens on our Discord server. Join now so you do not miss the first session.",
+          "cta": "Join the Discord",
+          "stepsTitle": "First steps once you are in",
+          "steps": {
+            "join": "Open the invite and join the QuantumJam server.",
+            "rules": "Read the welcome message, accept the rules and turn on notifications for the announcements channel.",
+            "intro": "Introduce yourself: your degree and what brings you to quantum computing. No prior experience needed.",
+            "sessions": "That is where we post the link to every session, the materials and any schedule change. Nothing is sent by email after this."
+          },
+          "fallback": "If the button does not work, paste this into your browser: {{url}}"
+        }
       }
     },
     "competition": {
       "title": "Quantum computing competition",
-      "description": "Free, in-person at ITBA — one day (about 8 hours) with food, workspace, and mentors included. Registering for the workshops is separate.",
+      "description": "Free, in-person at ITBA: one day (about 8 hours) with food, workspace, and mentors included. Registering for the workshops is separate.",
       "submit": "Collapse the wavefunction",
       "submitting": "Measuring the system…",
       "note": "We review every application and email you about your status in the coming days.",
       "success": {
         "title": "Your application is in",
-        "desc": "We'll review it and email you about your status ahead of November 14."
+        "desc": "We'll review it and email you about your status ahead of November 21."
       }
     }
   },
@@ -328,7 +393,7 @@
     },
     "links": {
       "about": "What is QuantumJam?",
-      "hardware": "The hardware",
+      "hardware": "The emulator",
       "agenda": "Program",
       "sponsor": "IBM Quantum",
       "register": "Sign Up",
