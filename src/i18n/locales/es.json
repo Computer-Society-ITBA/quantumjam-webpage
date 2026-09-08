@@ -264,6 +264,10 @@
         "changeEmail": "Usar otro email",
         "submit": "Confirmar email"
       },
+      "details": {
+        "title": "Tus datos",
+        "desc": "Ahora lo que necesitamos para guardarte el lugar en las sesiones."
+      },
       "personal": {
         "title": "Datos personales",
         "desc": "Quién viene al ITBA. Lo usamos para la acreditación y la comida.",
