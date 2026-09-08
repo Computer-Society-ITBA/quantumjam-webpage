@@ -40,6 +40,6 @@ jobs:
         with:
           args: >-
             deploy --project webpage-36e40 --non-interactive
-            --only functions:requestVerificationCode,functions:confirmVerificationCode,functions:submitWorkshopSignup,functions:submitCompetitionSignup,functions:lookupTeam
+            --only functions:requestVerificationCode,functions:confirmVerificationCode,functions:submitWorkshopSignup,functions:submitCompetitionSignup,functions:lookupTeam,functions:submitSponsorInquiry
         env:
           GCP_SA_KEY: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_WEBPAGE_36E40 }}
