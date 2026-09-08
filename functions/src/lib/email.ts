@@ -11,7 +11,7 @@ const FROM_EMAIL = "computersociety@itba.edu.ar";
 
 const LOGO_CID = "csitba-logo";
 // functions/assets/logo.png, relative to this compiled file at
-// functions/lib/lib/email.js — kept outside src/ since tsc only emits
+// functions/lib/lib/email.js. Kept outside src/ since tsc only emits
 // compiled .ts output into lib/, it doesn't copy other file types.
 const LOGO_PATH = path.join(__dirname, "..", "..", "assets", "logo.png");
 const LOGO_WIDTH = 160;
@@ -107,23 +107,23 @@ const STYLE = {
   footerCopy: `margin:12px 0 0;font-size:11px;color:${COLOR.textDim};`,
 };
 
-// TODO: swap for the real invite once the Discord server is set up —
-// this is mocked so the confirmation email is fully wired end to end.
+// TODO: swap for the real invite once the Discord server is set up.
+// This is mocked so the confirmation email is fully wired end to end.
 const DISCORD_INVITE_URL = "https://quantumjam.com.ar";
 
-// TODO: swap for the real event page once the site is live — mocked
-// so the pending-approval email links somewhere in the meantime.
+// TODO: swap for the real event page once the site is live. Mocked so
+// the pending-approval email links somewhere in the meantime.
 const EVENT_PAGE_URL = "https://quantumjam.com.ar";
 
 const INSTAGRAM_URL = "https://instagram.com/csitba";
 const LINKEDIN_URL = "https://linkedin.com/company/csitba";
 const CONTACT_EMAIL_MAILTO = `mailto:${FROM_EMAIL}`;
 
-// TODO: fill in with the real date, time, location and duration once
-// the venue for the competition is confirmed.
+// TODO: fill in with the real time, location and duration once the
+// venue for the competition is confirmed. The date is set.
 const COMPETITION_DATE_MONTH = "NOV";
-const COMPETITION_DATE_DAY = "14";
-const COMPETITION_DATE_LABEL = "Viernes 14 de noviembre";
+const COMPETITION_DATE_DAY = "21";
+const COMPETITION_DATE_LABEL = "Sábado 21 de noviembre";
 const COMPETITION_TIME_RANGE = "A confirmar";
 const COMPETITION_LOCATION = "A confirmar";
 const COMPETITION_DURATION_LABEL = "A confirmar";
@@ -153,7 +153,7 @@ function getTransporter(): nodemailer.Transporter {
 /**
  * Lazily reads the Computer Society ITBA logo, cached for the lifetime
  * of the function instance. Reused for both the header mark and the
- * smaller footer mark — the same cid attachment can be referenced by
+ * smaller footer mark: the same cid attachment can be referenced by
  * more than one <img> in the same email.
  * @return {Buffer} The logo PNG bytes.
  */
@@ -165,7 +165,7 @@ function getLogoBuffer(): Buffer {
 }
 
 /**
- * Escapes text so it's safe to inline into the HTML email body — team
+ * Escapes text so it's safe to inline into the HTML email body: team
  * names are free-form user input.
  * @param {string} value Raw text.
  * @return {string} HTML-escaped text.
@@ -182,7 +182,7 @@ function escapeHtml(value: string): string {
 /**
  * Renders the compressed, classic-style footer shared by every email:
  * logo mark, one-line blurb, social/contact links, address and
- * copyright — no event-specific content.
+ * copyright. No event-specific content.
  * @return {string} Footer HTML.
  */
 function renderFooter(): string {
@@ -195,11 +195,11 @@ function renderFooter(): string {
         </p>
         <p style="${STYLE.footerLinks}">
           <a href="${INSTAGRAM_URL}" style="${STYLE.footerLink}">Instagram</a>
-          &nbsp;&middot;&nbsp;
+          &nbsp;|&nbsp;
           <a href="${CONTACT_EMAIL_MAILTO}" style="${STYLE.footerLink}">
             ${FROM_EMAIL}
           </a>
-          &nbsp;&middot;&nbsp;
+          &nbsp;|&nbsp;
           <a href="${LINKEDIN_URL}" style="${STYLE.footerLink}">LinkedIn</a>
         </p>
         <p style="${STYLE.footerLinks}">
@@ -219,7 +219,7 @@ function renderFooter(): string {
  * plus the shared compressed footer below it.
  *
  * Built as nested tables with explicit `bgcolor` attributes rather than
- * a plain `<body>`/`<div>` background — mobile Gmail's auto dark-mode
+ * a plain `<body>`/`<div>` background: mobile Gmail's auto dark-mode
  * otherwise ignores CSS-only backgrounds and re-renders the email in
  * its own light theme.
  * @param {string} bodyHtml Inner content HTML.
@@ -429,10 +429,10 @@ export async function sendCompetitionConfirmationEmail(
     "Gracias por postularte a la Competencia de Computación Cuántica " +
     "QuantumJam. Tu equipo fue registrado correctamente y se encuentra " +
     "actualmente en proceso de revisión. Te enviaremos un correo para " +
-    "informarte si tu postulación fue aprobada antes del 14 de " +
+    "informarte si tu postulación fue aprobada antes del 21 de " +
     "noviembre.\n\n" +
     "Después, la información del evento:\n\n" +
-    `Fecha y hora: ${COMPETITION_DATE_LABEL} · ${COMPETITION_TIME_RANGE}\n` +
+    `Fecha y hora: ${COMPETITION_DATE_LABEL}, ${COMPETITION_TIME_RANGE}\n` +
     `Ubicación: ${COMPETITION_LOCATION}\n` +
     `Duración: ${COMPETITION_DURATION_LABEL}\n\n` +
     `${renderTeamText(team)}\n\n` +
@@ -492,7 +492,7 @@ export function renderWorkshopConfirmationHtml(): string {
 /**
  * Renders the competition confirmation email: an intro callout
  * explaining the pending-approval status, the event-details card
- * (date/time, location, duration, team — unchanged from before), the
+ * (date/time, location, duration, team, unchanged from before), the
  * event-page CTA, and a closing callout noting those details and the
  * team's spot are still unconfirmed.
  * @param {CompetitionConfirmationTeam} team Team info to include.
@@ -511,7 +511,7 @@ export function renderCompetitionConfirmationHtml(
         <strong>Competencia de Computaci&oacute;n Cu&aacute;ntica
         QuantumJam</strong>. Estamos revisando tu postulaci&oacute;n y te
         enviaremos un correo para informarte si fue
-        aprobada <strong>antes del 14 de noviembre</strong>.
+        aprobada <strong>antes del 21 de noviembre</strong>.
       </p>
     </div>
 

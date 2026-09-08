@@ -53,7 +53,7 @@ function signupCollection(purpose: Purpose): string {
 /**
  * Atomically checks the resend cooldown and hourly request cap, then
  * reserves the slot by writing the new (unsent) code. Pure Firestore work
- * only — no I/O side effects — so it's safe for the transaction to retry
+ * only (no I/O side effects), so it's safe for the transaction to retry
  * on contention.
  * @param {DocumentReference} verRef The emailVerifications doc reference.
  * @param {string} email The email being verified.

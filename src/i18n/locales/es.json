@@ -7,9 +7,9 @@
     "eyebrow": "Computer Society ITBA × IBM Quantum",
     "subtitle": "Workshops y clases virtuales que llevan a una competencia de computación cuántica presencial en el ITBA.",
     "sponsored_by": "Sponsoreado por",
-    "date": "Sáb 14 de noviembre",
+    "date": "Sáb 21 de noviembre",
     "place": "ITBA SDF (San Martín 202)",
-    "capacity": "Gratis · Cupo limitado",
+    "capacity": "Gratis, cupo limitado",
     "cta": "Inscribirme"
   },
   "about": {
@@ -53,7 +53,7 @@
     },
     "competition": {
       "label": "Día de la competencia",
-      "desc": "14 de noviembre · ~8 horas, presencial en el ITBA SDF."
+      "desc": "21 de noviembre, unas 8 horas, presencial en el ITBA SDF."
     }
   },
   "sponsor": {
@@ -326,7 +326,7 @@
       "note": "Vamos a revisar cada postulación y te vamos a avisar tu estado por mail en los próximos días.",
       "success": {
         "title": "Tu postulación está en revisión",
-        "desc": "La vamos a revisar y te avisamos tu estado por mail antes del 14 de noviembre."
+        "desc": "La vamos a revisar y te avisamos tu estado por mail antes del 21 de noviembre."
       }
     }
   },
