@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { QuantumField } from '@/components/landing/QuantumField'
 import { CustomSelect } from '@/components/registration/CustomSelect'
+import { DiscordNextSteps } from '@/components/registration/DiscordNextSteps'
 import { StepRail, type StepRailItem } from '@/components/registration/StepRail'
 import { VerifyCodeInput } from '@/components/registration/VerifyCodeInput'
 import { useResendCooldown } from '@/components/registration/useResendCooldown'
@@ -252,6 +253,7 @@ export function RegistrationForm({
             <p className="text-brand-text-dim mx-auto max-w-[58ch]">
               {t(`registration.${event}.success.desc`)}
             </p>
+            {event === 'workshops' && <DiscordNextSteps />}
           </div>
         ) : (
           <>
