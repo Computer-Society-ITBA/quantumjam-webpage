@@ -70,6 +70,19 @@ const lookupTeamFn = httpsCallable<{ code: string }, TeamLookupResult>(
   'lookupTeam',
 )
 
+export type SponsorInquiry = {
+  name: string
+  organization: string
+  email: string
+  message: string
+  lang: string
+}
+
+const submitSponsorInquiryFn = httpsCallable<SponsorInquiry, { ok: true }>(
+  functions,
+  'submitSponsorInquiry',
+)
+
 export async function requestCode(
   email: string,
   purpose: Purpose,
@@ -100,6 +113,11 @@ export async function submitCompetition(payload: CompetitionSubmission) {
 
 export async function lookupTeam(code: string): Promise<TeamLookupResult> {
   const { data } = await lookupTeamFn({ code })
+  return data
+}
+
+export async function submitSponsorInquiry(payload: SponsorInquiry) {
+  const { data } = await submitSponsorInquiryFn(payload)
   return data
 }
 

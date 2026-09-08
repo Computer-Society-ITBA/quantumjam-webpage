@@ -76,7 +76,46 @@
   },
   "registerCta": {
     "title": "¿Te querés inscribir?",
-    "cta": "Inscribirme"
+    "cta": "Inscribirme",
+    "sponsorPrompt": "¿Querés ser sponsor?"
+  },
+  "sponsorInquiry": {
+    "title": "Sponsoreá QuantumJam",
+    "description": "Contanos un poco sobre tu organización y cómo te gustaría participar. Te respondemos por mail.",
+    "fields": {
+      "name": {
+        "label": "Tu nombre",
+        "ghost1": "Persona de contacto",
+        "ghost2": "¿A quién le respondemos?"
+      },
+      "organization": {
+        "label": "Organización",
+        "ghost1": "Empresa o institución",
+        "ghost2": "El nombre que figuraría como sponsor"
+      },
+      "email": {
+        "label": "Email",
+        "ghost1": "vos@empresa.com",
+        "ghost2": "¿Dónde te podemos escribir?"
+      },
+      "message": {
+        "label": "Mensaje (opcional)",
+        "ghost1": "Lo que quieras contarnos",
+        "ghost2": "Presupuesto, objetivos, preguntas, tiempos..."
+      }
+    },
+    "submit": "Enviar",
+    "sending": "Enviando...",
+    "backHome": "Inicio",
+    "validation": {
+      "required": "Requerido",
+      "email": "Ingresá un email válido",
+      "submitFailed": "Algo salió mal. Probá de nuevo en un momento."
+    },
+    "success": {
+      "title": "¡Gracias, nos vamos a comunicar!",
+      "desc": "Tu mensaje llegó a los organizadores. Esperá una respuesta en unos días."
+    }
   },
   "registerSelect": {
     "title": "Inscribite",

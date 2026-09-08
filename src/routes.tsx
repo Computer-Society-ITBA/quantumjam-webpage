@@ -6,6 +6,7 @@ import NotFoundPage from './pages/NotFoundPage'
 import RegisterSelectPage from './pages/RegisterSelectPage'
 import RegisterWorkshopsPage from './pages/RegisterWorkshopsPage'
 import RegisterCompetitionPage from './pages/RegisterCompetitionPage'
+import SponsorInquiryPage from './pages/SponsorInquiryPage'
 
 export const router = createBrowserRouter([
   {
@@ -15,6 +16,7 @@ export const router = createBrowserRouter([
       { path: '/register', element: <RegisterSelectPage /> },
       { path: '/register/workshops', element: <RegisterWorkshopsPage /> },
       { path: '/register/competition', element: <RegisterCompetitionPage /> },
+      { path: '/sponsor', element: <SponsorInquiryPage /> },
       { path: '*', element: <NotFoundPage /> },
     ],
   },
