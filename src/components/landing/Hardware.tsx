@@ -285,7 +285,7 @@ export function Hardware() {
             <p className="text-brand-text-dim max-w-[58ch] font-light">
               {t('hardware.description')}
             </p>
-            <ul className="border-brand-line mt-[1.3rem] flex list-none flex-col gap-[9px] border-t pt-[1.1rem]">
+            <ul className="mt-[1.3rem] flex list-none flex-col gap-[9px]">
               {specs.map((s) => (
                 <li
                   key={s.labelKey}
