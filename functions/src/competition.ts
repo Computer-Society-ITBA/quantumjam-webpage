@@ -18,6 +18,7 @@ import {
   normalizeEmail,
   verificationId,
 } from "./lib/otp";
+import {assertRegistrationOpen} from "./lib/flags";
 import {MAX_TEAM_SIZE, teamIdFrom} from "./lib/slug";
 
 type TeamChoice = "join" | "create" | "alone";
@@ -90,6 +91,8 @@ function optionalPattern(
 export const submitCompetitionSignup = onCall(
   {secrets: [GMAIL_APP_PASSWORD]},
   async (request) => {
+    await assertRegistrationOpen("competition");
+
     const body = request.data as Record<string, unknown> | null;
     const email =
       typeof body?.email === "string" ? normalizeEmail(body.email) : "";
