@@ -305,7 +305,19 @@
       "submitting": "Midiendo el sistema…",
       "success": {
         "title": "¡Ya estás adentro!",
-        "desc": "Revisá tu casilla: te acabamos de mandar los datos del servidor de Discord."
+        "desc": "Revisá tu casilla: te acabamos de mandar los mismos datos de Discord, así los tenés aunque cierres esta pestaña.",
+        "discord": {
+          "intro": "Todo lo de los workshops pasa en nuestro servidor de Discord. Entrá ahora así no te perdés la primera sesión.",
+          "cta": "Unirme al Discord",
+          "stepsTitle": "Primeros pasos una vez adentro",
+          "steps": {
+            "join": "Abrí la invitación y sumate al servidor de QuantumJam.",
+            "rules": "Leé el mensaje de bienvenida, aceptá las reglas y activá las notificaciones del canal de anuncios.",
+            "intro": "Presentate: contanos qué estudiás y qué te trae a la computación cuántica. No hace falta experiencia previa.",
+            "sessions": "Ahí publicamos el link de cada sesión, los materiales y cualquier cambio de horario. Después de esto no mandamos nada más por mail."
+          },
+          "fallback": "Si el botón no funciona, pegá esto en tu navegador: {{url}}"
+        }
       }
     },
     "competition": {

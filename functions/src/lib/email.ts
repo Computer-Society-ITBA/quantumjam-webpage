@@ -94,6 +94,20 @@ const STYLE = {
   transitionText:
     "margin:0 0 20px;font-size:14px;line-height:1.6;" +
     `color:${COLOR.textDim};`,
+  // -- Discord onboarding block, workshops confirmation --
+  stepsTitle:
+    `margin:0 0 14px;font-family:${FONT_DISPLAY};font-weight:700;` +
+    "font-size:11px;letter-spacing:0.08em;text-transform:uppercase;" +
+    `color:${COLOR.textDim};`,
+  stepNumber:
+    `font-family:${FONT_DISPLAY};font-weight:700;font-size:13px;` +
+    `color:${COLOR.green};padding:0 12px 14px 0;`,
+  stepText:
+    `font-size:14px;line-height:1.55;color:${COLOR.text};` +
+    "padding:0 0 14px;",
+  inviteFallback:
+    "margin:20px 0 0;font-size:12px;line-height:1.6;word-break:break-all;" +
+    `color:${COLOR.textDim};`,
   // -- Shared footer, used by every email --
   footerWrap:
     `border-top:1px solid ${COLOR.line};margin-top:32px;` +
@@ -107,9 +121,9 @@ const STYLE = {
   footerCopy: `margin:12px 0 0;font-size:11px;color:${COLOR.textDim};`,
 };
 
-// TODO: swap for the real invite once the Discord server is set up —
-// this is mocked so the confirmation email is fully wired end to end.
-const DISCORD_INVITE_URL = "https://quantumjam.com.ar";
+// Kept in sync by hand with src/lib/links.ts on the frontend — this is a
+// separate TypeScript project and can't import from src/.
+const DISCORD_INVITE_URL = "https://discord.gg/e9vY5tHEM";
 
 // TODO: swap for the real event page once the site is live — mocked
 // so the pending-approval email links somewhere in the meantime.
@@ -333,7 +347,23 @@ export async function sendVerificationCodeEmail(
 }
 
 /**
- * Sends the post-registration confirmation email for the workshops flow.
+ * The steps a new signup should take once inside the Discord server,
+ * shared by the HTML and plain-text bodies so the two can't drift.
+ */
+const DISCORD_STEPS = [
+  "Abrí la invitación y sumate al servidor de QuantumJam.",
+  "Leé el mensaje de bienvenida, aceptá las reglas y activá las " +
+    "notificaciones del canal de anuncios.",
+  "Presentate: contanos qué estudiás y qué te trae a la computación " +
+    "cuántica. No hace falta experiencia previa.",
+  "Ahí publicamos el link de cada sesión, los materiales y cualquier " +
+    "cambio de horario. Después de esto no mandamos nada más por mail.",
+];
+
+/**
+ * Sends the post-registration confirmation email for the workshops flow:
+ * the Discord invite plus what to do once inside, mirroring the
+ * confirmation screen on the site.
  * @param {string} email Recipient address.
  * @return {Promise<void>} Resolves once the send is accepted.
  */
@@ -341,13 +371,18 @@ export async function sendWorkshopConfirmationEmail(
   email: string,
 ): Promise<void> {
   const html = renderWorkshopConfirmationHtml();
+  const steps = DISCORD_STEPS.map((step, i) => `${i + 1}. ${step}`).join("\n");
   const text =
-    "Recibimos tu inscripción a los workshops y clases virtuales.\n" +
-    "Sumate a nuestro servidor de Discord: ahí vamos a compartir los " +
-    `links de las sesiones y todas las novedades.\n${DISCORD_INVITE_URL}`;
+    "¡Recibimos tu inscripción a los workshops y clases virtuales!\n\n" +
+    "Todo lo de los workshops pasa en nuestro servidor de Discord. " +
+    "Entrá ahora así no te perdés la primera sesión:\n" +
+    `${DISCORD_INVITE_URL}\n\n` +
+    `Primeros pasos una vez adentro:\n${steps}\n\n` +
+    "Si el link no funciona, pegá esta dirección en tu navegador: " +
+    DISCORD_INVITE_URL;
   await sendEmail(
     email,
-    "QNTMJAM: Recibimos tu inscripción a los workshops",
+    "QNTMJAM: Sumate al Discord de los workshops",
     text,
     html,
   );
@@ -468,7 +503,34 @@ export function renderVerificationCodeHtml(code: string): string {
 }
 
 /**
- * Renders the workshop confirmation email body.
+ * Renders the numbered Discord first-steps list as a table, so the
+ * number column stays aligned in clients that ignore list styling.
+ * @return {string} HTML for the steps block.
+ */
+function renderDiscordSteps(): string {
+  const rows = DISCORD_STEPS.map(
+    (step, i) => `
+      <tr>
+        <td valign="top" style="${STYLE.stepNumber}">
+          ${String(i + 1).padStart(2, "0")}
+        </td>
+        <td valign="top" style="${STYLE.stepText}">${escapeHtml(step)}</td>
+      </tr>`,
+  ).join("");
+
+  return `
+    <p style="${STYLE.stepsTitle}">Primeros pasos una vez adentro</p>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
+      border="0">
+      ${rows}
+    </table>
+  `;
+}
+
+/**
+ * Renders the workshop confirmation email body: the Discord invite and
+ * what to do once inside, mirroring the confirmation screen on the site
+ * so someone who closed the tab still has the instructions.
  * @return {string} The full HTML document.
  */
 export function renderWorkshopConfirmationHtml(): string {
@@ -478,13 +540,23 @@ export function renderWorkshopConfirmationHtml(): string {
       <strong>workshops y clases virtuales</strong>!
     </p>
     <p style="${STYLE.dimText}">
-      Sumate a nuestro servidor de Discord: ah&iacute; vamos a compartir los
-      links de las sesiones y todas las novedades.
+      Todo lo de los workshops pasa en nuestro servidor de Discord.
+      Entr&aacute; ahora as&iacute; no te perd&eacute;s la primera
+      sesi&oacute;n.
     </p>
-    <p style="text-align:center;margin:0;">
+    <p style="text-align:center;margin:0 0 28px;">
       <a href="${DISCORD_INVITE_URL}" style="${STYLE.ctaButton}">
         Unirme al Discord
       </a>
+    </p>
+
+    <hr style="${STYLE.divider}">
+
+    ${renderDiscordSteps()}
+
+    <p style="${STYLE.inviteFallback}">
+      Si el bot&oacute;n no funciona, peg&aacute; esta direcci&oacute;n en
+      tu navegador:<br>${DISCORD_INVITE_URL}
     </p>
   `);
 }

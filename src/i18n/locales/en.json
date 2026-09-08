@@ -305,7 +305,19 @@
       "submitting": "Measuring the system…",
       "success": {
         "title": "You're in!",
-        "desc": "Check your inbox — we just sent you the Discord server details for the sessions."
+        "desc": "Check your inbox: we just sent you the same Discord details, so you have them even if you close this tab.",
+        "discord": {
+          "intro": "Everything about the workshops happens on our Discord server. Join now so you do not miss the first session.",
+          "cta": "Join the Discord",
+          "stepsTitle": "First steps once you are in",
+          "steps": {
+            "join": "Open the invite and join the QuantumJam server.",
+            "rules": "Read the welcome message, accept the rules and turn on notifications for the announcements channel.",
+            "intro": "Introduce yourself: your degree and what brings you to quantum computing. No prior experience needed.",
+            "sessions": "That is where we post the link to every session, the materials and any schedule change. Nothing is sent by email after this."
+          },
+          "fallback": "If the button does not work, paste this into your browser: {{url}}"
+        }
       }
     },
     "competition": {

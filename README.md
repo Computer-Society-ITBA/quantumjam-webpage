@@ -145,6 +145,16 @@ to add there when adding a new field; add it in the relevant
 `functions/src/*.ts` file and the matching frontend call in
 `src/lib/registrationApi.ts` instead.
 
+**Discord onboarding.** The workshops confirmation email and the
+confirmation screen on the site show the same thing: the server
+invite plus the first steps to take once inside. They are kept in
+sync by hand across the two projects - the invite URL lives in
+`src/lib/links.ts` for the frontend and at the top of
+`functions/src/lib/email.ts` for the emails, and the four steps live
+in `registration.workshops.success.discord.steps` (en/es) and in
+`DISCORD_STEPS` in `email.ts`. Changing the invite or a step means
+editing both sides.
+
 ### Email delivery (SMTP)
 
 Both the verification code and the post-registration confirmation
