@@ -254,6 +254,10 @@
         "changeEmail": "Use a different email",
         "submit": "Confirm email"
       },
+      "details": {
+        "title": "Your details",
+        "desc": "Now the part we need to save your spot in the sessions."
+      },
       "personal": {
         "title": "Personal Info",
         "desc": "Who is showing up at ITBA. We use this for accreditation and catering.",
