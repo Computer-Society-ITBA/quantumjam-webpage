@@ -17,6 +17,7 @@ export type WorkshopSubmission = {
   career: string
   level: string
   reason: string
+  lang: string
 }
 
 export type CompetitionSubmission = {
@@ -35,6 +36,7 @@ export type CompetitionSubmission = {
   instagram: string
   website: string
   team: TeamChoicePayload
+  lang: string
 }
 
 export type TeamLookupResult = {
@@ -44,7 +46,7 @@ export type TeamLookupResult = {
 }
 
 const requestVerificationCodeFn = httpsCallable<
-  { email: string; purpose: Purpose },
+  { email: string; purpose: Purpose; lang: string },
   { ok: true; cooldownSeconds: number }
 >(functions, 'requestVerificationCode')
 
@@ -68,8 +70,12 @@ const lookupTeamFn = httpsCallable<{ code: string }, TeamLookupResult>(
   'lookupTeam',
 )
 
-export async function requestCode(email: string, purpose: Purpose) {
-  const { data } = await requestVerificationCodeFn({ email, purpose })
+export async function requestCode(
+  email: string,
+  purpose: Purpose,
+  lang: string,
+) {
+  const { data } = await requestVerificationCodeFn({ email, purpose, lang })
   return data
 }
 

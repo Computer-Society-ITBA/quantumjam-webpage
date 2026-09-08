@@ -84,7 +84,7 @@ function teamPayload(team: TeamState): TeamChoicePayload {
 }
 
 export function CompetitionWizard() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const [step, setStep] = useState(0)
   const [details, setDetails] = useState<Details>(emptyDetails)
   const [team, setTeam] = useState<TeamState>(emptyTeam)
@@ -214,7 +214,7 @@ export function CompetitionWizard() {
   const requestVerification = async () => {
     setBusy(true)
     try {
-      await requestCode(details.email, 'competition')
+      await requestCode(details.email, 'competition', i18n.language)
       resetCooldown()
       return true
     } catch (err) {
@@ -289,6 +289,7 @@ export function CompetitionWizard() {
         instagram: details.instagram,
         website: details.website,
         team: teamPayload(team),
+        lang: i18n.language,
       })
       setSubmitted(true)
     } catch (err) {
@@ -418,7 +419,11 @@ export function CompetitionWizard() {
                   onClick={async () => {
                     setBusy(true)
                     try {
-                      await requestCode(details.email, 'competition')
+                      await requestCode(
+                        details.email,
+                        'competition',
+                        i18n.language,
+                      )
                       resetCooldown()
                       setCode(emptyCode)
                       setCodeError('')

@@ -50,7 +50,7 @@ export function RegistrationForm({
   event,
   showTeamField = false,
 }: RegistrationFormProps) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const [step, setStep] = useState(0)
   const [form, setForm] = useState<FormState>(emptyForm)
   const [errors, setErrors] = useState<
@@ -126,7 +126,7 @@ export function RegistrationForm({
       if (!validateEmail()) return
       setBusy(true)
       try {
-        await requestCode(form.email, 'workshops')
+        await requestCode(form.email, 'workshops', i18n.language)
         resetCooldown()
         setStep(1)
       } catch (err) {
@@ -186,6 +186,7 @@ export function RegistrationForm({
         career: form.career,
         level: form.level,
         reason: form.reason,
+        lang: i18n.language,
       })
       setSubmitted(true)
     } catch (err) {
@@ -321,7 +322,11 @@ export function RegistrationForm({
                       onClick={async () => {
                         setBusy(true)
                         try {
-                          await requestCode(form.email, 'workshops')
+                          await requestCode(
+                            form.email,
+                            'workshops',
+                            i18n.language,
+                          )
                           resetCooldown()
                           setCode(emptyCode)
                           setCodeError('')

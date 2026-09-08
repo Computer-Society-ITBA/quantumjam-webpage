@@ -1,6 +1,8 @@
 import {onCall, HttpsError} from "firebase-functions/https";
 import {DocumentReference, Timestamp} from "firebase-admin/firestore";
 
+import {resolveLang, type Lang} from "./lib/i18n";
+
 import {db} from "./admin";
 import {
   markEmailContactVerified,
@@ -31,8 +33,12 @@ const HOUR_MS = 60 * 60 * 1000;
  * @param {unknown} data Raw onCall request data.
  * @return {{email: string, purpose: Purpose}} The validated fields.
  */
-function assertValidRequest(data: unknown): {email: string; purpose: Purpose} {
-  const body = data as {email?: unknown; purpose?: unknown} | null;
+function assertValidRequest(
+  data: unknown,
+): {email: string; purpose: Purpose; lang: Lang} {
+  const body = data as
+    | {email?: unknown; purpose?: unknown; lang?: unknown}
+    | null;
   const email =
     typeof body?.email === "string" ? normalizeEmail(body.email) : "";
   if (!isValidEmail(email)) {
@@ -42,7 +48,10 @@ function assertValidRequest(data: unknown): {email: string; purpose: Purpose} {
   if (typeof purpose !== "string" || !PURPOSES.includes(purpose as Purpose)) {
     throw new HttpsError("invalid-argument", "A valid purpose is required.");
   }
-  return {email, purpose: purpose as Purpose};
+  const lang = resolveLang(
+    typeof body?.lang === "string" ? body.lang : undefined,
+  );
+  return {email, purpose: purpose as Purpose, lang};
 }
 
 /**
@@ -120,7 +129,7 @@ async function claimVerificationSlot(
 export const requestVerificationCode = onCall(
   {secrets: [GMAIL_APP_PASSWORD]},
   async (request) => {
-    const {email, purpose} = assertValidRequest(request.data);
+    const {email, purpose, lang} = assertValidRequest(request.data);
     await assertRegistrationOpen(purpose);
 
     const signupRef = db
@@ -146,7 +155,7 @@ export const requestVerificationCode = onCall(
     await recordEmailContact(email, purpose);
 
     try {
-      await sendVerificationCodeEmail(email, code);
+      await sendVerificationCodeEmail(email, code, lang);
     } catch {
       // Don't leave the user cooldown-locked if delivery failed.
       await verRef.update({lastRequestAt: null});

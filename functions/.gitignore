@@ -1,6 +1,8 @@
 # Compiled JavaScript files
 lib/**/*.js
 lib/**/*.js.map
+# resolveJsonModule makes tsc copy the i18n locale files into lib/ too.
+lib/**/*.json
 
 # TypeScript v1 declaration files
 typings/

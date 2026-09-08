@@ -173,6 +173,25 @@ to add there when adding a new field; add it in the relevant
 `functions/src/*.ts` file and the matching frontend call in
 `src/lib/registrationApi.ts` instead.
 
+**Emails are sent in the visitor's language.** The callables take a
+`lang` from the client (`i18n.language`), normalized by
+`resolveLang()` in `functions/src/lib/i18n/`, which falls back to
+Spanish for anything it does not recognize. Copy lives in
+`functions/src/lib/i18n/locales/{en,es}.json` and is looked up with
+`t(lang, "dot.path", {params})`; `{placeholders}` interpolate. The
+chosen language is stored on the sign-up document, so a later mailing
+can use it too.
+
+This is a **separate translation system from the frontend's**
+`src/i18n/`: the emails render inside Cloud Functions, which cannot
+import from `src/`. Copy shown both on the site and in an email (the
+Discord onboarding steps, for one) therefore exists in both places
+and has to be changed in both.
+
+The Discord first-steps list is ordered by `DISCORD_STEP_KEYS` in
+`email.ts`, with the copy under `workshop.steps.<key>` in each
+locale, since `t()` resolves one string at a time rather than a list.
+
 **Discord onboarding.** The workshops confirmation email and the
 confirmation screen on the site show the same thing: the server
 invite plus the first steps to take once inside. They are kept in

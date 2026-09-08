@@ -73,7 +73,7 @@ describe('RegistrationForm (workshops)', () => {
     fireEvent.click(screen.getByRole('button', { name: /verification code/i }))
 
     await waitFor(() =>
-      expect(api.requestCode).toHaveBeenCalledWith(EMAIL, 'workshops'),
+      expect(api.requestCode).toHaveBeenCalledWith(EMAIL, 'workshops', 'en'),
     )
 
     // Still no details form: the code comes first.
@@ -114,6 +114,7 @@ describe('RegistrationForm (workshops)', () => {
           name: 'Ada Lovelace',
           career: 'ITBA, Physics',
           level: 'none',
+          lang: 'en',
         }),
       ),
     )
