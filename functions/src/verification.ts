@@ -17,6 +17,7 @@ import {
   type Purpose,
 } from "./lib/otp";
 import {GMAIL_APP_PASSWORD, sendVerificationCodeEmail} from "./lib/email";
+import {assertRegistrationOpen} from "./lib/flags";
 
 const PURPOSES: Purpose[] = ["workshops", "competition"];
 const HOUR_MS = 60 * 60 * 1000;
@@ -116,6 +117,7 @@ export const requestVerificationCode = onCall(
   {secrets: [GMAIL_APP_PASSWORD]},
   async (request) => {
     const {email, purpose} = assertValidRequest(request.data);
+    await assertRegistrationOpen(purpose);
 
     const signupRef = db
       .collection(signupCollection(purpose))
@@ -152,6 +154,7 @@ export const requestVerificationCode = onCall(
 
 export const confirmVerificationCode = onCall(async (request) => {
   const {email, purpose} = assertValidRequest(request.data);
+  await assertRegistrationOpen(purpose);
   const body = request.data as {code?: unknown};
   const code = typeof body.code === "string" ? body.code : "";
   if (!/^\d{6}$/.test(code)) {

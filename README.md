@@ -145,6 +145,55 @@ to add there when adding a new field; add it in the relevant
 `functions/src/*.ts` file and the matching frontend call in
 `src/lib/registrationApi.ts` instead.
 
+### Registration feature flags
+
+Both sign-up flows are gated on a single Firestore document,
+`featureFlags/registration`, in the `quantumjam` database:
+
+| Field                         | Type      | Gates                   |
+| ----------------------------- | --------- | ----------------------- |
+| `workshopsRegistrationOpen`   | `boolean` | `/register/workshops`   |
+| `competitionRegistrationOpen` | `boolean` | `/register/competition` |
+
+**Only an explicit `true` opens a flow.** A missing document, a
+missing field, a denied read or an offline visitor all resolve to
+closed, on the client and in the functions alike. Fail closed:
+accepting sign-ups for an event that is meant to be shut is worse
+than turning a few away while Firestore is unreachable.
+
+That also means **the document has to exist before either flow will
+open**. Create it by hand in the Firebase console (Firestore →
+database `quantumjam` → collection `featureFlags` → document
+`registration`) with both booleans, or with the Admin SDK.
+
+**And `firestore.rules` has to be deployed** (`firebase deploy --only
+firestore:rules`), or the client read is denied and every visitor
+sees the closed state no matter what the document says. A denied read
+is logged to the browser console rather than swallowed, because it
+looks exactly like a flag that is switched off.
+
+The flag is enforced in two places:
+
+- **Client** - `src/lib/featureFlags.ts` holds a single `onSnapshot`
+  listener for the whole app: the document is read once, on first
+  use, and every later consumer (a route change, a second component)
+  is served synchronously from the cache, so moving around the site
+  never re-fetches. The listener stays attached, so flipping a flag
+  in the console locks or unlocks open tabs live, no redeploy.
+  `RegistrationGate` renders the locked state instead of the form,
+  and never mounts the form, so `/register/workshops` and
+  `/register/competition` are closed to direct URL access too.
+  `/register` greys out the closed option.
+- **Server** - `functions/src/lib/flags.ts` re-checks the same
+  document inside `requestVerificationCode`,
+  `confirmVerificationCode`, `submitWorkshopSignup` and
+  `submitCompetitionSignup`, rejecting with `failed-precondition`.
+  The client gate is UX; this is what actually enforces it.
+
+This document is the one exception to the deny-all
+`firestore.rules`: it is public-read (and no-write) so the site can
+read it without a round trip through a Cloud Function.
+
 ### Email delivery (SMTP)
 
 Both the verification code and the post-registration confirmation

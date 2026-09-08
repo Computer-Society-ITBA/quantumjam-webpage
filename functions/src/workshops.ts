@@ -4,6 +4,7 @@ import * as logger from "firebase-functions/logger";
 
 import {db} from "./admin";
 import {GMAIL_APP_PASSWORD, sendWorkshopConfirmationEmail} from "./lib/email";
+import {assertRegistrationOpen} from "./lib/flags";
 import {
   canonicalEmail,
   isValidEmail,
@@ -30,6 +31,8 @@ function requireNonEmptyString(value: unknown, field: string): string {
 export const submitWorkshopSignup = onCall(
   {secrets: [GMAIL_APP_PASSWORD]},
   async (request) => {
+    await assertRegistrationOpen("workshops");
+
     const body = request.data as Record<string, unknown> | null;
     const email =
       typeof body?.email === "string" ? normalizeEmail(body.email) : "";

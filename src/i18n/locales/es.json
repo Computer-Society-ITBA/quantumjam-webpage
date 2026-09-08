@@ -93,6 +93,9 @@
       "desc": "Gratis, un día, en vivo en el ITBA: comida, espacio de trabajo y mentores incluidos.",
       "mode": "Presencial"
     },
+    "closedBadge": "Cerrada",
+    "closedDesc": "La inscripción a esta parte no está abierta por ahora.",
+    "allClosedNote": "Las dos inscripciones están cerradas por ahora. Seguinos en Instagram para enterarte cuando vuelvan a abrir.",
     "backHome": "Inicio"
   },
   "notFound": {
@@ -103,6 +106,13 @@
   "registration": {
     "backToSelect": "Eventos",
     "consent": "Al completar este formulario, aceptás compartir tus datos con los organizadores y sponsors del evento.",
+    "closed": {
+      "title": "Inscripción cerrada",
+      "workshopsDesc": "La inscripción a los workshops y clases virtuales no está abierta por ahora. Seguinos en Instagram para enterarte cuando vuelva a abrir.",
+      "competitionDesc": "La inscripción a la competencia no está abierta por ahora. Seguinos en Instagram para enterarte cuando vuelva a abrir.",
+      "cta": "Volver a |0⟩",
+      "loading": "Verificando si la inscripción está abierta…"
+    },
     "validation": {
       "required": "Este campo es obligatorio.",
       "email": "Ingresá un email válido.",
