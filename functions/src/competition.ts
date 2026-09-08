@@ -6,6 +6,8 @@ import {
 } from "firebase-admin/firestore";
 import * as logger from "firebase-functions/logger";
 
+import {resolveLang} from "./lib/i18n/index";
+
 import {db} from "./admin";
 import {
   GMAIL_APP_PASSWORD,
@@ -123,6 +125,9 @@ export const submitCompetitionSignup = onCall(
 
     const team = body?.team as Record<string, unknown> | undefined;
     const rawChoice = team?.choice;
+    const lang = resolveLang(
+      typeof body?.lang === "string" ? body.lang : undefined,
+    );
     if (
       rawChoice !== "join" &&
       rawChoice !== "create" &&
@@ -245,6 +250,7 @@ export const submitCompetitionSignup = onCall(
         teamId: teamSlug,
         status: "pending",
         createdAt: now,
+        lang,
       });
       tx.update(verRef, {consumedAt: now});
     });
@@ -257,7 +263,7 @@ export const submitCompetitionSignup = onCall(
         teamRef,
         teamName,
       );
-      await sendCompetitionConfirmationEmail(email, teamInfo);
+      await sendCompetitionConfirmationEmail(email, teamInfo, lang);
     } catch (err) {
       logger.error("Failed to send competition confirmation email", {
         email,

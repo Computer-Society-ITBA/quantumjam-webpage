@@ -4,6 +4,8 @@ import nodemailer from "nodemailer";
 import {defineSecret} from "firebase-functions/params";
 import * as logger from "firebase-functions/logger";
 
+import {t, type Lang} from "./i18n";
+
 import {MAX_TEAM_SIZE} from "./slug";
 
 export const GMAIL_APP_PASSWORD = defineSecret("GMAIL_APP_PASSWORD");
@@ -125,25 +127,21 @@ const STYLE = {
 // separate TypeScript project and can't import from src/.
 const DISCORD_INVITE_URL = "https://discord.gg/e9vY5tHEM";
 
-// TODO: swap for the real event page once the site is live. Mocked so
-// the pending-approval email links somewhere in the meantime.
 const EVENT_PAGE_URL = "https://quantumjam.com.ar";
+
+// The Discord first-steps list, in order. The copy for each lives under
+// "workshop.steps.<key>" in the locale files; only the order is here,
+// since t() resolves one string at a time.
+const DISCORD_STEP_KEYS = ["join", "rules", "intro", "sessions"] as const;
 
 const INSTAGRAM_URL = "https://instagram.com/csitba";
 const LINKEDIN_URL = "https://linkedin.com/company/csitba";
 const CONTACT_EMAIL_MAILTO = `mailto:${FROM_EMAIL}`;
 
-// TODO: fill in with the real time, location and duration once the
-// venue for the competition is confirmed. The date is set.
-const COMPETITION_DATE_MONTH = "NOV";
-const COMPETITION_DATE_DAY = "21";
-const COMPETITION_DATE_LABEL = "Sábado 21 de noviembre";
-const COMPETITION_TIME_RANGE = "A confirmar";
-const COMPETITION_LOCATION = "A confirmar";
-const COMPETITION_DURATION_LABEL = "A confirmar";
-
 let transporter: nodemailer.Transporter | null = null;
+let emulatorTransporter: nodemailer.Transporter | null = null;
 let logoBuffer: Buffer | null = null;
+
 
 /**
  * Lazily builds the Gmail SMTP transport with the app password secret.
@@ -155,13 +153,27 @@ function getTransporter(): nodemailer.Transporter {
       host: "smtp.gmail.com",
       port: 465,
       secure: true,
-      auth: {
-        user: FROM_EMAIL,
-        pass: GMAIL_APP_PASSWORD.value(),
-      },
+      auth: {user: FROM_EMAIL, pass: GMAIL_APP_PASSWORD.value()},
     });
   }
   return transporter;
+}
+
+/**
+ * Lazily builds an SMTP transport pointed at a local Mailpit instance,
+ * used instead of Gmail under the Functions emulator.
+ * @return {nodemailer.Transporter} The Mailpit SMTP transport.
+ */
+function getEmulatorTransporter(): nodemailer.Transporter {
+  if (!emulatorTransporter) {
+    emulatorTransporter = nodemailer.createTransport({
+      host: "127.0.0.1",
+      port: 1025,
+      secure: false,
+      ignoreTLS: true,
+    });
+  }
+  return emulatorTransporter;
 }
 
 /**
@@ -197,16 +209,14 @@ function escapeHtml(value: string): string {
  * Renders the compressed, classic-style footer shared by every email:
  * logo mark, one-line blurb, social/contact links, address and
  * copyright. No event-specific content.
+ * @param {Lang} lang Language to render the footer in.
  * @return {string} Footer HTML.
  */
-function renderFooter(): string {
+function renderFooter(lang: Lang): string {
   return `
     <tr>
       <td style="${STYLE.footerWrap}">
-        <p style="${STYLE.footerText}">
-          QuantumJam es nuestra jornada anual de computación cuántica,
-          sponsoreada por IBM Quantum.
-        </p>
+        <p style="${STYLE.footerText}">${t(lang, "footer.blurb")}</p>
         <p style="${STYLE.footerLinks}">
           <a href="${INSTAGRAM_URL}" style="${STYLE.footerLink}">Instagram</a>
           &nbsp;|&nbsp;
@@ -216,12 +226,8 @@ function renderFooter(): string {
           &nbsp;|&nbsp;
           <a href="${LINKEDIN_URL}" style="${STYLE.footerLink}">LinkedIn</a>
         </p>
-        <p style="${STYLE.footerLinks}">
-          ITBA SDF, San Mart&iacute;n 202, CABA
-        </p>
-        <p style="${STYLE.footerCopy}">
-          &copy; 2026 Computer Society ITBA
-        </p>
+        <p style="${STYLE.footerLinks}">${t(lang, "footer.address")}</p>
+        <p style="${STYLE.footerCopy}">${t(lang, "footer.copyright")}</p>
       </td>
     </tr>
   `;
@@ -237,9 +243,10 @@ function renderFooter(): string {
  * otherwise ignores CSS-only backgrounds and re-renders the email in
  * its own light theme.
  * @param {string} bodyHtml Inner content HTML.
+ * @param {Lang} lang Language to render the shell (footer) in.
  * @return {string} The full HTML document.
  */
-function renderEmailShell(bodyHtml: string): string {
+function renderEmailShell(bodyHtml: string, lang: Lang): string {
   return `<!DOCTYPE html>
 <html>
   <head>
@@ -277,7 +284,7 @@ function renderEmailShell(bodyHtml: string): string {
                 </table>
                 <table role="presentation" width="100%" cellpadding="0"
                   cellspacing="0" border="0">
-                  ${renderFooter()}
+                  ${renderFooter(lang)}
                 </table>
               </td>
             </tr>
@@ -289,9 +296,11 @@ function renderEmailShell(bodyHtml: string): string {
 </html>`;
 }
 
+
 /**
- * Sends an email via Gmail SMTP, or logs it locally under the
- * Functions emulator instead of sending for real.
+ * Sends an email via Gmail SMTP, or via a local Mailpit instance when
+ * running under the Functions emulator, so nothing real gets sent
+ * during local testing.
  * @param {string} to Recipient address.
  * @param {string} subject Email subject line.
  * @param {string} text Plain-text body.
@@ -304,25 +313,24 @@ async function sendEmail(
   text: string,
   html: string,
 ): Promise<void> {
-  if (process.env.FUNCTIONS_EMULATOR === "true") {
-    logger.info(`[emulator] Email to ${to}: ${subject}\n${text}`);
-    return;
-  }
+  const isEmulator = process.env.FUNCTIONS_EMULATOR === "true";
+  const mail = {
+    from: `QNTMJAM <${FROM_EMAIL}>`,
+    to,
+    subject,
+    text,
+    html,
+    attachments: [
+      {filename: "logo.png", content: getLogoBuffer(), cid: LOGO_CID},
+    ],
+  };
   try {
-    await getTransporter().sendMail({
-      from: `QNTMJAM <${FROM_EMAIL}>`,
-      to,
-      subject,
-      text,
-      html,
-      attachments: [
-        {
-          filename: "logo.png",
-          content: getLogoBuffer(),
-          cid: LOGO_CID,
-        },
-      ],
-    });
+    if (isEmulator) {
+      await getEmulatorTransporter().sendMail(mail);
+      logger.info(`[emulator] Sent via Mailpit: ${to} / ${subject}`);
+    } else {
+      await getTransporter().sendMail(mail);
+    }
   } catch (err) {
     logger.error("Failed to send email", {to, subject, err});
     throw err;
@@ -333,59 +341,40 @@ async function sendEmail(
  * Sends a verification code to an email via Gmail SMTP.
  * @param {string} email Recipient address.
  * @param {string} code The plaintext code to include in the email.
+ * @param {Lang} lang Language to render the email in.
  * @return {Promise<void>} Resolves once the send is accepted.
  */
 export async function sendVerificationCodeEmail(
   email: string,
   code: string,
+  lang: Lang,
 ): Promise<void> {
-  const html = renderVerificationCodeHtml(code);
-  const text =
-    `Tu código de verificación es ${code}. Expira en 10 minutos.\n` +
-    "Si no lo pediste vos, ignorá este mensaje.";
-  await sendEmail(email, "QNTMJAM: Tu código de verificación", text, html);
+  const html = renderVerificationCodeHtml(code, lang);
+  const text = t(lang, "verification.textBody", {code});
+  await sendEmail(email, t(lang, "verification.subject"), text, html);
 }
 
-/**
- * The steps a new signup should take once inside the Discord server,
- * shared by the HTML and plain-text bodies so the two can't drift.
- */
-const DISCORD_STEPS = [
-  "Abrí la invitación y sumate al servidor de QuantumJam.",
-  "Leé el mensaje de bienvenida, aceptá las reglas y activá las " +
-    "notificaciones del canal de anuncios.",
-  "Presentate: contanos qué estudiás y qué te trae a la computación " +
-    "cuántica. No hace falta experiencia previa.",
-  "Ahí publicamos el link de cada sesión, los materiales y cualquier " +
-    "cambio de horario. Después de esto no mandamos nada más por mail.",
-];
 
 /**
- * Sends the post-registration confirmation email for the workshops flow:
- * the Discord invite plus what to do once inside, mirroring the
- * confirmation screen on the site.
+ * Sends the post-registration confirmation email for the workshops flow.
  * @param {string} email Recipient address.
+ * @param {Lang} lang Language to render the email in.
  * @return {Promise<void>} Resolves once the send is accepted.
  */
 export async function sendWorkshopConfirmationEmail(
   email: string,
+  lang: Lang,
 ): Promise<void> {
-  const html = renderWorkshopConfirmationHtml();
-  const steps = DISCORD_STEPS.map((step, i) => `${i + 1}. ${step}`).join("\n");
+  const html = renderWorkshopConfirmationHtml(lang);
+  const steps = DISCORD_STEP_KEYS.map(
+    (key, i) => `${i + 1}. ${t(lang, `workshop.steps.${key}`)}`,
+  ).join("\n");
   const text =
-    "¡Recibimos tu inscripción a los workshops y clases virtuales!\n\n" +
-    "Todo lo de los workshops pasa en nuestro servidor de Discord. " +
-    "Entrá ahora así no te perdés la primera sesión:\n" +
-    `${DISCORD_INVITE_URL}\n\n` +
-    `Primeros pasos una vez adentro:\n${steps}\n\n` +
-    "Si el link no funciona, pegá esta dirección en tu navegador: " +
-    DISCORD_INVITE_URL;
-  await sendEmail(
-    email,
-    "QNTMJAM: Sumate al Discord de los workshops",
-    text,
-    html,
-  );
+    `${t(lang, "workshop.textIntro")}\n\n` +
+    `${t(lang, "workshop.textDiscord")}\n${DISCORD_INVITE_URL}\n\n` +
+    `${t(lang, "workshop.stepsTitle")}\n${steps}\n\n` +
+    t(lang, "workshop.textFallback", {url: DISCORD_INVITE_URL});
+  await sendEmail(email, t(lang, "workshop.subject"), text, html);
 }
 
 export type CompetitionConfirmationTeam =
@@ -402,124 +391,92 @@ export type CompetitionConfirmationTeam =
  * email, styled as flat label/value pairs to match the rest of the
  * event-detail block.
  * @param {CompetitionConfirmationTeam} team Team info to render.
+ * @param {Lang} lang Language to render the section in.
  * @return {string} HTML for the team section.
  */
-function renderTeamSection(team: CompetitionConfirmationTeam): string {
+function renderTeamSection(
+  team: CompetitionConfirmationTeam,
+  lang: Lang,
+): string {
   if (team.choice === "alone") {
     return `
-      <p style="${STYLE.detailLabel}">Equipo</p>
+      <p style="${STYLE.detailLabel}">${t(lang, "competition.team.label")}</p>
       <p style="${STYLE.detailValue}">
-        Te anotaste sin equipo. Si qued&aacute;s seleccionado, te
-        asignamos a un equipo de hasta ${MAX_TEAM_SIZE} personas antes
-        de la competencia.
+        ${t(lang, "competition.team.aloneHtml", {maxTeamSize: MAX_TEAM_SIZE})}
       </p>
     `;
   }
   return `
-    <p style="${STYLE.detailLabel}">Equipo</p>
+    <p style="${STYLE.detailLabel}">${t(lang, "competition.team.label")}</p>
     <p style="${STYLE.teamName}">${escapeHtml(team.name)}</p>
     <p style="${STYLE.teamCode}">${escapeHtml(team.code)}</p>
     <p style="${STYLE.detailValue}">
-      ${team.memberCount} de ${MAX_TEAM_SIZE} integrantes
+      ${t(lang, "competition.team.memberCount", {
+    count: team.memberCount,
+    max: MAX_TEAM_SIZE,
+  })}
     </p>
   `;
 }
 
 /**
- * Builds the plain-text team-status paragraph for the competition
+ * Builds the plain-text team-status line for the competition
  * confirmation email.
  * @param {CompetitionConfirmationTeam} team Team info to render.
+ * @param {Lang} lang Language to render the text in.
  * @return {string} Plain-text team status.
  */
-function renderTeamText(team: CompetitionConfirmationTeam): string {
+function renderTeamText(team: CompetitionConfirmationTeam, lang: Lang): string {
   if (team.choice === "alone") {
-    return (
-      "Equipo: te anotaste sin equipo. Si quedás seleccionado, te " +
-      `asignamos a un equipo de hasta ${MAX_TEAM_SIZE} personas antes ` +
-      "de la competencia."
-    );
+    return `${t(lang, "competition.team.label")}: ` +
+      t(lang, "competition.team.aloneText", {maxTeamSize: MAX_TEAM_SIZE});
   }
-  return (
-    `Equipo: ${team.name} (código: ${team.code}), ` +
-    `${team.memberCount} de ${MAX_TEAM_SIZE} integrantes.`
-  );
+  return t(lang, "competition.team.textLine", {
+    name: team.name,
+    code: team.code,
+    count: team.memberCount,
+    max: MAX_TEAM_SIZE,
+  });
 }
 
 /**
- * Sends the post-registration confirmation email for the competition
- * flow: a pending-approval explainer, the event details card (date,
- * time, location, duration, team), and a closing disclaimer noting
- * those details and the team's spot are still unconfirmed.
- * @param {string} email Recipient address.
- * @param {CompetitionConfirmationTeam} team Team info to include.
- * @return {Promise<void>} Resolves once the send is accepted.
- */
-export async function sendCompetitionConfirmationEmail(
-  email: string,
-  team: CompetitionConfirmationTeam,
-): Promise<void> {
-  const html = renderCompetitionConfirmationHtml(team);
-  const text =
-    "Tu postulación está pendiente de aprobación.\n\n" +
-    "Gracias por postularte a la Competencia de Computación Cuántica " +
-    "QuantumJam. Tu equipo fue registrado correctamente y se encuentra " +
-    "actualmente en proceso de revisión. Te enviaremos un correo para " +
-    "informarte si tu postulación fue aprobada antes del 21 de " +
-    "noviembre.\n\n" +
-    "Después, la información del evento:\n\n" +
-    `Fecha y hora: ${COMPETITION_DATE_LABEL}, ${COMPETITION_TIME_RANGE}\n` +
-    `Ubicación: ${COMPETITION_LOCATION}\n` +
-    `Duración: ${COMPETITION_DURATION_LABEL}\n\n` +
-    `${renderTeamText(team)}\n\n` +
-    `Página del evento: ${EVENT_PAGE_URL}\n\n` +
-    "Importante: la fecha, el horario y la ubicación del evento " +
-    "todavía están sujetos a confirmación. La participación de tu " +
-    "equipo no está confirmada hasta recibir la aprobación por correo.";
-  await sendEmail(
-    email,
-    "QNTMJAM: Tu inscripción a la competencia está pendiente de aprobación",
-    text,
-    html,
-  );
-}
-
-/**
- * Renders the verification-code email body.
- * @param {string} code Verification code to display.
+ * Renders the verification-code email body: the code itself in a
+ * bordered box, plus a short expiry note.
+ * @param {string} code The plaintext code to display.
+ * @param {Lang} lang Language to render the email in.
  * @return {string} The full HTML document.
  */
-export function renderVerificationCodeHtml(code: string): string {
+export function renderVerificationCodeHtml(code: string, lang: Lang): string {
   return renderEmailShell(`
-    <p style="${STYLE.label}">
-      Tu c&oacute;digo de verificaci&oacute;n
-    </p>
+    <p style="${STYLE.label}">${t(lang, "verification.label")}</p>
     <div style="${STYLE.codeBox}">
       <span style="${STYLE.code}">${code}</span>
     </div>
-    <p style="${STYLE.fine}">
-      Expira en 10 minutos. Si no lo pediste vos, ignor&aacute; este mensaje.
-    </p>
-  `);
+    <p style="${STYLE.fine}">${t(lang, "verification.fine")}</p>
+  `, lang);
 }
 
 /**
  * Renders the numbered Discord first-steps list as a table, so the
  * number column stays aligned in clients that ignore list styling.
+ * @param {Lang} lang Language to render the steps in.
  * @return {string} HTML for the steps block.
  */
-function renderDiscordSteps(): string {
-  const rows = DISCORD_STEPS.map(
-    (step, i) => `
+function renderDiscordSteps(lang: Lang): string {
+  const rows = DISCORD_STEP_KEYS.map(
+    (key, i) => `
       <tr>
         <td valign="top" style="${STYLE.stepNumber}">
           ${String(i + 1).padStart(2, "0")}
         </td>
-        <td valign="top" style="${STYLE.stepText}">${escapeHtml(step)}</td>
+        <td valign="top" style="${STYLE.stepText}">${escapeHtml(
+  t(lang, `workshop.steps.${key}`),
+)}</td>
       </tr>`,
   ).join("");
 
   return `
-    <p style="${STYLE.stepsTitle}">Primeros pasos una vez adentro</p>
+    <p style="${STYLE.stepsTitle}">${t(lang, "workshop.stepsTitle")}</p>
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
       border="0">
       ${rows}
@@ -531,102 +488,129 @@ function renderDiscordSteps(): string {
  * Renders the workshop confirmation email body: the Discord invite and
  * what to do once inside, mirroring the confirmation screen on the site
  * so someone who closed the tab still has the instructions.
+ * @param {Lang} lang Language to render the email in.
  * @return {string} The full HTML document.
  */
-export function renderWorkshopConfirmationHtml(): string {
+export function renderWorkshopConfirmationHtml(lang: Lang): string {
   return renderEmailShell(`
-    <p style="${STYLE.bodyText}">
-      &iexcl;Recibimos tu inscripci&oacute;n a los
-      <strong>workshops y clases virtuales</strong>!
-    </p>
-    <p style="${STYLE.dimText}">
-      Todo lo de los workshops pasa en nuestro servidor de Discord.
-      Entr&aacute; ahora as&iacute; no te perd&eacute;s la primera
-      sesi&oacute;n.
-    </p>
+    <p style="${STYLE.bodyText}">${t(lang, "workshop.introHtml")}</p>
+    <p style="${STYLE.dimText}">${t(lang, "workshop.discordBlurb")}</p>
     <p style="text-align:center;margin:0 0 28px;">
-      <a href="${DISCORD_INVITE_URL}" style="${STYLE.ctaButton}">
-        Unirme al Discord
-      </a>
+      <a href="${DISCORD_INVITE_URL}" style="${STYLE.ctaButton}">${t(
+  lang,
+  "workshop.cta",
+)}</a>
     </p>
 
     <hr style="${STYLE.divider}">
 
-    ${renderDiscordSteps()}
+    ${renderDiscordSteps(lang)}
 
     <p style="${STYLE.inviteFallback}">
-      Si el bot&oacute;n no funciona, peg&aacute; esta direcci&oacute;n en
-      tu navegador:<br>${DISCORD_INVITE_URL}
+      ${t(lang, "workshop.htmlFallback")}<br>${DISCORD_INVITE_URL}
     </p>
-  `);
+  `, lang);
 }
 
 /**
  * Renders the competition confirmation email: an intro callout
  * explaining the pending-approval status, the event-details card
- * (date/time, location, duration, team, unchanged from before), the
- * event-page CTA, and a closing callout noting those details and the
- * team's spot are still unconfirmed.
+ * (date/time, location, duration, team), the event-page CTA, and a
+ * closing callout noting those details and the team's spot are still
+ * unconfirmed.
  * @param {CompetitionConfirmationTeam} team Team info to include.
+ * @param {Lang} lang Language to render the email in.
  * @return {string} The full HTML document.
  */
 export function renderCompetitionConfirmationHtml(
   team: CompetitionConfirmationTeam,
+  lang: Lang,
 ): string {
   return renderEmailShell(`
     <div style="${STYLE.calloutBox}">
       <p style="${STYLE.calloutTitle}">
-        Tu postulaci&oacute;n est&aacute; pendiente de aprobaci&oacute;n
+        ${t(lang, "competition.calloutTitle")}
       </p>
       <p style="${STYLE.calloutText}">
-        Gracias por postularte a la
-        <strong>Competencia de Computaci&oacute;n Cu&aacute;ntica
-        QuantumJam</strong>. Estamos revisando tu postulaci&oacute;n y te
-        enviaremos un correo para informarte si fue
-        aprobada <strong>antes del 21 de noviembre</strong>.
+        ${t(lang, "competition.calloutTextHtml")}
       </p>
     </div>
-
     <hr style="${STYLE.divider}">
-
     <table role="presentation" width="100%" cellpadding="0"
       cellspacing="0" border="0" style="margin:0 0 20px;">
       <tr>
         <td width="56" valign="top" style="${STYLE.dateBadge}">
-          <p style="${STYLE.dateBadgeMonth}">${COMPETITION_DATE_MONTH}</p>
-          <p style="${STYLE.dateBadgeDay}">${COMPETITION_DATE_DAY}</p>
+          <p style="${STYLE.dateBadgeMonth}">
+            ${t(lang, "competition.details.dateMonth")}
+          </p>
+          <p style="${STYLE.dateBadgeDay}">
+            ${t(lang, "competition.details.dateDay")}
+          </p>
         </td>
         <td valign="top" style="padding-left:16px;">
-          <p style="${STYLE.teamName}">${COMPETITION_DATE_LABEL}</p>
-          <p style="${STYLE.teamMeta}">${COMPETITION_TIME_RANGE}</p>
+          <p style="${STYLE.teamName}">
+            ${t(lang, "competition.details.dateLabel")}
+          </p>
+          <p style="${STYLE.teamMeta}">
+            ${t(lang, "competition.details.timeRange")}
+          </p>
         </td>
       </tr>
     </table>
-
-    <p style="${STYLE.detailLabel}">Ubicaci&oacute;n</p>
-    <p style="${STYLE.detailValue}">${COMPETITION_LOCATION}</p>
-
-    <p style="${STYLE.detailLabel}">Duraci&oacute;n</p>
-    <p style="${STYLE.detailValue}">${COMPETITION_DURATION_LABEL}</p>
-
-    ${renderTeamSection(team)}
-
+    <p style="${STYLE.detailLabel}">${t(lang, "competition.locationLabel")}</p>
+    <p style="${STYLE.detailValue}">
+      ${t(lang, "competition.details.location")}
+    </p>
+    <p style="${STYLE.detailLabel}">${t(lang, "competition.durationLabel")}</p>
+    <p style="${STYLE.detailValue}">
+      ${t(lang, "competition.details.duration")}
+    </p>
+    ${renderTeamSection(team, lang)}
     <hr style="${STYLE.divider}">
-
     <p style="text-align:center;margin:0 0 24px;">
       <a href="${EVENT_PAGE_URL}" style="${STYLE.ctaButton}">
-        Ver p&aacute;gina del evento
+        ${t(lang, "competition.ctaEventPage")}
       </a>
     </p>
-
     <div style="${STYLE.calloutBox}">
       <p style="${STYLE.calloutText}">
-        La fecha, el horario y la
-        ubicaci&oacute;n del evento todav&iacute;a est&aacute;n sujetos a
-        confirmaci&oacute;n. La participaci&oacute;n de tu equipo
-        <strong>no est&aacute; confirmada hasta recibir la aprobaci&oacute;n
-        de la misma</strong>.
+        ${t(lang, "competition.disclaimerHtml")}
       </p>
     </div>
-  `);
+  `, lang);
+}
+
+/**
+ * Sends the post-registration confirmation email for the competition
+ * flow: a pending-approval explainer, the event details card (date,
+ * time, location, duration, team), and a closing disclaimer noting
+ * those details and the team's spot are still unconfirmed.
+ * @param {string} email Recipient address.
+ * @param {CompetitionConfirmationTeam} team Team info to include.
+ * @param {Lang} lang Language to render the email in.
+ * @return {Promise<void>} Resolves once the send is accepted.
+ */
+export async function sendCompetitionConfirmationEmail(
+  email: string,
+  team: CompetitionConfirmationTeam,
+  lang: Lang,
+): Promise<void> {
+  const html = renderCompetitionConfirmationHtml(team, lang);
+  const text =
+    `${t(lang, "competition.textIntro")}\n\n` +
+    `${t(lang, "competition.textEventInfoHeading")}\n\n` +
+    `${t(lang, "competition.textDateTime", {
+      dateLabel: t(lang, "competition.details.dateLabel"),
+      timeRange: t(lang, "competition.details.timeRange"),
+    })}\n` +
+    `${t(lang, "competition.textLocation", {
+      location: t(lang, "competition.details.location"),
+    })}\n` +
+    `${t(lang, "competition.textDuration", {
+      duration: t(lang, "competition.details.duration"),
+    })}\n\n` +
+    `${renderTeamText(team, lang)}\n\n` +
+    `${t(lang, "competition.textEventPage", {url: EVENT_PAGE_URL})}\n\n` +
+    t(lang, "competition.textDisclaimer");
+  await sendEmail(email, t(lang, "competition.subject"), text, html);
 }
