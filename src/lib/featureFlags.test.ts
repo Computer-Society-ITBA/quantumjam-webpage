@@ -6,39 +6,48 @@ import {
   parseRegistrationFlags,
 } from './featureFlags'
 
+describe('DEFAULT_REGISTRATION_FLAGS', () => {
+  it('fails closed', () => {
+    expect(DEFAULT_REGISTRATION_FLAGS).toEqual({
+      workshopsRegistrationOpen: false,
+      competitionRegistrationOpen: false,
+    })
+  })
+})
+
 describe('parseRegistrationFlags', () => {
   it('reads explicit booleans', () => {
     expect(
       parseRegistrationFlags({
-        workshopsRegistrationOpen: false,
-        competitionRegistrationOpen: true,
+        workshopsRegistrationOpen: true,
+        competitionRegistrationOpen: false,
       }),
-    ).toEqual({
-      workshopsRegistrationOpen: false,
-      competitionRegistrationOpen: true,
-    })
-  })
-
-  it('falls back to open for a missing document', () => {
-    expect(parseRegistrationFlags(undefined)).toEqual(
-      DEFAULT_REGISTRATION_FLAGS,
-    )
-  })
-
-  it('falls back to open for a missing field', () => {
-    expect(
-      parseRegistrationFlags({ competitionRegistrationOpen: false }),
     ).toEqual({
       workshopsRegistrationOpen: true,
       competitionRegistrationOpen: false,
     })
   })
 
-  it('ignores non-boolean values so a typo cannot close a flow', () => {
+  it('falls back to closed for a missing document', () => {
+    expect(parseRegistrationFlags(undefined)).toEqual(
+      DEFAULT_REGISTRATION_FLAGS,
+    )
+  })
+
+  it('falls back to closed for a missing field', () => {
+    expect(
+      parseRegistrationFlags({ competitionRegistrationOpen: true }),
+    ).toEqual({
+      workshopsRegistrationOpen: false,
+      competitionRegistrationOpen: true,
+    })
+  })
+
+  it('ignores non-boolean values so a typo cannot open a flow', () => {
     expect(
       parseRegistrationFlags({
-        workshopsRegistrationOpen: 'false',
-        competitionRegistrationOpen: 0,
+        workshopsRegistrationOpen: 'true',
+        competitionRegistrationOpen: 1,
       }),
     ).toEqual(DEFAULT_REGISTRATION_FLAGS)
   })

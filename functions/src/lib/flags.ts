@@ -14,9 +14,10 @@ const FLAG_KEY: Record<Purpose, string> = {
 
 /**
  * Reads whether a sign-up flow is open. Mirrors the client-side default
- * in src/lib/featureFlags.ts: only an explicit `false` closes a flow, so
- * a missing document or field leaves registration open. A Firestore read
- * failure is treated the same way rather than taking sign-ups down.
+ * in src/lib/featureFlags.ts: only an explicit `true` opens a flow, so a
+ * missing document, a missing field or a failed read all keep it closed.
+ * Fail closed - accepting sign-ups for an event that is meant to be shut
+ * is worse than turning away a few while Firestore is unreachable.
  * @param {Purpose} purpose Which sign-up flow.
  * @return {Promise<boolean>} Whether that flow accepts sign-ups.
  */
@@ -26,11 +27,10 @@ export async function isRegistrationOpen(purpose: Purpose): Promise<boolean> {
       .collection(FEATURE_FLAGS_COLLECTION)
       .doc(REGISTRATION_FLAGS_DOC)
       .get();
-    const value = snap.data()?.[FLAG_KEY[purpose]];
-    return typeof value === "boolean" ? value : true;
+    return snap.data()?.[FLAG_KEY[purpose]] === true;
   } catch (err) {
     logger.error("Failed to read registration feature flags", {purpose, err});
-    return true;
+    return false;
   }
 }
 

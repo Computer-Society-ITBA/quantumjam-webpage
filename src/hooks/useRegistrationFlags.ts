@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 
 import {
   DEFAULT_REGISTRATION_FLAGS,
+  getCachedRegistrationFlags,
   subscribeToRegistrationFlags,
   type RegistrationFlags,
 } from '@/lib/featureFlags'
@@ -12,21 +13,26 @@ export type RegistrationFlagsState = {
 }
 
 /**
- * How long to wait for Firestore before giving up and using the defaults.
- * A slow or blocked connection would otherwise leave the visitor staring
- * at the loading state instead of a sign-up form.
+ * How long to wait for Firestore before falling back to the defaults
+ * (closed). A blocked or offline connection would otherwise leave the
+ * visitor staring at the loading state forever.
  */
-const FLAGS_TIMEOUT_MS = 4000
+const FLAGS_TIMEOUT_MS = 6000
 
 /**
- * Live registration feature flags. Stays `loading` until Firestore
- * answers so callers can hold back the gated UI instead of flashing a
- * form that is about to be locked.
+ * Live registration feature flags.
+ *
+ * The Firestore read happens once per session: the first mount pays for
+ * it, and every later one (a route change, a second component on the
+ * page) is served synchronously from the shared cache, so navigating
+ * around the site never re-fetches or flashes the loading state again.
  */
 export function useRegistrationFlags(): RegistrationFlagsState {
-  const [state, setState] = useState<RegistrationFlagsState>({
-    flags: DEFAULT_REGISTRATION_FLAGS,
-    loading: true,
+  const [state, setState] = useState<RegistrationFlagsState>(() => {
+    const cached = getCachedRegistrationFlags()
+    return cached
+      ? { flags: cached, loading: false }
+      : { flags: DEFAULT_REGISTRATION_FLAGS, loading: true }
   })
 
   useEffect(() => {
