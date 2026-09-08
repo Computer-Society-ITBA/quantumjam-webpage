@@ -1,0 +1,51 @@
+{
+  "verification": {
+    "subject": "QNTMJAM: Your verification code",
+    "textBody": "Your verification code is {code}. It expires in 10 minutes.\nIf you didn't request this, you can ignore this email.",
+    "label": "Your verification code",
+    "fine": "Expires in 10 minutes. If you didn't request this, you can ignore this email."
+  },
+  "workshop": {
+    "subject": "QNTMJAM: We received your workshop registration",
+    "textBody": "We received your registration for the workshops and online classes.\nJoin our Discord server: that's where we'll share session links and all the updates.\n{discordUrl}",
+    "introHtml": "We received your registration for the <strong>workshops and online classes</strong>!",
+    "discordBlurb": "Join our Discord server: that's where we'll share session links and all the updates.",
+    "cta": "Join the Discord"
+  },
+  "competition": {
+    "subject": "QNTMJAM: Your competition application is pending approval",
+    "textIntro": "Your application is pending approval.\n\nThanks for applying to the QuantumJam Quantum Computing Competition. Your team was registered successfully and is currently under review. We'll email you to let you know whether your application was approved before November 14th.",
+    "textEventInfoHeading": "Now, the event details:",
+    "textDateTime": "Date and time: {dateLabel} · {timeRange}",
+    "textLocation": "Location: {location}",
+    "textDuration": "Duration: {duration}",
+    "textEventPage": "Event page: {url}",
+    "textDisclaimer": "Important: the event's date, time, and location are still subject to confirmation. Your team's participation isn't confirmed until you receive approval by email.",
+    "calloutTitle": "Your application is pending approval",
+    "calloutTextHtml": "Thanks for applying to the <strong>QuantumJam Quantum Computing Competition</strong>. We're reviewing your application and will email you to let you know whether it was approved <strong>before November 14th</strong>.",
+    "locationLabel": "Location",
+    "durationLabel": "Duration",
+    "ctaEventPage": "View event page",
+    "disclaimerHtml": "The event's date, time, and location are still subject to confirmation. Your team's participation <strong>isn't confirmed until you receive approval</strong>.",
+    "team": {
+      "label": "Team",
+      "aloneHtml": "You signed up without a team. If you're selected, we'll assign you to a team of up to {maxTeamSize} people before the competition.",
+      "aloneText": "you signed up without a team. If you're selected, we'll assign you to a team of up to {maxTeamSize} people before the competition.",
+      "memberCount": "{count} of {max} members",
+      "textLine": "Team: {name} (code: {code}), {count} of {max} members."
+    },
+    "details": {
+      "dateMonth": "NOV",
+      "dateDay": "14",
+      "dateLabel": "Friday, November 14th",
+      "timeRange": "TBD",
+      "location": "TBD",
+      "duration": "TBD"
+    }
+  },
+  "footer": {
+    "blurb": "QuantumJam is our annual quantum computing event, sponsored by IBM Quantum.",
+    "address": "ITBA SDF, San Martín 202, CABA",
+    "copyright": "© 2026 Computer Society ITBA"
+  }
+}

@@ -2,6 +2,8 @@ import {onCall, HttpsError} from "firebase-functions/https";
 import {Timestamp} from "firebase-admin/firestore";
 import * as logger from "firebase-functions/logger";
 
+import {resolveLang} from "./lib/i18n/index";
+
 import {db} from "./admin";
 import {GMAIL_APP_PASSWORD, sendWorkshopConfirmationEmail} from "./lib/email";
 import {isValidEmail, normalizeEmail, verificationId} from "./lib/otp";
@@ -49,6 +51,9 @@ export const submitWorkshopSignup = onCall(
       .collection("emailVerifications")
       .doc(verificationId("workshops", email));
     const signupRef = db.collection("workshopSignups").doc(email);
+    const lang = resolveLang(
+      typeof body?.lang === "string" ? body.lang : undefined,
+    );
 
     await db.runTransaction(async (tx) => {
       const verSnap = await tx.get(verRef);
@@ -88,6 +93,7 @@ export const submitWorkshopSignup = onCall(
         reason,
         status: "pending",
         createdAt: now,
+        lang,
       });
       tx.update(verRef, {consumedAt: now});
     });
@@ -95,7 +101,7 @@ export const submitWorkshopSignup = onCall(
     // Best-effort: the signup itself already succeeded, so a confirmation
     // email failure shouldn't fail the request.
     try {
-      await sendWorkshopConfirmationEmail(email);
+      await sendWorkshopConfirmationEmail(email, lang);
     } catch (err) {
       logger.error("Failed to send workshop confirmation email", {
         email,
