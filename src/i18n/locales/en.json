@@ -26,12 +26,12 @@
       },
       "community": {
         "title": "Community",
-        "desc": "Technical talks and networking with the Buenos Aires quantum community."
+        "desc": "Technical talks, mentoring and networking with the Buenos Aires quantum community."
       }
     }
   },
   "hardware": {
-    "title": "The hardware",
+    "title": "The emulator",
     "description": "This is what an IBM Quantum processor looks like: each qubit lives in a superconducting circuit, cooled to a fraction of a degree above absolute zero. At QuantumJam you won't need a cryostat: every circuit you build runs on Qiskit's simulator, modeled faithfully on this real IBM architecture.",
     "specs": {
       "qubit_label": "Qubit",
@@ -354,7 +354,7 @@
     },
     "links": {
       "about": "What is QuantumJam?",
-      "hardware": "The hardware",
+      "hardware": "The emulator",
       "agenda": "Program",
       "sponsor": "IBM Quantum",
       "register": "Sign Up",
