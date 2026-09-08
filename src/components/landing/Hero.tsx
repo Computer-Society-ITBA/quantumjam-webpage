@@ -19,8 +19,8 @@ function MetaChip({
   children: React.ReactNode
 }) {
   return (
-    <span className="border-brand-line bg-brand-bg/85 text-brand-text-dim inline-flex items-center gap-2 border-2 px-[14px] py-2 text-[0.7rem] tracking-[0.1em]">
-      <Icon className="text-brand-green size-4" strokeWidth={1.8} />
+    <span className="border-brand-line bg-brand-bg/85 text-brand-text-dim inline-flex items-center gap-1.5 border-2 px-2 py-1.5 text-[0.55rem] tracking-[0.06em] sm:gap-2 sm:px-[14px] sm:py-2 sm:text-[0.7rem] sm:tracking-[0.1em]">
+      <Icon className="text-brand-green size-3 sm:size-4" strokeWidth={1.8} />
       <b className="text-foreground font-medium">{children}</b>
     </span>
   )
@@ -28,8 +28,8 @@ function MetaChip({
 
 function IbmBadge() {
   return (
-    <span className="border-brand-line bg-brand-bg/85 inline-flex items-center border-2 px-[18px] pt-2.5 pb-2">
-      <IbmLogo className="h-[14px]" />
+    <span className="border-brand-line bg-brand-bg/85 inline-flex items-center border-2 px-3 pt-2 pb-1.5 sm:px-[18px] sm:pt-2.5 sm:pb-2">
+      <IbmLogo className="h-[11px] sm:h-[14px]" />
     </span>
   )
 }
@@ -52,14 +52,14 @@ export function Hero() {
       />
 
       <div className="relative z-10 flex max-w-[1200px] flex-col items-center">
-        <div className="bg-brand-bg/85 text-brand-text-dim inline-flex items-center gap-[10px] px-3 py-1.5 text-[0.8rem]">
+        <div className="bg-brand-bg/85 text-brand-text-dim mb-6 inline-flex items-center gap-2 px-2 py-1 text-[0.65rem] sm:mb-0 sm:gap-[10px] sm:px-3 sm:py-1.5 sm:text-[0.8rem]">
           <span>{t('hero.sponsored_by')}</span>
           <IbmBadge />
         </div>
 
         <h1
           aria-label={t('nav.brand')}
-          className="hero-wordmark mx-auto mb-5 w-[clamp(240px,70vw,760px)] -translate-y-2"
+          className="hero-wordmark mx-auto mb-5 w-[clamp(240px,70vw,760px)] sm:-translate-y-2"
           dangerouslySetInnerHTML={{ __html: heroWordmarkSvg }}
         />
 
@@ -67,7 +67,7 @@ export function Hero() {
           {t('hero.subtitle')}
         </p>
 
-        <div className="flex flex-nowrap items-stretch justify-center gap-3 overflow-x-auto">
+        <div className="flex flex-nowrap items-stretch justify-center gap-1.5 sm:gap-3">
           <MetaChip icon={Calendar}>{t('hero.date')}</MetaChip>
           <MetaChip icon={MapPin}>{t('hero.place')}</MetaChip>
           <MetaChip icon={Ticket}>{t('hero.capacity')}</MetaChip>
