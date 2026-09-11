@@ -40,8 +40,12 @@ jobs:
       - name: Install Functions dependencies
         run: npm ci
         working-directory: functions
+      # Keep this on a recent tag: the predeploy hooks run inside this
+      # action's container, so its bundled Node is what lints and builds
+      # functions/. v2.2.2 shipped Node 16, where @typescript-eslint v8
+      # dies on a missing structuredClone.
       - name: Deploy Firebase Functions
-        uses: w9jds/firebase-action@v2.2.2
+        uses: w9jds/firebase-action@v15.30.0
         with:
           args: >-
             deploy --project webpage-36e40 --non-interactive
