@@ -85,7 +85,7 @@
     "fields": {
       "name": {
         "label": "Your name",
-        "ghost1": "Contact person",
+        "ghost1": "Marie Curie",
         "ghost2": "Who should we reply to?"
       },
       "organization": {

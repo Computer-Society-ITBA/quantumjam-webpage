@@ -4,6 +4,7 @@ import { Link } from 'react-router'
 
 import { Button } from '@/components/ui/button'
 import { HeroField } from '@/components/landing/HeroField'
+import { SplitText } from '@/components/landing/SplitText'
 
 export function RegisterCta() {
   const { t } = useTranslation()
@@ -24,7 +25,7 @@ export function RegisterCta() {
           className="font-display text-foreground relative z-10 mx-auto mb-9 max-w-[24ch] text-[clamp(2.2rem,6vw,4.2rem)] leading-[0.95] font-extrabold tracking-[-0.02em] uppercase"
           style={{ fontVariationSettings: '"wdth" 104, "wght" 800' }}
         >
-          {t('registerCta.title')}
+          <SplitText offset={4}>{t('registerCta.title')}</SplitText>
         </h2>
         <Button
           asChild

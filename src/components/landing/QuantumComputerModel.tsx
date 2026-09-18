@@ -33,9 +33,9 @@ type Finish = {
 // overrides turn the housing and lattice into brushed/polished metal and
 // push envMapIntensity up so the environment actually shows in the metals.
 const FINISHES: Record<string, Finish> = {
-  Black: { metalness: 0.95, roughness: 0.3, envMapIntensity: 1.5 },
-  MedBlack: { metalness: 1, roughness: 0.22, envMapIntensity: 1.5 },
-  Silver: { metalness: 1, roughness: 0.14, envMapIntensity: 1.9 },
+  Black: { metalness: 0.8, roughness: 0.3, envMapIntensity: 1.5 },
+  MedBlack: { metalness: 0.8, roughness: 0.22, envMapIntensity: 1.5 },
+  Silver: { metalness: 0.99, roughness: 0.14, envMapIntensity: 1.9 },
   'Silver.001': { metalness: 1, roughness: 0.18, envMapIntensity: 1.7 },
   // Copper plates - keep a touch of roughness so they read as metal
   // rather than a noisy perfect mirror (source had roughness 0.02).
@@ -102,20 +102,28 @@ export function QuantumComputerModel({ className, motion }: Props) {
         gl={{ antialias: true, alpha: true }}
         resize={{ scroll: false, debounce: { scroll: 50, resize: 0 } }}
       >
-        <ambientLight intensity={0.35} />
+        {/* No ambient / no neutral fill - the assembly is nearly-pure metal,
+            so the visible color comes from a) what the HDR env reflects and
+            b) the specular highlights of the three colored lights. Ambient
+            just washed the color out. */}
+        <directionalLight position={[3, 4, 4]} intensity={8} color="#c8ff00" />
+        {/* Magenta / lime rim lights - mirrored on x so left and right edges
+            each get their own brand-color specular. Cranked hard because on
+            metalness=1 surfaces directional lights only paint the specular
+            highlight, and it takes a lot of intensity to read over the env
+            reflections. */}
         <directionalLight
-          position={[3, 4, 4]}
-          intensity={2.2}
-          color="#c8ff00"
-        />
-        <directionalLight
-          position={[-4, -1, -3]}
-          intensity={0.7}
+          position={[-4, 3, -3]}
+          intensity={20}
           color="#ff2fb0"
         />
+        <directionalLight position={[4, 3, -3]} intensity={8} color="#a8ff10" />
         <Suspense fallback={null}>
           <Model motion={motion} />
-          <Environment files={ENV_URL} environmentIntensity={1} />
+          {/* Env intensity dropped so the neutral HDR doesn't wash the
+              brand colors back out. Kept nonzero because metals need
+              *something* to reflect or they render pure black. */}
+          <Environment files={ENV_URL} environmentIntensity={0.35} />
         </Suspense>
       </Canvas>
     </div>

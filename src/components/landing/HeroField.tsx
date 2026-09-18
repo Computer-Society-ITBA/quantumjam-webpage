@@ -14,6 +14,20 @@ type Props = {
   weight?: number
   mouseAmt?: number
   glow?: number
+  /**
+   * Fraction of CSS pixels to render at, before DPR is applied. Defaults to
+   * 1 (full CSS-pixel resolution). Drop to 0.75-0.85 on instances where the
+   * pattern is dim enough that the softening doesn't read; the canvas is
+   * stretched by CSS to fill the mount, so it's a straight fragment-shading
+   * win. Below ~0.5 the interference lines start looking blurry.
+   */
+  renderScale?: number
+  /**
+   * Max FPS the animation loop targets. Interference at 45 fps is visually
+   * indistinguishable from 120 fps but costs a third as much on a high
+   * refresh rate display.
+   */
+  fpsCap?: number
 }
 
 const MOTION_REFERENCE_HEIGHT = 520
@@ -146,6 +160,8 @@ export function HeroField({
   weight = 1,
   mouseAmt = 1,
   glow = 1,
+  renderScale = 1,
+  fpsCap = 45,
 }: Props) {
   const mountRef = useRef<HTMLDivElement>(null)
 
@@ -167,7 +183,14 @@ export function HeroField({
     canvas.style.display = 'block'
     mount.appendChild(canvas)
 
-    const gl = canvas.getContext('webgl2', { alpha: true, antialias: false })
+    // powerPreference hints hybrid systems to keep this on the iGPU. It's a
+    // decorative background - there's no reason for a discrete GPU to spin
+    // up for it, and forcing low-power also keeps battery/thermals down.
+    const gl = canvas.getContext('webgl2', {
+      alpha: true,
+      antialias: false,
+      powerPreference: 'low-power',
+    })
     if (!gl) return
 
     const program = createProgram(gl)
@@ -204,14 +227,19 @@ export function HeroField({
     gl.uniform3f(u.c1, c1r, c1g, c1b)
     gl.uniform3f(u.c2, c2r, c2g, c2b)
 
-    const t0 = performance.now()
+    let t0 = performance.now()
 
-    const dpr = Math.min(window.devicePixelRatio || 1, 2)
+    // Cap effective DPR at 1.5 - retina screens don't need a full 2x for a
+    // soft interference pattern (the shader's fwidth-based antialiasing keeps
+    // line sharpness roughly constant across densities). Combined with an
+    // optional renderScale this is a big fragment-budget saving; the FPS cap
+    // and offscreen pause do the rest.
+    const pixelScale = Math.min(window.devicePixelRatio || 1, 1.5) * renderScale
     const setSize = (w: number, h: number) => {
       width = w
       height = h
-      canvas.width = Math.round(w * dpr)
-      canvas.height = Math.round(h * dpr)
+      canvas.width = Math.max(1, Math.round(w * pixelScale))
+      canvas.height = Math.max(1, Math.round(h * pixelScale))
       gl.viewport(0, 0, canvas.width, canvas.height)
       gl.uniform2f(u.res, canvas.width, canvas.height)
       gl.uniform1f(u.motionScale, MOTION_REFERENCE_HEIGHT / h)
@@ -263,9 +291,20 @@ export function HeroField({
     // age-based fade never shows one at the origin on load.
     gl.uniform3f(u.pulse, 0, 0, -1000)
 
-    let frame = 0
-    const tick = () => {
-      const t = (performance.now() - t0) / 1000
+    // Animation state. `visible` is driven by IntersectionObserver so the
+    // rAF loop only runs while the mount is on screen (a second HeroField
+    // sitting offscreen would otherwise burn the entire GPU budget for
+    // nothing). Time is frozen while offscreen: t0 gets pushed forward by
+    // however long we were paused, so the pattern resumes where it was
+    // instead of jumping.
+    let frame: number | null = null
+    let visible = false
+    let pausedAt = 0
+    let lastDraw = 0
+    const frameInterval = 1000 / Math.max(1, fpsCap)
+
+    const drawFrame = (now: number) => {
+      const t = (now - t0) / 1000
       if (!reduced) {
         mouseSmooth.x += (mouseTarget.x - mouseSmooth.x) * 0.05
         mouseSmooth.y += (mouseTarget.y - mouseSmooth.y) * 0.05
@@ -276,19 +315,67 @@ export function HeroField({
 
       gl.clear(gl.COLOR_BUFFER_BIT)
       gl.drawArrays(gl.TRIANGLES, 0, 3)
-      if (!reduced) frame = requestAnimationFrame(tick)
     }
-    tick()
+
+    const tick = (now: number) => {
+      if (now - lastDraw >= frameInterval) {
+        // Snap to interval boundaries so we don't drift toward always-skip.
+        lastDraw = now - ((now - lastDraw) % frameInterval)
+        drawFrame(now)
+      }
+      if (!reduced && visible) frame = requestAnimationFrame(tick)
+      else frame = null
+    }
+
+    const start = () => {
+      if (frame !== null) return
+      if (pausedAt !== 0) {
+        // Freeze time across the pause instead of letting `t` jump.
+        t0 += performance.now() - pausedAt
+        pausedAt = 0
+      }
+      lastDraw = 0
+      frame = requestAnimationFrame(tick)
+    }
+
+    const stop = () => {
+      if (frame === null) return
+      cancelAnimationFrame(frame)
+      frame = null
+      pausedAt = performance.now()
+    }
+
+    // rootMargin gives a bit of pre-roll so scrolling toward the section
+    // resumes the shader before it enters the viewport (avoids a visible
+    // half-second of blank while the first frame renders).
+    const intersectionObserver = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          visible = entry.isIntersecting
+          if (visible) start()
+          else stop()
+        }
+      },
+      { rootMargin: '200px' },
+    )
+    intersectionObserver.observe(mount)
+
+    // Draw one frame right away so the mount isn't blank on first paint
+    // while IntersectionObserver's initial callback is still pending. If
+    // the element turns out to be offscreen, the observer will stop us on
+    // the very next tick anyway.
+    drawFrame(performance.now())
 
     return () => {
-      cancelAnimationFrame(frame)
+      if (frame !== null) cancelAnimationFrame(frame)
+      intersectionObserver.disconnect()
       resizeObserver.disconnect()
       window.removeEventListener('pointermove', onMove)
       window.removeEventListener('pointerdown', onDown)
       if (canvas.parentNode === mount) mount.removeChild(canvas)
       gl.deleteProgram(program)
     }
-  }, [dim, density, speed, weight, mouseAmt, glow])
+  }, [dim, density, speed, weight, mouseAmt, glow, renderScale, fpsCap])
 
   return (
     <div
