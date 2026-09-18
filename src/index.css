@@ -232,21 +232,32 @@
     position: relative;
     isolation: isolate;
     display: grid;
+    /* Force the grid track to fill the container instead of shrinking to
+       each stacked item's min-content (i.e. the widest single word), which
+       otherwise wraps multi-word headlines one word per line. */
+    grid-template-columns: minmax(0, 1fr);
+    width: 100%;
   }
   .rgb-split > * {
     grid-area: 1 / 1;
+    min-width: 0;
   }
   .rgb-split-ghost {
     mix-blend-mode: screen;
   }
-  @media (prefers-reduced-motion: no-preference) {
-    .rgb-split-ghost.text-brand-cyan {
-      animation: hero-cyan-drift 7.2s ease-in-out infinite;
-      will-change: transform;
+  @media (prefers-reduced-motion: no-preference) and (hover: hover) and (pointer: fine) {
+    /* The base transform on each ghost (from SplitText's inline style) sets
+       the parallax offset; the -active keyframes here use `translate` (the
+       CSS property, distinct from transform) so the drift composes on top
+       of that base offset without overwriting it. Matches the hero wordmark
+       hover behaviour so both effects read as one system. */
+    .rgb-split:hover .rgb-split-ghost.text-brand-cyan {
+      animation: hero-cyan-drift-active 3.8s ease-in-out infinite;
+      will-change: translate;
     }
-    .rgb-split-ghost.text-brand-magenta {
-      animation: hero-magenta-drift 8.6s ease-in-out -3.1s infinite;
-      will-change: transform;
+    .rgb-split:hover .rgb-split-ghost.text-brand-magenta {
+      animation: hero-magenta-drift-active 4.6s ease-in-out infinite;
+      will-change: translate;
     }
   }
 }

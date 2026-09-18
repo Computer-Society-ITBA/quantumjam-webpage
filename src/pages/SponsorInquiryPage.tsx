@@ -192,7 +192,7 @@ export default function SponsorInquiryPage() {
                 variant="hero"
                 size="cta"
                 disabled={busy}
-                className="mt-2 self-start"
+                className="mt-2 w-full"
               >
                 {busy
                   ? t('sponsorInquiry.sending')
