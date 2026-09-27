@@ -283,6 +283,30 @@ The workshops confirmation email currently links a **mocked** Discord
 invite (`DISCORD_INVITE_URL` in `lib/email.ts`, flagged with a
 `TODO`) - swap it for the real one once the server exists.
 
+### Backoffice (`/admin`)
+
+A read-only page with the sign-up and contact totals, one table per
+collection, search and CSV export. It reads through
+`quantumjamAdminApi` (`functions/src/backoffice.ts`), an `onRequest`
+function that Hosting serves at `/api/admin/*` and that checks HTTP
+Basic credentials on every request. The page itself is public; the
+data is not.
+
+The username and password are Functions secrets, never in the repo or
+the bundle. Set them (interactively) before the first deploy that
+includes the function, or the whole Functions deploy step fails:
+
+```bash
+firebase functions:secrets:set QUANTUMJAM_ADMIN_USERNAME --project webpage-36e40
+firebase functions:secrets:set QUANTUMJAM_ADMIN_PASSWORD --project webpage-36e40
+firebase deploy --project webpage-36e40 --only functions:quantumjamAdminApi
+```
+
+Rotating either one means setting it again and redeploying that
+function. Locally, put dummy values in `functions/.secret.local`
+(git-ignored) and use `firebase emulators:start` after `npm run
+build`; plain `npm run dev` has no `/api/admin` route.
+
 ## Adding UI components
 
 ```bash

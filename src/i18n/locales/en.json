@@ -407,5 +407,83 @@
     "instagram": "Instagram",
     "email": "Email",
     "linkedin": "LinkedIn"
+  },
+  "admin": {
+    "title": "Backoffice",
+    "description": "QuantumJam sign-ups and collected emails. Read only.",
+    "login": {
+      "username": "Username",
+      "password": "Password",
+      "submit": "Sign in",
+      "submitting": "Checking...",
+      "errors": {
+        "invalid": "Wrong username or password.",
+        "expired": "These credentials are no longer valid. Sign in again.",
+        "unavailable": "We couldn't reach the server. Try again in a moment."
+      }
+    },
+    "refresh": "Refresh",
+    "refreshing": "Refreshing...",
+    "logout": "Sign out",
+    "collectionsLabel": "Collections",
+    "collections": {
+      "workshops": "Workshop sign-ups",
+      "competition": "Competition sign-ups",
+      "contacts": "Collected emails"
+    },
+    "countFailed": "Failed to load",
+    "notUnique": "Totals are not unique people: the same email can appear in several lists, and a verified email does not imply a completed sign-up.",
+    "loading": "Loading...",
+    "loadFailed": "This table could not be loaded.",
+    "retry": "Retry",
+    "fetchedAt": "Fetched at {{time}}",
+    "search": {
+      "label": "Search",
+      "placeholder": "Email, name, university, team, status...",
+      "clear": "Clear",
+      "results_one": "{{count}} result out of {{total}} records",
+      "results_other": "{{count}} results out of {{total}} records"
+    },
+    "export": {
+      "all": "Export CSV (all)",
+      "filtered": "Export CSV (search results)"
+    },
+    "empty": "No records yet.",
+    "noMatches": "No records match this search.",
+    "details": {
+      "column": "Details",
+      "show": "Show details",
+      "hide": "Hide details"
+    },
+    "fields": {
+      "id": "Document ID",
+      "createdAt": "Signed up at",
+      "email": "Email",
+      "name": "Name",
+      "career": "University and major",
+      "level": "Level",
+      "reason": "Motivation",
+      "status": "Status",
+      "lang": "Language",
+      "dni": "ID or passport",
+      "age": "Age",
+      "university": "University",
+      "major": "Major",
+      "gradYear": "Graduation year",
+      "location": "Location",
+      "diet": "Dietary restriction",
+      "github": "GitHub",
+      "linkedin": "LinkedIn",
+      "x": "X",
+      "instagram": "Instagram",
+      "website": "Website",
+      "teamChoice": "Team mode",
+      "teamId": "Team",
+      "canonicalEmail": "Canonical email",
+      "purposes": "Sources",
+      "firstSeenAt": "First seen at",
+      "updatedAt": "Last updated",
+      "verifiedAt": "Verified at"
+    }
   }
 }

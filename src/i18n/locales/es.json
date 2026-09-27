@@ -407,5 +407,83 @@
     "instagram": "Instagram",
     "email": "Email",
     "linkedin": "LinkedIn"
+  },
+  "admin": {
+    "title": "Backoffice",
+    "description": "Inscripciones y mails recolectados de QuantumJam. Solo lectura.",
+    "login": {
+      "username": "Usuario",
+      "password": "Contraseña",
+      "submit": "Ingresar",
+      "submitting": "Verificando...",
+      "errors": {
+        "invalid": "Usuario o contraseña incorrectos.",
+        "expired": "Las credenciales ya no son válidas. Ingresá de nuevo.",
+        "unavailable": "No pudimos conectar con el servidor. Probá de nuevo en un rato."
+      }
+    },
+    "refresh": "Actualizar",
+    "refreshing": "Actualizando...",
+    "logout": "Salir",
+    "collectionsLabel": "Colecciones",
+    "collections": {
+      "workshops": "Inscripciones a workshops",
+      "competition": "Inscripciones a la competencia",
+      "contacts": "Mails recolectados"
+    },
+    "countFailed": "Error al cargar",
+    "notUnique": "Los totales no son personas únicas: un mismo mail puede aparecer en varias listas, y un mail verificado no implica una inscripción completa.",
+    "loading": "Cargando...",
+    "loadFailed": "No se pudo cargar esta tabla.",
+    "retry": "Reintentar",
+    "fetchedAt": "Consultado a las {{time}}",
+    "search": {
+      "label": "Buscar",
+      "placeholder": "Email, nombre, universidad, equipo, estado...",
+      "clear": "Limpiar",
+      "results_one": "{{count}} resultado de {{total}} registros",
+      "results_other": "{{count}} resultados de {{total}} registros"
+    },
+    "export": {
+      "all": "Exportar CSV (todos)",
+      "filtered": "Exportar CSV (resultados de la búsqueda)"
+    },
+    "empty": "Todavía no hay registros.",
+    "noMatches": "Ningún registro coincide con la búsqueda.",
+    "details": {
+      "column": "Detalle",
+      "show": "Ver detalle",
+      "hide": "Ocultar detalle"
+    },
+    "fields": {
+      "id": "ID del documento",
+      "createdAt": "Fecha de inscripción",
+      "email": "Email",
+      "name": "Nombre",
+      "career": "Universidad y carrera",
+      "level": "Nivel",
+      "reason": "Motivación",
+      "status": "Estado",
+      "lang": "Idioma",
+      "dni": "DNI o pasaporte",
+      "age": "Edad",
+      "university": "Universidad",
+      "major": "Carrera",
+      "gradYear": "Año de egreso",
+      "location": "Ubicación",
+      "diet": "Restricción alimentaria",
+      "github": "GitHub",
+      "linkedin": "LinkedIn",
+      "x": "X",
+      "instagram": "Instagram",
+      "website": "Sitio web",
+      "teamChoice": "Modalidad de equipo",
+      "teamId": "Equipo",
+      "canonicalEmail": "Email canónico",
+      "purposes": "Orígenes",
+      "firstSeenAt": "Primera vez visto",
+      "updatedAt": "Última actualización",
+      "verifiedAt": "Verificado el"
+    }
   }
 }
