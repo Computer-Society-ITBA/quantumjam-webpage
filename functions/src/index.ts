@@ -12,3 +12,4 @@ export {requestVerificationCode, confirmVerificationCode} from "./verification";
 export {submitWorkshopSignup} from "./workshops";
 export {submitCompetitionSignup, lookupTeam} from "./competition";
 export {submitSponsorInquiry} from "./sponsor";
+export {quantumjamAdminApi} from "./backoffice";
