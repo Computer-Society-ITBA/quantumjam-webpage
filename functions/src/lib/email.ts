@@ -125,7 +125,7 @@ const STYLE = {
 
 // Kept in sync by hand with src/lib/links.ts on the frontend. This is a
 // separate TypeScript project and can't import from src/.
-const DISCORD_INVITE_URL = "https://discord.gg/e9vY5tHEM";
+const DISCORD_INVITE_URL = "https://discord.gg/SxzVS5dzVg";
 
 const EVENT_PAGE_URL = "https://quantumjam.com.ar";
 
