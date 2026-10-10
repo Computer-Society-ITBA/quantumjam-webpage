@@ -13,6 +13,7 @@
     "test": "vitest",
     "test:run": "vitest run",
     "preview": "vite preview",
+    "og": "node scripts/og/generate.mjs",
     "prepare": "husky"
   },
   "lint-staged": {
