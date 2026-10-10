@@ -383,7 +383,7 @@
             "join": "Abrí la invitación y sumate al servidor de QuantumJam.",
             "rules": "Leé el mensaje de bienvenida, aceptá las reglas y activá las notificaciones del canal de anuncios.",
             "intro": "Presentate: contanos qué estudiás y qué te trae a la computación cuántica. No hace falta experiencia previa.",
-            "sessions": "Ahí publicamos el link de cada sesión, los materiales y cualquier cambio de horario. Después de esto no mandamos nada más por mail."
+            "sessions": "Ahí publicamos el link de cada sesión, los materiales y cualquier cambio de horario."
           },
           "fallback": "Si el botón no funciona, pegá esto en tu navegador: {{url}}"
         }
@@ -391,7 +391,7 @@
     },
     "competition": {
       "title": "Competencia de computación cuántica",
-      "description": "Gratis, presencial en el ITBA: un día (unas 8 horas) con comida, espacio de trabajo y mentores incluidos. La inscripción a los workshops es aparte.",
+      "description": "Gratis, presencial en el ITBA.",
       "submit": "Colapsar función de onda",
       "submitting": "Midiendo el sistema…",
       "note": "Vamos a revisar cada postulación y te vamos a avisar tu estado por mail en los próximos días.",

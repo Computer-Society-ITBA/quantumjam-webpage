@@ -19,7 +19,7 @@
       "join": "Abrí la invitación y sumate al servidor de QuantumJam.",
       "rules": "Leé el mensaje de bienvenida, aceptá las reglas y activá las notificaciones del canal de anuncios.",
       "intro": "Presentate: contanos qué estudiás y qué te trae a la computación cuántica. No hace falta experiencia previa.",
-      "sessions": "Ahí publicamos el link de cada sesión, los materiales y cualquier cambio de horario. Después de esto no mandamos nada más por mail."
+      "sessions": "Ahí publicamos el link de cada sesión, los materiales y cualquier cambio de horario."
     }
   },
   "competition": {
@@ -54,7 +54,6 @@
     }
   },
   "footer": {
-    "blurb": "QuantumJam es nuestra jornada anual de computación cuántica, sponsoreada por IBM Quantum.",
     "address": "ITBA SDF, San Martín 202, CABA",
     "copyright": "© 2026 Computer Society ITBA"
   }
