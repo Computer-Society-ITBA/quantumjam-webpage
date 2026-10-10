@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { Button } from '@/components/ui/button'
@@ -22,6 +22,7 @@ import {
   errorCode,
   lookupTeam,
   requestCode,
+  saveDraft,
   submitCompetition,
   type TeamChoicePayload,
 } from '@/lib/registrationApi'
@@ -77,6 +78,41 @@ const emptyDetails: Details = {
 
 type FieldErrors = Partial<Record<keyof Details, string>>
 
+// Steps saved server-side as the visitor moves past them, so an unfinished
+// sign-up can be resumed. Mirrors the parsers in functions/src/drafts.ts.
+const DRAFT_FIELDS = {
+  personal: [
+    'dni',
+    'age',
+    'university',
+    'major',
+    'gradYear',
+    'location',
+    'diet',
+  ],
+  socials: ['github', 'linkedin', 'x', 'instagram', 'website'],
+} as const satisfies Partial<Record<StepId, readonly (keyof Details)[]>>
+
+type DraftStepId = keyof typeof DRAFT_FIELDS
+
+const isDraftStep = (id: StepId): id is DraftStepId => id in DRAFT_FIELDS
+
+const AUTOSAVE_DELAY_MS = 1200
+
+const teamDraft = (team: TeamState) => ({
+  teamChoice: team.choice ?? '',
+  teamName: team.name,
+  teamCode: team.code,
+})
+
+function teamFromDraft(data: Record<string, string>): TeamState | null {
+  const choice = data.teamChoice
+  if (choice !== 'join' && choice !== 'create' && choice !== 'alone') {
+    return null
+  }
+  return { choice, name: data.teamName ?? '', code: data.teamCode ?? '' }
+}
+
 function teamPayload(team: TeamState): TeamChoicePayload {
   if (team.choice === 'create') return { choice: 'create', name: team.name }
   if (team.choice === 'join') return { choice: 'join', code: team.code }
@@ -99,6 +135,10 @@ export function CompetitionWizard() {
   )
   const [teamLookup, setTeamLookup] = useState<TeamLookup | null>(null)
   const [teamLookupLoading, setTeamLookupLoading] = useState(false)
+  const [resumed, setResumed] = useState(false)
+  // Where to land after re-verifying when the verification lapsed mid-form.
+  const returnStep = useRef<number | null>(null)
+  const lastSavedTeam = useRef(JSON.stringify(teamDraft(emptyTeam)))
 
   const current: StepId = STEPS[step]
   const { cooldown, reset: resetCooldown } = useResendCooldown(
@@ -127,6 +167,42 @@ export function CompetitionWizard() {
     return () => window.clearTimeout(handle)
   }, [team.choice, team.code])
 
+  // The team step is the last one, so there is no "continue" to save it
+  // on: it is saved as it is chosen. Nothing is reserved until the submit.
+  const { email } = details
+  useEffect(() => {
+    if (current !== 'team' || !verificationToken || submitted) return
+    const data = {
+      teamChoice: team.choice ?? '',
+      teamName: team.name,
+      teamCode: team.code,
+    }
+    const snapshot = JSON.stringify(data)
+    if (snapshot === lastSavedTeam.current) return
+    const handle = window.setTimeout(() => {
+      lastSavedTeam.current = snapshot
+      // Best-effort: the submit carries the team choice regardless.
+      saveDraft({
+        email,
+        purpose: 'competition',
+        verificationToken,
+        step: 'team',
+        data,
+      }).catch(() => {
+        lastSavedTeam.current = ''
+      })
+    }, AUTOSAVE_DELAY_MS)
+    return () => window.clearTimeout(handle)
+  }, [
+    current,
+    verificationToken,
+    submitted,
+    email,
+    team.choice,
+    team.name,
+    team.code,
+  ])
+
   const set =
     <K extends keyof Details>(key: K) =>
     (value: Details[K]) => {
@@ -142,6 +218,7 @@ export function CompetitionWizard() {
   const setEmail = (value: string) => {
     set('email')(value)
     setVerificationToken(null)
+    returnStep.current = null
   }
 
   const field = (key: keyof Details, required = false) => ({
@@ -211,6 +288,48 @@ export function CompetitionWizard() {
     setStep((s) => Math.max(s - 1, 0))
   }
 
+  /** The verification lapsed: confirm a fresh code, then come back here. */
+  const reverify = () => {
+    returnStep.current = step
+    setVerificationToken(null)
+    setCode(emptyCode)
+    setCodeError('')
+    setFieldErrors({ email: t('registration.validation.codeExpired') })
+    setStep(0)
+  }
+
+  /**
+   * Saves the step being left. Returns false only when the visitor can't
+   * move on; a plain network failure doesn't hold them back, since the
+   * final submit carries every field anyway.
+   */
+  const saveStep = async (id: DraftStepId): Promise<boolean> => {
+    if (!verificationToken) {
+      reverify()
+      return false
+    }
+    setBusy(true)
+    try {
+      await saveDraft({
+        email: details.email,
+        purpose: 'competition',
+        verificationToken,
+        step: id,
+        data: Object.fromEntries(
+          DRAFT_FIELDS[id].map((key) => [key, details[key]]),
+        ),
+      })
+    } catch (err) {
+      if (errorCode(err) === 'failed-precondition') {
+        reverify()
+        return false
+      }
+    } finally {
+      setBusy(false)
+    }
+    return true
+  }
+
   const requestVerification = async () => {
     setBusy(true)
     try {
@@ -246,7 +365,32 @@ export function CompetitionWizard() {
       try {
         const result = await confirmCode(details.email, 'competition', code)
         setVerificationToken(result.verificationToken)
-        setStep(step + 1)
+        const draft = result.draft
+        if (draft) {
+          // Anything already typed in this session is newer than the save.
+          const typed = Object.fromEntries(
+            Object.entries(details).filter(([, value]) => value.trim()),
+          )
+          const saved = Object.fromEntries(
+            Object.entries(draft.data).filter(([key]) => key in emptyDetails),
+          )
+          setDetails({ ...emptyDetails, ...saved, ...typed })
+          const savedTeam = teamFromDraft(draft.data)
+          if (savedTeam && team.choice === null) {
+            setTeam(savedTeam)
+            lastSavedTeam.current = JSON.stringify(teamDraft(savedTeam))
+          }
+        }
+        if (returnStep.current !== null) {
+          setStep(returnStep.current)
+          returnStep.current = null
+        } else if (draft) {
+          setResumed(true)
+          const done = draft.lastCompletedStep as StepId | null
+          setStep(done ? STEPS.indexOf(done) + 1 : step + 1)
+        } else {
+          setStep(step + 1)
+        }
       } catch (err) {
         const errCode = errorCode(err)
         if (errCode === 'deadline-exceeded' || errCode === 'not-found') {
@@ -262,13 +406,13 @@ export function CompetitionWizard() {
       return
     }
 
-    if (step < STEPS.length - 1) {
-      setStep(step + 1)
+    if (isDraftStep(current)) {
+      if (await saveStep(current)) setStep(step + 1)
       return
     }
 
     if (!verificationToken) {
-      setTeamError(t('registration.validation.submitFailed'))
+      reverify()
       return
     }
     setBusy(true)
@@ -303,7 +447,7 @@ export function CompetitionWizard() {
           t('registration.wizard.team.join.full', { max: MAX_TEAM_SIZE }),
         )
       } else if (errCode === 'failed-precondition') {
-        setTeamError(t('registration.validation.codeExpired'))
+        reverify()
       } else {
         setTeamError(t('registration.validation.submitFailed'))
       }
@@ -449,6 +593,7 @@ export function CompetitionWizard() {
                 <button
                   type="button"
                   onClick={() => {
+                    returnStep.current = null
                     setVerificationToken(null)
                     setCode(emptyCode)
                     setCodeError('')
@@ -460,6 +605,12 @@ export function CompetitionWizard() {
                 </button>
               </div>
             </div>
+          )}
+
+          {resumed && current !== 'email' && current !== 'verify' && (
+            <p role="status" className="text-brand-green text-[0.82rem]">
+              {t('registration.wizard.resumed')}
+            </p>
           )}
 
           {current === 'personal' && (

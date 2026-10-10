@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { Button } from '@/components/ui/button'
@@ -13,6 +13,7 @@ import {
   confirmCode,
   errorCode,
   requestCode,
+  saveDraft,
   submitWorkshop,
 } from '@/lib/registrationApi'
 import { cn } from '@/lib/utils'
@@ -41,6 +42,12 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const STEPS = ['email', 'verify', 'details'] as const
 type StepId = (typeof STEPS)[number]
 
+const DRAFT_FIELDS = ['name', 'career', 'level', 'reason'] as const
+const AUTOSAVE_DELAY_MS = 1200
+
+const draftOf = (form: FormState) =>
+  Object.fromEntries(DRAFT_FIELDS.map((key) => [key, form[key]]))
+
 type RegistrationFormProps = {
   event: 'workshops' | 'competition'
   showTeamField?: boolean
@@ -65,10 +72,46 @@ export function RegistrationForm({
     null,
   )
 
+  const [resumed, setResumed] = useState(false)
+  const lastSaved = useRef('')
+
   const current: StepId = STEPS[step]
   const { cooldown, reset: resetCooldown } = useResendCooldown(
     current === 'verify',
   )
+
+  // The details are a single step, so they are saved as they are typed:
+  // coming back with the same email picks the form up where it was left.
+  const { email, name, career, level, reason } = form
+  useEffect(() => {
+    if (current !== 'details' || !verificationToken || submitted) return
+    const data = { name, career, level, reason }
+    const snapshot = JSON.stringify(data)
+    if (snapshot === lastSaved.current) return
+    const handle = window.setTimeout(() => {
+      lastSaved.current = snapshot
+      // Best-effort: the submit carries every field regardless.
+      saveDraft({
+        email,
+        purpose: 'workshops',
+        verificationToken,
+        step: 'details',
+        data,
+      }).catch(() => {
+        lastSaved.current = ''
+      })
+    }, AUTOSAVE_DELAY_MS)
+    return () => window.clearTimeout(handle)
+  }, [
+    current,
+    verificationToken,
+    submitted,
+    email,
+    name,
+    career,
+    level,
+    reason,
+  ])
 
   const set =
     <K extends keyof FormState>(key: K) =>
@@ -153,6 +196,19 @@ export function RegistrationForm({
       try {
         const result = await confirmCode(form.email, 'workshops', code)
         setVerificationToken(result.verificationToken)
+        const draft = result.draft
+        if (draft) {
+          // Anything already typed in this session is newer than the save.
+          const typed = Object.fromEntries(
+            Object.entries(form).filter(([, value]) => value.trim()),
+          )
+          const restored = { ...emptyForm, ...draft.data, ...typed }
+          setForm(restored)
+          lastSaved.current = JSON.stringify(draftOf(restored))
+          setResumed(true)
+        } else {
+          lastSaved.current = JSON.stringify(draftOf(emptyForm))
+        }
         setStep(2)
       } catch (err) {
         const errCode = errorCode(err)
@@ -362,6 +418,14 @@ export function RegistrationForm({
 
               {current === 'details' && (
                 <>
+                  {resumed && (
+                    <p
+                      role="status"
+                      className="text-brand-green text-[0.82rem]"
+                    >
+                      {t('registration.wizard.resumed')}
+                    </p>
+                  )}
                   <QuantumField
                     label={t('registration.fields.name.label')}
                     ghost1={t('registration.fields.name.ghost1')}

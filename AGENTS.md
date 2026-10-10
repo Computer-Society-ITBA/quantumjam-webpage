@@ -59,8 +59,8 @@ firebase.json .firebaserc firestore.rules firestore.indexes.json
   ones that belong to those other apps. Always deploy by name:
   `firebase deploy --only functions:requestVerificationCode,functions:submitWorkshopSignup,...`.
 - `firestore.rules` is deny-all on purpose: the sign-up collections
-  (`emailVerifications`, `workshopSignups`, `competitionSignups`,
-  `teams`) are written only by `functions/` via the Admin SDK, which
+  (`emailVerifications`, `signupDrafts`, `workshopSignups`,
+  `competitionSignups`, `teams`) are written only by `functions/` via the Admin SDK, which
   bypasses rules entirely. See the README's "Firebase" section
   (Functions / Email delivery subsections) for the full data model
   and SMTP setup.

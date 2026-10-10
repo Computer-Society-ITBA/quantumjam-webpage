@@ -8,6 +8,7 @@ import {
   markEmailContactVerified,
   recordEmailContact,
 } from "./lib/contacts";
+import {loadDraft, signupCollection} from "./lib/drafts";
 import {
   CODE_TTL_MS,
   MAX_REQUESTS_PER_HOUR,
@@ -52,15 +53,6 @@ function assertValidRequest(
     typeof body?.lang === "string" ? body.lang : undefined,
   );
   return {email, purpose: purpose as Purpose, lang};
-}
-
-/**
- * Maps a purpose to its sign-up collection name.
- * @param {Purpose} purpose Which sign-up flow.
- * @return {string} The Firestore collection name.
- */
-function signupCollection(purpose: Purpose): string {
-  return purpose === "workshops" ? "workshopSignups" : "competitionSignups";
 }
 
 /**
@@ -220,5 +212,9 @@ export const confirmVerificationCode = onCall(async (request) => {
 
   await markEmailContactVerified(email, purpose);
 
-  return {ok: true, verificationToken};
+  // The code above is the proof of ownership: only past it may an
+  // unfinished sign-up be handed back for the visitor to resume.
+  const draft = await loadDraft(purpose, email);
+
+  return {ok: true, verificationToken, draft};
 });

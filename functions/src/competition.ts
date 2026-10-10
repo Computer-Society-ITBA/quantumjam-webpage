@@ -21,6 +21,7 @@ import {
   verificationId,
 } from "./lib/otp";
 import {assertRegistrationOpen} from "./lib/flags";
+import {assertVerifiedSession, draftRef} from "./lib/drafts";
 import {MAX_TEAM_SIZE, teamIdFrom} from "./lib/slug";
 
 type TeamChoice = "join" | "create" | "alone";
@@ -90,6 +91,62 @@ function optionalPattern(
   return str;
 }
 
+type Fields = Record<string, unknown> | null | undefined;
+
+/**
+ * Validates the wizard's "personal" step.
+ * @param {Fields} body Raw request fields.
+ * @return {Record<string, string>} The validated, trimmed fields.
+ */
+export function parsePersonalFields(body: Fields) {
+  return {
+    dni: requirePattern(body?.dni, "dni", ID_RE),
+    age: requirePattern(body?.age, "age", AGE_RE),
+    university: requireString(body?.university, "university"),
+    location: requireString(body?.location, "location"),
+    major: optionalString(body?.major),
+    gradYear: optionalPattern(body?.gradYear, "gradYear", GRAD_YEAR_RE),
+    diet: optionalString(body?.diet),
+  };
+}
+
+/**
+ * Reads the wizard's "socials" step, where every field is optional.
+ * @param {Fields} body Raw request fields.
+ * @return {Record<string, string>} The trimmed fields.
+ */
+export function parseSocialFields(body: Fields) {
+  return {
+    github: optionalString(body?.github),
+    linkedin: optionalString(body?.linkedin),
+    x: optionalString(body?.x),
+    instagram: optionalString(body?.instagram),
+    website: optionalString(body?.website),
+  };
+}
+
+/**
+ * Reads the wizard's "team" step as chosen so far. Lenient on purpose:
+ * it is autosaved while still being filled in, and nothing is reserved
+ * until the final submit validates and claims the team.
+ * @param {Fields} body Raw request fields.
+ * @return {Record<string, string>} The trimmed fields.
+ */
+export function parseTeamDraftFields(body: Fields) {
+  const teamChoice = optionalString(body?.teamChoice);
+  if (teamChoice && !["join", "create", "alone"].includes(teamChoice)) {
+    throw new HttpsError(
+      "invalid-argument",
+      "A valid team choice is required.",
+    );
+  }
+  return {
+    teamChoice,
+    teamName: optionalString(body?.teamName),
+    teamCode: optionalString(body?.teamCode),
+  };
+}
+
 export const submitCompetitionSignup = onCall(
   {secrets: [GMAIL_APP_PASSWORD]},
   async (request) => {
@@ -106,22 +163,9 @@ export const submitCompetitionSignup = onCall(
       "verificationToken",
     );
 
-    const dni = requirePattern(body?.dni, "dni", ID_RE);
-    const age = requirePattern(body?.age, "age", AGE_RE);
-    const university = requireString(body?.university, "university");
-    const location = requireString(body?.location, "location");
-    const major = optionalString(body?.major);
-    const gradYear = optionalPattern(
-      body?.gradYear,
-      "gradYear",
-      GRAD_YEAR_RE,
-    );
-    const diet = optionalString(body?.diet);
-    const github = optionalString(body?.github);
-    const linkedin = optionalString(body?.linkedin);
-    const x = optionalString(body?.x);
-    const instagram = optionalString(body?.instagram);
-    const website = optionalString(body?.website);
+    const {dni, age, university, location, major, gradYear, diet} =
+      parsePersonalFields(body);
+    const {github, linkedin, x, instagram, website} = parseSocialFields(body);
 
     const team = body?.team as Record<string, unknown> | undefined;
     const rawChoice = team?.choice;
@@ -169,24 +213,7 @@ export const submitCompetitionSignup = onCall(
       const signupSnap = await tx.get(signupRef);
       const teamSnap = teamRef ? await tx.get(teamRef) : null;
 
-      if (!verSnap.exists) {
-        throw new HttpsError("failed-precondition", "Email not verified.");
-      }
-      const ver = verSnap.data()!;
-      if (
-        !ver.verified ||
-        ver.verificationToken !== verificationToken ||
-        ver.consumedAt
-      ) {
-        throw new HttpsError("failed-precondition", "Email not verified.");
-      }
-      const expiresAt = ver.expiresAt as Timestamp;
-      if (Timestamp.now().toMillis() > expiresAt.toMillis()) {
-        throw new HttpsError(
-          "failed-precondition",
-          "Verification expired, request a new code.",
-        );
-      }
+      assertVerifiedSession(verSnap, verificationToken);
       if (signupSnap.exists) {
         throw new HttpsError(
           "already-exists",
@@ -253,6 +280,7 @@ export const submitCompetitionSignup = onCall(
         lang,
       });
       tx.update(verRef, {consumedAt: now});
+      tx.delete(draftRef("competition", email));
     });
 
     // Best-effort: the signup itself already succeeded, so a confirmation

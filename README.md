@@ -122,9 +122,11 @@ under `functions/src/`:
 | `verification.ts` | `requestVerificationCode`, `confirmVerificationCode` - the shared email-OTP flow both events use                         |
 | `workshops.ts`    | `submitWorkshopSignup`                                                                                                   |
 | `competition.ts`  | `submitCompetitionSignup`, `lookupTeam`                                                                                  |
+| `drafts.ts`       | `saveSignupDraft` - saves an unfinished sign-up so it can be resumed                                                     |
 | `admin.ts`        | Admin SDK bootstrap, pinned to the `quantumjam` database                                                                 |
 | `lib/otp.ts`      | Code generation/hashing, email normalization, rate-limit constants                                                       |
 | `lib/contacts.ts` | `emailContacts` capture: every address that starts a sign-up, with a verified/unverified status                          |
+| `lib/drafts.ts`   | `signupDrafts` helpers, plus the shared check that a `verificationToken` is still usable                                 |
 | `lib/slug.ts`     | `teamIdFrom()` (kept in sync by hand with the frontend copy in `src/components/registration/wizard.ts`), `MAX_TEAM_SIZE` |
 | `lib/email.ts`    | Branded HTML email templates + sending (see below)                                                                       |
 
@@ -165,8 +167,28 @@ writes the sign-up doc, so a token can't be replayed. Competition
 team create/join (capacity check, code-uniqueness check, member
 count) happens in that same transaction for atomicity.
 
+**Unfinished sign-ups can be resumed.** Progress is kept in
+`signupDrafts` (doc ID: same as `emailVerifications`, so one draft per
+email and event): `data` holds the fields saved so far and
+`lastCompletedStep` the last wizard step the visitor moved past. Every
+step is saved: the competition wizard calls `saveSignupDraft` when
+leaving the `personal` and `socials` steps, and autosaves the `team`
+choice while it is being made (it is the last step, so it only counts
+as completed, and a team is only created or joined, on the final
+submit). The workshops form, having a single data step, autosaves it
+the same way. Coming back means entering the
+email and **verifying it again, every time**: `confirmVerificationCode`
+returns the draft only after the code checks out, so nothing saved is
+shown, and whether a draft exists at all is not revealed, to someone
+who merely types the address. The frontend then jumps to the first
+incomplete step with the earlier answers loaded. A finished sign-up is
+final: `saveSignupDraft` refuses to reopen it and the `submit*`
+transaction deletes the draft, and `requestVerificationCode` rejects
+its email with `already-exists`. Drafts do not expire on their
+own; closing registration blocks every one of these functions.
+
 **Firestore collections** (`emailVerifications`, `emailContacts`,
-`workshopSignups`, `competitionSignups`, `teams`) are written exclusively by these
+`signupDrafts`, `workshopSignups`, `competitionSignups`, `teams`) are written exclusively by these
 functions via the Admin SDK, which bypasses `firestore.rules`
 entirely - the rules file is a deliberate deny-all. There's nothing
 to add there when adding a new field; add it in the relevant

@@ -275,6 +275,7 @@
       }
     },
     "wizard": {
+      "resumed": "Guardamos tu progreso. Seguí desde donde lo dejaste.",
       "back": "Volver",
       "stepOf": "Paso {{current}} de {{total}}",
       "status": {

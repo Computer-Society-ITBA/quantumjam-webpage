@@ -275,6 +275,7 @@
       }
     },
     "wizard": {
+      "resumed": "We saved your progress. Pick up where you left off.",
       "back": "Back",
       "stepOf": "Step {{current}} of {{total}}",
       "status": {
