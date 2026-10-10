@@ -24,6 +24,8 @@ export const ADMIN_FIELDS = {
     'id',
     'createdAt',
     'email',
+    'firstName',
+    'lastName',
     'dni',
     'age',
     'university',

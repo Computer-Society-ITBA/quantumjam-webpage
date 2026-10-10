@@ -8,6 +8,7 @@ import {
   markEmailContactVerified,
   recordEmailContact,
 } from "./lib/contacts";
+import {loadDraft, signupCollection} from "./lib/drafts";
 import {
   CODE_TTL_MS,
   MAX_REQUESTS_PER_HOUR,
@@ -52,15 +53,6 @@ function assertValidRequest(
     typeof body?.lang === "string" ? body.lang : undefined,
   );
   return {email, purpose: purpose as Purpose, lang};
-}
-
-/**
- * Maps a purpose to its sign-up collection name.
- * @param {Purpose} purpose Which sign-up flow.
- * @return {string} The Firestore collection name.
- */
-function signupCollection(purpose: Purpose): string {
-  return purpose === "workshops" ? "workshopSignups" : "competitionSignups";
 }
 
 /**
@@ -126,22 +118,57 @@ async function claimVerificationSlot(
   });
 }
 
+const SUMMARY_FIELDS: Record<Purpose, readonly string[]> = {
+  workshops: ["name", "career", "level", "reason"],
+  competition: [
+    "firstName", "lastName", "dni", "age", "university", "major",
+    "gradYear", "location", "diet", "github", "linkedin", "x", "instagram",
+    "website",
+  ],
+};
+
+/**
+ * Loads the finished sign-up for an address, as the fields its owner may
+ * see. Only call this once the caller has proven they own the address.
+ * @param {Purpose} purpose Which sign-up flow.
+ * @param {string} email The verified email.
+ * @return {Promise<Record<string, string> | null>} The sign-up, or null
+ *   if this address has not finished one.
+ */
+async function loadSignupSummary(
+  purpose: Purpose,
+  email: string,
+): Promise<Record<string, string> | null> {
+  const snap = await db
+    .collection(signupCollection(purpose))
+    .doc(canonicalEmail(email))
+    .get();
+  const signup = snap.data();
+  if (!signup) return null;
+
+  const summary: Record<string, string> = {};
+  for (const field of SUMMARY_FIELDS[purpose]) {
+    summary[field] = typeof signup[field] === "string" ? signup[field] : "";
+  }
+  if (purpose === "competition") {
+    const teamId = typeof signup.teamId === "string" ? signup.teamId : "";
+    summary.teamChoice =
+      typeof signup.teamChoice === "string" ? signup.teamChoice : "";
+    summary.teamCode = teamId;
+    summary.teamName = "";
+    if (teamId) {
+      const team = await db.collection("teams").doc(teamId).get();
+      summary.teamName = (team.data()?.name as string | undefined) ?? "";
+    }
+  }
+  return summary;
+}
+
 export const requestVerificationCode = onCall(
   {secrets: [GMAIL_APP_PASSWORD]},
   async (request) => {
     const {email, purpose, lang} = assertValidRequest(request.data);
     await assertRegistrationOpen(purpose);
-
-    const signupRef = db
-      .collection(signupCollection(purpose))
-      .doc(canonicalEmail(email));
-    const signupSnap = await signupRef.get();
-    if (signupSnap.exists) {
-      throw new HttpsError(
-        "already-exists",
-        "This email is already registered for this event.",
-      );
-    }
 
     const code = generateCode();
     const verRef = db
@@ -220,5 +247,17 @@ export const confirmVerificationCode = onCall(async (request) => {
 
   await markEmailContactVerified(email, purpose);
 
-  return {ok: true, verificationToken};
+  // A finished sign-up is final: its owner gets it back read-only, and
+  // the token is spent on the spot so it can't be used to submit again.
+  const signup = await loadSignupSummary(purpose, email);
+  if (signup) {
+    await verRef.update({consumedAt: Timestamp.now()});
+    return {ok: true, verificationToken: null, draft: null, signup};
+  }
+
+  // The code above is the proof of ownership: only past it may an
+  // unfinished sign-up be handed back for the visitor to resume.
+  const draft = await loadDraft(purpose, email);
+
+  return {ok: true, verificationToken, draft};
 });

@@ -24,7 +24,16 @@ const MISSING = '—'
 // The rest of each collection's fields live in the row's detail view.
 const MAIN_COLUMNS: Record<AdminCollection, readonly AdminField[]> = {
   workshops: ['createdAt', 'name', 'email', 'career', 'level', 'status'],
-  competition: ['createdAt', 'email', 'dni', 'university', 'teamId', 'status'],
+  competition: [
+    'createdAt',
+    'firstName',
+    'lastName',
+    'email',
+    'dni',
+    'university',
+    'teamId',
+    'status',
+  ],
   contacts: ['firstSeenAt', 'email', 'status', 'purposes', 'verifiedAt'],
 }
 
