@@ -1,0 +1,65 @@
+{
+  "/": {
+    "image": "og-image.png",
+    "card": {
+      "subtitle": "Workshops virtuales y una competencia de computación cuántica presencial en el ITBA.",
+      "chips": [
+        "Sáb 21 de noviembre",
+        "ITBA, Buenos Aires",
+        "Gratis, cupo limitado"
+      ]
+    }
+  },
+  "/register": {
+    "title": "Inscribite a QuantumJam",
+    "description": "Elegí cómo participar: workshops virtuales, competencia presencial en el ITBA, o las dos. Gratis, cupo limitado.",
+    "image": "og-register.png",
+    "imageAlt": "Inscribite a QuantumJam. Sábado 21 de noviembre en el ITBA, Buenos Aires. Gratis, cupo limitado.",
+    "card": {
+      "headline": "Inscribite",
+      "subtitle": "Workshops virtuales y competencia presencial. Podés anotarte a una parte o a las dos.",
+      "chips": [
+        "Sáb 21 de noviembre",
+        "ITBA, Buenos Aires",
+        "Gratis, cupo limitado"
+      ]
+    }
+  },
+  "/register/workshops": {
+    "title": "QuantumJam: inscribite a los workshops virtuales",
+    "description": "Workshops y clases online de computación cuántica con Qiskit, por Discord. Sin experiencia previa. Gratis.",
+    "image": "og-workshops.png",
+    "imageAlt": "Inscribite a los workshops de QuantumJam. Virtuales, por Discord, sin experiencia previa y gratis.",
+    "card": {
+      "headline": "Inscribite a los workshops",
+      "subtitle": "Clases online de computación cuántica con Qiskit, previas a la competencia.",
+      "chips": ["Virtual, por Discord", "Sin experiencia previa", "Gratis"]
+    }
+  },
+  "/register/competition": {
+    "title": "QuantumJam: inscribite a la competencia",
+    "description": "Un día de competencia de computación cuántica en el ITBA, con comida, espacio de trabajo y mentores. Sábado 21 de noviembre. Gratis, cupo limitado.",
+    "image": "og-competition.png",
+    "imageAlt": "Inscribite a la competencia de QuantumJam. Sábado 21 de noviembre en el ITBA, Buenos Aires. Gratis, cupo limitado.",
+    "card": {
+      "headline": "Inscribite a la competencia",
+      "subtitle": "Un día de computación cuántica en equipo, con comida, espacio de trabajo y mentores.",
+      "chips": [
+        "Sáb 21 de noviembre",
+        "ITBA, Buenos Aires",
+        "Gratis, cupo limitado"
+      ]
+    }
+  },
+  "/sponsor": {
+    "title": "Sponsoreá QuantumJam",
+    "description": "Sumá tu organización a QuantumJam, la competencia de computación cuántica de Computer Society ITBA.",
+    "image": "og-sponsor.png",
+    "imageAlt": "Sponsoreá QuantumJam, la competencia de computación cuántica de Computer Society ITBA.",
+    "card": {
+      "headline": "Sponsoreá QuantumJam",
+      "subtitle": "Sumá tu organización a la competencia de computación cuántica de Computer Society ITBA.",
+      "chips": ["Sáb 21 de noviembre", "ITBA, Buenos Aires"]
+    }
+  }
+}

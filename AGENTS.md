@@ -31,6 +31,7 @@ src/
   lib/             shared helpers (`firebase.ts`, `cn()`)
   App.tsx          landing page
   main.tsx         entry point
+scripts/og/        link-preview cards: page copy, templates, generator
 functions/         Firebase Cloud Functions - sign-up backend + email (own lint, own tsconfig)
 firebase.json .firebaserc firestore.rules firestore.indexes.json
 .github/workflows/ CI (ci.yml) + Firebase Hosting deploy workflows
@@ -71,6 +72,10 @@ firebase.json .firebaserc firestore.rules firestore.indexes.json
 - `npm run build` - `tsc -b` + `vite build`
 - `npm run lint` - oxlint
 - `npm run typecheck` - `tsc -b`
+- `npm run og` - regenerate the link-preview images and touch icons
+  in `public/` (needs a local Chrome or Edge). Run it after editing
+  `scripts/og/pages.json`; the build reads the same file to emit one
+  static HTML per route with its own preview tags.
 
 ## Conventions
 
