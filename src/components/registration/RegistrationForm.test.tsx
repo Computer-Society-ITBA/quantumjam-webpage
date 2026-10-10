@@ -13,12 +13,14 @@ import { RegistrationForm } from './RegistrationForm'
 const api = vi.hoisted(() => ({
   requestCode: vi.fn(),
   confirmCode: vi.fn(),
+  saveDraft: vi.fn(),
   submitWorkshop: vi.fn(),
 }))
 
 vi.mock('@/lib/registrationApi', () => ({
   requestCode: api.requestCode,
   confirmCode: api.confirmCode,
+  saveDraft: api.saveDraft,
   submitWorkshop: api.submitWorkshop,
   errorCode: () => 'unknown',
 }))
@@ -48,6 +50,7 @@ describe('RegistrationForm (workshops)', () => {
     api.confirmCode
       .mockReset()
       .mockResolvedValue({ ok: true, verificationToken: 'token-abc' })
+    api.saveDraft.mockReset().mockResolvedValue({ ok: true })
     api.submitWorkshop.mockReset().mockResolvedValue({ ok: true })
     await i18n.changeLanguage('en')
   })
@@ -76,6 +79,10 @@ describe('RegistrationForm (workshops)', () => {
       expect(api.requestCode).toHaveBeenCalledWith(EMAIL, 'workshops', 'en'),
     )
 
+    expect(
+      screen.queryByText(/you agree to share your data/i),
+    ).not.toBeInTheDocument()
+
     // Still no details form: the code comes first.
     expect(screen.queryByLabelText(/Full name/)).not.toBeInTheDocument()
     expect(screen.getAllByLabelText(/Verification code \d/)).toHaveLength(6)
@@ -89,6 +96,10 @@ describe('RegistrationForm (workshops)', () => {
 
     // Only now are the details asked for.
     expect(await screen.findByLabelText(/Full name/)).toBeInTheDocument()
+    // And only the step that actually submits carries the consent notice.
+    expect(
+      screen.getByText(/you agree to share your data/i),
+    ).toBeInTheDocument()
     expect(api.submitWorkshop).not.toHaveBeenCalled()
   })
 
@@ -133,6 +144,77 @@ describe('RegistrationForm (workshops)', () => {
     await waitFor(() =>
       expect(screen.getAllByText(/required/i).length).toBeGreaterThan(0),
     )
+    expect(api.submitWorkshop).not.toHaveBeenCalled()
+  })
+
+  it('restores an unfinished sign-up once the email is verified again', async () => {
+    api.confirmCode.mockResolvedValue({
+      ok: true,
+      verificationToken: 'token-abc',
+      draft: {
+        lastCompletedStep: null,
+        data: { name: 'Ada Lovelace', career: 'ITBA, Physics', level: '' },
+      },
+    })
+    render(<RegistrationForm event="workshops" />)
+
+    type(screen.getByLabelText(/Email/), EMAIL)
+    fireEvent.click(screen.getByRole('button', { name: /verification code/i }))
+    await waitFor(() => expect(api.requestCode).toHaveBeenCalled())
+
+    // Nothing saved is shown before the code proves who is asking.
+    expect(screen.queryByDisplayValue('Ada Lovelace')).not.toBeInTheDocument()
+
+    fillCode()
+    fireEvent.click(screen.getByRole('button', { name: /confirm email/i }))
+
+    expect(await screen.findByLabelText(/Full name/)).toHaveValue(
+      'Ada Lovelace',
+    )
+    expect(screen.getByLabelText(/University and degree/)).toHaveValue(
+      'ITBA, Physics',
+    )
+  })
+
+  it('saves the details as they are typed', async () => {
+    render(<RegistrationForm event="workshops" />)
+    await verifyEmail()
+
+    type(await screen.findByLabelText(/Full name/), 'Ada Lovelace')
+
+    await waitFor(
+      () =>
+        expect(api.saveDraft).toHaveBeenCalledWith({
+          email: EMAIL,
+          purpose: 'workshops',
+          verificationToken: 'token-abc',
+          step: 'details',
+          data: { name: 'Ada Lovelace', career: '', level: '', reason: '' },
+        }),
+      { timeout: 3000 },
+    )
+  })
+
+  it('shows a finished sign-up read-only instead of the form', async () => {
+    api.confirmCode.mockResolvedValue({
+      ok: true,
+      verificationToken: null,
+      draft: null,
+      signup: {
+        name: 'Ada Lovelace',
+        career: 'ITBA, Physics',
+        level: 'basic',
+        reason: '',
+      },
+    })
+    render(<RegistrationForm event="workshops" />)
+    await verifyEmail()
+
+    expect(await screen.findByText(/already signed up/i)).toBeInTheDocument()
+    expect(screen.getByText('Ada Lovelace')).toBeInTheDocument()
+    expect(screen.getByText('ITBA, Physics')).toBeInTheDocument()
+    expect(screen.queryByLabelText(/Full name/)).not.toBeInTheDocument()
+    expect(api.saveDraft).not.toHaveBeenCalled()
     expect(api.submitWorkshop).not.toHaveBeenCalled()
   })
 })

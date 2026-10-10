@@ -1,10 +1,11 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { Button } from '@/components/ui/button'
 import { QuantumField } from '@/components/landing/QuantumField'
 import { CustomSelect } from '@/components/registration/CustomSelect'
 import { DiscordNextSteps } from '@/components/registration/DiscordNextSteps'
+import { SignupSummary } from '@/components/registration/SignupSummary'
 import { StepRail, type StepRailItem } from '@/components/registration/StepRail'
 import { VerifyCodeInput } from '@/components/registration/VerifyCodeInput'
 import { useResendCooldown } from '@/components/registration/useResendCooldown'
@@ -13,7 +14,9 @@ import {
   confirmCode,
   errorCode,
   requestCode,
+  saveDraft,
   submitWorkshop,
+  type RegisteredSignup,
 } from '@/lib/registrationApi'
 import { cn } from '@/lib/utils'
 
@@ -41,6 +44,12 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const STEPS = ['email', 'verify', 'details'] as const
 type StepId = (typeof STEPS)[number]
 
+const DRAFT_FIELDS = ['name', 'career', 'level', 'reason'] as const
+const AUTOSAVE_DELAY_MS = 1200
+
+const draftOf = (form: FormState) =>
+  Object.fromEntries(DRAFT_FIELDS.map((key) => [key, form[key]]))
+
 type RegistrationFormProps = {
   event: 'workshops' | 'competition'
   showTeamField?: boolean
@@ -65,10 +74,47 @@ export function RegistrationForm({
     null,
   )
 
+  const [resumed, setResumed] = useState(false)
+  const [existing, setExisting] = useState<RegisteredSignup | null>(null)
+  const lastSaved = useRef('')
+
   const current: StepId = STEPS[step]
   const { cooldown, reset: resetCooldown } = useResendCooldown(
     current === 'verify',
   )
+
+  // The details are a single step, so they are saved as they are typed:
+  // coming back with the same email picks the form up where it was left.
+  const { email, name, career, level, reason } = form
+  useEffect(() => {
+    if (current !== 'details' || !verificationToken || submitted) return
+    const data = { name, career, level, reason }
+    const snapshot = JSON.stringify(data)
+    if (snapshot === lastSaved.current) return
+    const handle = window.setTimeout(() => {
+      lastSaved.current = snapshot
+      // Best-effort: the submit carries every field regardless.
+      saveDraft({
+        email,
+        purpose: 'workshops',
+        verificationToken,
+        step: 'details',
+        data,
+      }).catch(() => {
+        lastSaved.current = ''
+      })
+    }, AUTOSAVE_DELAY_MS)
+    return () => window.clearTimeout(handle)
+  }, [
+    current,
+    verificationToken,
+    submitted,
+    email,
+    name,
+    career,
+    level,
+    reason,
+  ])
 
   const set =
     <K extends keyof FormState>(key: K) =>
@@ -152,7 +198,24 @@ export function RegistrationForm({
       setBusy(true)
       try {
         const result = await confirmCode(form.email, 'workshops', code)
+        if (result.signup) {
+          setExisting(result.signup)
+          return
+        }
         setVerificationToken(result.verificationToken)
+        const draft = result.draft
+        if (draft) {
+          // Anything already typed in this session is newer than the save.
+          const typed = Object.fromEntries(
+            Object.entries(form).filter(([, value]) => value.trim()),
+          )
+          const restored = { ...emptyForm, ...draft.data, ...typed }
+          setForm(restored)
+          lastSaved.current = JSON.stringify(draftOf(restored))
+          setResumed(true)
+        } else {
+          lastSaved.current = JSON.stringify(draftOf(emptyForm))
+        }
         setStep(2)
       } catch (err) {
         const errCode = errorCode(err)
@@ -224,7 +287,7 @@ export function RegistrationForm({
           {t(`registration.${event}.description`)}
         </p>
 
-        {submitted ? (
+        {submitted || existing ? (
           <div className="border-brand-line bg-brand-panel border p-8 text-center">
             <svg
               viewBox="0 0 64 64"
@@ -249,11 +312,29 @@ export function RegistrationForm({
               />
             </svg>
             <h3 className="mb-2 text-[1.15rem] font-semibold">
-              {t(`registration.${event}.success.title`)}
+              {existing
+                ? t('registration.workshops.registered.title')
+                : t(`registration.${event}.success.title`)}
             </h3>
             <p className="text-brand-text-dim mx-auto max-w-[58ch]">
-              {t(`registration.${event}.success.desc`)}
+              {existing
+                ? t('registration.workshops.registered.desc')
+                : t(`registration.${event}.success.desc`)}
             </p>
+            {existing && (
+              <SignupSummary
+                rows={[
+                  [t('registration.fields.email.label'), form.email.trim()],
+                  [t('registration.fields.name.label'), existing.name],
+                  [t('registration.fields.career.label'), existing.career],
+                  [
+                    t('registration.fields.level.label'),
+                    t(`registration.fields.level.options.${existing.level}`),
+                  ],
+                  [t('registration.fields.reason.label'), existing.reason],
+                ]}
+              />
+            )}
             {event === 'workshops' && <DiscordNextSteps />}
           </div>
         ) : (
@@ -362,6 +443,14 @@ export function RegistrationForm({
 
               {current === 'details' && (
                 <>
+                  {resumed && (
+                    <p
+                      role="status"
+                      className="text-brand-green text-[0.82rem]"
+                    >
+                      {t('registration.wizard.resumed')}
+                    </p>
+                  )}
                   <QuantumField
                     label={t('registration.fields.name.label')}
                     ghost1={t('registration.fields.name.ghost1')}
@@ -453,9 +542,11 @@ export function RegistrationForm({
                       : t(`registration.${event}.submit`)
                     : t(`registration.wizard.${current}.submit`)}
                 </Button>
-                <p className="text-brand-text-dim max-w-[46ch] text-[0.76rem]">
-                  {t('registration.consent')}
-                </p>
+                {current === 'details' && (
+                  <p className="text-brand-text-dim max-w-[46ch] text-[0.76rem]">
+                    {t('registration.consent')}
+                  </p>
+                )}
               </div>
             </form>
           </>

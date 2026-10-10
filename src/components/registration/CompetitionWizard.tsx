@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { Button } from '@/components/ui/button'
 import { QuantumField } from '@/components/landing/QuantumField'
+import { SignupSummary } from '@/components/registration/SignupSummary'
 import { StepRail, type StepRailItem } from '@/components/registration/StepRail'
 import { VerifyCodeInput } from '@/components/registration/VerifyCodeInput'
 import { TeamStep } from '@/components/registration/TeamStep'
@@ -22,7 +23,9 @@ import {
   errorCode,
   lookupTeam,
   requestCode,
+  saveDraft,
   submitCompetition,
+  type RegisteredSignup,
   type TeamChoicePayload,
 } from '@/lib/registrationApi'
 import { cn } from '@/lib/utils'
@@ -36,7 +39,11 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const ID_RE = /^[a-zA-Z0-9]{5,20}$/
 const AGE_RE = /^\d{1,3}$/
 const GRAD_YEAR_RE = /^\d{4}$/
+// Mirrors NAME_RE in functions/src/competition.ts.
+const NAME_RE = /^(?=.*\p{L})[\p{L}\p{M}'’ .-]{1,60}$/u
 const REQUIRED_PERSONAL_FIELDS = [
+  'firstName',
+  'lastName',
   'dni',
   'age',
   'university',
@@ -45,6 +52,8 @@ const REQUIRED_PERSONAL_FIELDS = [
 
 type Details = {
   email: string
+  firstName: string
+  lastName: string
   dni: string
   age: string
   university: string
@@ -61,6 +70,8 @@ type Details = {
 
 const emptyDetails: Details = {
   email: '',
+  firstName: '',
+  lastName: '',
   dni: '',
   age: '',
   university: '',
@@ -76,6 +87,48 @@ const emptyDetails: Details = {
 }
 
 type FieldErrors = Partial<Record<keyof Details, string>>
+
+// Steps saved server-side as the visitor moves past them, so an unfinished
+// sign-up can be resumed. Mirrors the parsers in functions/src/drafts.ts.
+const DRAFT_FIELDS = {
+  personal: [
+    'firstName',
+    'lastName',
+    'dni',
+    'age',
+    'university',
+    'major',
+    'gradYear',
+    'location',
+    'diet',
+  ],
+  socials: ['github', 'linkedin', 'x', 'instagram', 'website'],
+} as const satisfies Partial<Record<StepId, readonly (keyof Details)[]>>
+
+type DraftStepId = keyof typeof DRAFT_FIELDS
+
+const isDraftStep = (id: StepId): id is DraftStepId => id in DRAFT_FIELDS
+
+const SUMMARY_FIELDS = [
+  ...DRAFT_FIELDS.personal,
+  ...DRAFT_FIELDS.socials,
+] as const
+
+const AUTOSAVE_DELAY_MS = 1200
+
+const teamDraft = (team: TeamState) => ({
+  teamChoice: team.choice ?? '',
+  teamName: team.name,
+  teamCode: team.code,
+})
+
+function teamFromDraft(data: Record<string, string>): TeamState | null {
+  const choice = data.teamChoice
+  if (choice !== 'join' && choice !== 'create' && choice !== 'alone') {
+    return null
+  }
+  return { choice, name: data.teamName ?? '', code: data.teamCode ?? '' }
+}
 
 function teamPayload(team: TeamState): TeamChoicePayload {
   if (team.choice === 'create') return { choice: 'create', name: team.name }
@@ -99,6 +152,11 @@ export function CompetitionWizard() {
   )
   const [teamLookup, setTeamLookup] = useState<TeamLookup | null>(null)
   const [teamLookupLoading, setTeamLookupLoading] = useState(false)
+  const [resumed, setResumed] = useState(false)
+  const [existing, setExisting] = useState<RegisteredSignup | null>(null)
+  // Where to land after re-verifying when the verification lapsed mid-form.
+  const returnStep = useRef<number | null>(null)
+  const lastSavedTeam = useRef(JSON.stringify(teamDraft(emptyTeam)))
 
   const current: StepId = STEPS[step]
   const { cooldown, reset: resetCooldown } = useResendCooldown(
@@ -127,6 +185,42 @@ export function CompetitionWizard() {
     return () => window.clearTimeout(handle)
   }, [team.choice, team.code])
 
+  // The team step is the last one, so there is no "continue" to save it
+  // on: it is saved as it is chosen. Nothing is reserved until the submit.
+  const { email } = details
+  useEffect(() => {
+    if (current !== 'team' || !verificationToken || submitted) return
+    const data = {
+      teamChoice: team.choice ?? '',
+      teamName: team.name,
+      teamCode: team.code,
+    }
+    const snapshot = JSON.stringify(data)
+    if (snapshot === lastSavedTeam.current) return
+    const handle = window.setTimeout(() => {
+      lastSavedTeam.current = snapshot
+      // Best-effort: the submit carries the team choice regardless.
+      saveDraft({
+        email,
+        purpose: 'competition',
+        verificationToken,
+        step: 'team',
+        data,
+      }).catch(() => {
+        lastSavedTeam.current = ''
+      })
+    }, AUTOSAVE_DELAY_MS)
+    return () => window.clearTimeout(handle)
+  }, [
+    current,
+    verificationToken,
+    submitted,
+    email,
+    team.choice,
+    team.name,
+    team.code,
+  ])
+
   const set =
     <K extends keyof Details>(key: K) =>
     (value: Details[K]) => {
@@ -142,6 +236,7 @@ export function CompetitionWizard() {
   const setEmail = (value: string) => {
     set('email')(value)
     setVerificationToken(null)
+    returnStep.current = null
   }
 
   const field = (key: keyof Details, required = false) => ({
@@ -181,6 +276,11 @@ export function CompetitionWizard() {
       for (const key of REQUIRED_PERSONAL_FIELDS) {
         if (!details[key].trim()) next[key] = required
       }
+      for (const key of ['firstName', 'lastName'] as const) {
+        if (!next[key] && !NAME_RE.test(details[key].trim())) {
+          next[key] = t('registration.validation.invalidName')
+        }
+      }
       if (!next.dni && !ID_RE.test(details.dni.trim())) {
         next.dni = t('registration.validation.invalidId')
       }
@@ -209,6 +309,48 @@ export function CompetitionWizard() {
 
   const goBack = () => {
     setStep((s) => Math.max(s - 1, 0))
+  }
+
+  /** The verification lapsed: confirm a fresh code, then come back here. */
+  const reverify = () => {
+    returnStep.current = step
+    setVerificationToken(null)
+    setCode(emptyCode)
+    setCodeError('')
+    setFieldErrors({ email: t('registration.validation.codeExpired') })
+    setStep(0)
+  }
+
+  /**
+   * Saves the step being left. Returns false only when the visitor can't
+   * move on; a plain network failure doesn't hold them back, since the
+   * final submit carries every field anyway.
+   */
+  const saveStep = async (id: DraftStepId): Promise<boolean> => {
+    if (!verificationToken) {
+      reverify()
+      return false
+    }
+    setBusy(true)
+    try {
+      await saveDraft({
+        email: details.email,
+        purpose: 'competition',
+        verificationToken,
+        step: id,
+        data: Object.fromEntries(
+          DRAFT_FIELDS[id].map((key) => [key, details[key]]),
+        ),
+      })
+    } catch (err) {
+      if (errorCode(err) === 'failed-precondition') {
+        reverify()
+        return false
+      }
+    } finally {
+      setBusy(false)
+    }
+    return true
   }
 
   const requestVerification = async () => {
@@ -245,8 +387,44 @@ export function CompetitionWizard() {
       setBusy(true)
       try {
         const result = await confirmCode(details.email, 'competition', code)
+        if (result.signup) {
+          setExisting(result.signup)
+          return
+        }
         setVerificationToken(result.verificationToken)
-        setStep(step + 1)
+        const draft = result.draft
+        let personalComplete = true
+        if (draft) {
+          // Anything already typed in this session is newer than the save.
+          const typed = Object.fromEntries(
+            Object.entries(details).filter(([, value]) => value.trim()),
+          )
+          const saved = Object.fromEntries(
+            Object.entries(draft.data).filter(([key]) => key in emptyDetails),
+          )
+          const restored = { ...emptyDetails, ...saved, ...typed }
+          setDetails(restored)
+          // A draft saved before a field became required is not past the
+          // personal step after all.
+          personalComplete = REQUIRED_PERSONAL_FIELDS.every((key) =>
+            restored[key].trim(),
+          )
+          const savedTeam = teamFromDraft(draft.data)
+          if (savedTeam && team.choice === null) {
+            setTeam(savedTeam)
+            lastSavedTeam.current = JSON.stringify(teamDraft(savedTeam))
+          }
+        }
+        if (returnStep.current !== null) {
+          setStep(returnStep.current)
+          returnStep.current = null
+        } else if (draft) {
+          setResumed(true)
+          const done = draft.lastCompletedStep as StepId | null
+          setStep(done && personalComplete ? STEPS.indexOf(done) + 1 : step + 1)
+        } else {
+          setStep(step + 1)
+        }
       } catch (err) {
         const errCode = errorCode(err)
         if (errCode === 'deadline-exceeded' || errCode === 'not-found') {
@@ -262,13 +440,13 @@ export function CompetitionWizard() {
       return
     }
 
-    if (step < STEPS.length - 1) {
-      setStep(step + 1)
+    if (isDraftStep(current)) {
+      if (await saveStep(current)) setStep(step + 1)
       return
     }
 
     if (!verificationToken) {
-      setTeamError(t('registration.validation.submitFailed'))
+      reverify()
       return
     }
     setBusy(true)
@@ -276,6 +454,8 @@ export function CompetitionWizard() {
       await submitCompetition({
         email: details.email,
         verificationToken,
+        firstName: details.firstName.trim(),
+        lastName: details.lastName.trim(),
         dni: details.dni.trim(),
         age: details.age.trim(),
         university: details.university,
@@ -303,7 +483,7 @@ export function CompetitionWizard() {
           t('registration.wizard.team.join.full', { max: MAX_TEAM_SIZE }),
         )
       } else if (errCode === 'failed-precondition') {
-        setTeamError(t('registration.validation.codeExpired'))
+        reverify()
       } else {
         setTeamError(t('registration.validation.submitFailed'))
       }
@@ -317,7 +497,7 @@ export function CompetitionWizard() {
     label: t(`registration.wizard.steps.${id}`),
   }))
 
-  if (submitted) {
+  if (submitted || existing) {
     return (
       <section className="relative z-10 px-[clamp(40px,6vw,80px)] pt-20 pb-16">
         <div className="border-brand-line bg-brand-panel mx-auto max-w-[560px] border p-8 text-center">
@@ -344,11 +524,51 @@ export function CompetitionWizard() {
             />
           </svg>
           <h3 className="mb-2 text-[1.15rem] font-semibold">
-            {t('registration.competition.success.title')}
+            {existing
+              ? t('registration.competition.registered.title')
+              : t('registration.competition.success.title')}
           </h3>
           <p className="text-brand-text-dim mx-auto max-w-[58ch]">
-            {t('registration.competition.success.desc')}
+            {existing
+              ? t('registration.competition.registered.desc')
+              : t('registration.competition.success.desc')}
           </p>
+          {existing && (existing.teamName || existing.teamCode) && (
+            <div className="border-brand-green/35 bg-brand-green/[0.05] mt-7 border p-5">
+              <p className="font-display text-brand-text-dim mb-1.5 text-[0.76rem] font-bold tracking-[0.04em] uppercase">
+                {t('registration.wizard.steps.team')}
+              </p>
+              <p className="text-foreground text-[1.5rem] leading-tight font-semibold break-words">
+                {existing.teamName || existing.teamCode}
+              </p>
+              <p className="font-display text-brand-text-dim mt-4 mb-1.5 text-[0.76rem] font-bold tracking-[0.04em] uppercase">
+                {t('registration.fields.teamCode.label')}
+              </p>
+              <code className="text-brand-green font-sans text-[1.3rem] tracking-[0.02em] break-all">
+                {existing.teamCode}
+              </code>
+            </div>
+          )}
+          {existing && (
+            <SignupSummary
+              rows={[
+                [t('registration.fields.email.label'), details.email.trim()],
+                ...SUMMARY_FIELDS.map(
+                  (key) =>
+                    [
+                      t(`registration.fields.${key}.label`),
+                      existing[key],
+                    ] as const,
+                ),
+                [
+                  t('registration.wizard.steps.team'),
+                  existing.teamChoice === 'alone'
+                    ? t('registration.wizard.team.choices.alone.title')
+                    : '',
+                ],
+              ]}
+            />
+          )}
         </div>
       </section>
     )
@@ -449,6 +669,7 @@ export function CompetitionWizard() {
                 <button
                   type="button"
                   onClick={() => {
+                    returnStep.current = null
                     setVerificationToken(null)
                     setCode(emptyCode)
                     setCodeError('')
@@ -462,8 +683,16 @@ export function CompetitionWizard() {
             </div>
           )}
 
+          {resumed && current !== 'email' && current !== 'verify' && (
+            <p role="status" className="text-brand-green text-[0.82rem]">
+              {t('registration.wizard.resumed')}
+            </p>
+          )}
+
           {current === 'personal' && (
             <div className="grid gap-3.5 sm:grid-cols-2">
+              <QuantumField {...field('firstName', true)} />
+              <QuantumField {...field('lastName', true)} />
               <QuantumField {...field('dni', true)} />
               <QuantumField {...field('age', true)} />
               <div className="sm:col-span-2">
@@ -520,9 +749,11 @@ export function CompetitionWizard() {
                 ? t('registration.competition.submitting')
                 : t(`registration.wizard.${current}.submit`)}
             </Button>
-            <p className="text-brand-text-dim max-w-[46ch] text-[0.76rem]">
-              {t('registration.consent')}
-            </p>
+            {current === 'team' && (
+              <p className="text-brand-text-dim max-w-[46ch] text-[0.76rem]">
+                {t('registration.consent')}
+              </p>
+            )}
           </div>
         </form>
       </div>

@@ -7,6 +7,7 @@ import {resolveLang} from "./lib/i18n/index";
 import {db} from "./admin";
 import {GMAIL_APP_PASSWORD, sendWorkshopConfirmationEmail} from "./lib/email";
 import {assertRegistrationOpen} from "./lib/flags";
+import {assertVerifiedSession, draftRef} from "./lib/drafts";
 import {
   canonicalEmail,
   isValidEmail,
@@ -14,7 +15,7 @@ import {
   verificationId,
 } from "./lib/otp";
 
-const LEVELS = ["none", "basic", "intermediate"] as const;
+export const LEVELS = ["none", "basic", "intermediate"] as const;
 type Level = (typeof LEVELS)[number];
 
 /**
@@ -69,24 +70,7 @@ export const submitWorkshopSignup = onCall(
       const verSnap = await tx.get(verRef);
       const signupSnap = await tx.get(signupRef);
 
-      if (!verSnap.exists) {
-        throw new HttpsError("failed-precondition", "Email not verified.");
-      }
-      const ver = verSnap.data()!;
-      if (
-        !ver.verified ||
-        ver.verificationToken !== verificationToken ||
-        ver.consumedAt
-      ) {
-        throw new HttpsError("failed-precondition", "Email not verified.");
-      }
-      const expiresAt = ver.expiresAt as Timestamp;
-      if (Timestamp.now().toMillis() > expiresAt.toMillis()) {
-        throw new HttpsError(
-          "failed-precondition",
-          "Verification expired, request a new code.",
-        );
-      }
+      assertVerifiedSession(verSnap, verificationToken);
       if (signupSnap.exists) {
         throw new HttpsError(
           "already-exists",
@@ -106,6 +90,7 @@ export const submitWorkshopSignup = onCall(
         lang,
       });
       tx.update(verRef, {consumedAt: now});
+      tx.delete(draftRef("workshops", email));
     });
 
     // Best-effort: the signup itself already succeeded, so a confirmation

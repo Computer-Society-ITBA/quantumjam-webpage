@@ -207,8 +207,7 @@ function escapeHtml(value: string): string {
 
 /**
  * Renders the compressed, classic-style footer shared by every email:
- * logo mark, one-line blurb, social/contact links, address and
- * copyright. No event-specific content.
+ * social/contact links, address and copyright. No event-specific content.
  * @param {Lang} lang Language to render the footer in.
  * @return {string} Footer HTML.
  */
@@ -216,7 +215,6 @@ function renderFooter(lang: Lang): string {
   return `
     <tr>
       <td style="${STYLE.footerWrap}">
-        <p style="${STYLE.footerText}">${t(lang, "footer.blurb")}</p>
         <p style="${STYLE.footerLinks}">
           <a href="${INSTAGRAM_URL}" style="${STYLE.footerLink}">Instagram</a>
           &nbsp;|&nbsp;

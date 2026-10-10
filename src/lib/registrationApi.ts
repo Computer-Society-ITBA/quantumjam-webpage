@@ -23,6 +23,8 @@ export type WorkshopSubmission = {
 export type CompetitionSubmission = {
   email: string
   verificationToken: string
+  firstName: string
+  lastName: string
   dni: string
   age: string
   university: string
@@ -45,6 +47,23 @@ export type TeamLookupResult = {
   isFull: boolean
 }
 
+/** An unfinished sign-up, handed back once its email is re-verified. */
+export type SignupDraft = {
+  lastCompletedStep: string | null
+  data: Record<string, string>
+}
+
+/** A finished sign-up's fields, shown read-only to its verified owner. */
+export type RegisteredSignup = Record<string, string>
+
+export type DraftSave = {
+  email: string
+  purpose: Purpose
+  verificationToken: string
+  step: string
+  data: Record<string, string>
+}
+
 const requestVerificationCodeFn = httpsCallable<
   { email: string; purpose: Purpose; lang: string },
   { ok: true; cooldownSeconds: number }
@@ -52,8 +71,18 @@ const requestVerificationCodeFn = httpsCallable<
 
 const confirmVerificationCodeFn = httpsCallable<
   { email: string; purpose: Purpose; code: string },
-  { ok: true; verificationToken: string }
+  {
+    ok: true
+    verificationToken: string | null
+    draft?: SignupDraft | null
+    signup?: RegisteredSignup | null
+  }
 >(functions, 'confirmVerificationCode')
+
+const saveSignupDraftFn = httpsCallable<DraftSave, { ok: true }>(
+  functions,
+  'saveSignupDraft',
+)
 
 const submitWorkshopSignupFn = httpsCallable<WorkshopSubmission, { ok: true }>(
   functions,
@@ -98,6 +127,11 @@ export async function confirmCode(
   code: string,
 ) {
   const { data } = await confirmVerificationCodeFn({ email, purpose, code })
+  return data
+}
+
+export async function saveDraft(payload: DraftSave) {
+  const { data } = await saveSignupDraftFn(payload)
   return data
 }
 

@@ -11,5 +11,6 @@ setGlobalOptions({maxInstances: 10});
 export {requestVerificationCode, confirmVerificationCode} from "./verification";
 export {submitWorkshopSignup} from "./workshops";
 export {submitCompetitionSignup, lookupTeam} from "./competition";
+export {saveSignupDraft} from "./drafts";
 export {submitSponsorInquiry} from "./sponsor";
 export {quantumjamAdminApi} from "./backoffice";

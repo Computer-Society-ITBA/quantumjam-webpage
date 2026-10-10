@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62.5..125,100..900&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html,
+      body {
+        width: 1200px;
+        height: 630px;
+        overflow: hidden;
+        background: #070707;
+      }
+      body {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        font-family: 'IBM Plex Sans', sans-serif;
+        color: #f7f7f2;
+        text-align: center;
+      }
+      .dots {
+        position: absolute;
+        inset: 0;
+        background-image: radial-gradient(#3a3a3a 1.2px, transparent 1.2px);
+        background-size: 28px 28px;
+      }
+      .glow {
+        position: absolute;
+        inset: 0;
+        background:
+          radial-gradient(
+            520px 320px at 16% 12%,
+            rgba(200, 255, 0, 0.2),
+            transparent 70%
+          ),
+          radial-gradient(
+            520px 340px at 88% 90%,
+            rgba(255, 47, 176, 0.2),
+            transparent 70%
+          ),
+          radial-gradient(
+            460px 300px at 90% 8%,
+            rgba(0, 229, 255, 0.14),
+            transparent 70%
+          ),
+          radial-gradient(
+            120% 90% at 50% 46%,
+            rgba(7, 7, 7, 0.92) 0%,
+            rgba(7, 7, 7, 0.7) 45%,
+            rgba(7, 7, 7, 0) 85%
+          );
+      }
+      .frame {
+        position: absolute;
+        inset: 24px;
+        border: 2px solid #262626;
+      }
+      .content {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      .sponsor {
+        display: inline-flex;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 34px;
+        font-size: 22px;
+        color: #a8a8a8;
+      }
+      .ibm {
+        display: inline-flex;
+        border: 2px solid #262626;
+        background: #070707;
+        padding: 12px 20px 10px;
+      }
+      /* Same ink crop as src/components/landing/IbmLogo.tsx. */
+      .ibm span {
+        position: relative;
+        display: block;
+        width: 154px;
+        height: 22px;
+        overflow: hidden;
+      }
+      .ibm img {
+        position: absolute;
+        top: -153.9%;
+        left: -22.056%;
+        width: 144.155%;
+        max-width: none;
+        filter: invert(1);
+      }
+      .wordmark {
+        width: 860px;
+        margin-bottom: 30px;
+      }
+      .wordmark svg {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+      .headline {
+        display: none;
+        max-width: 1040px;
+        margin-bottom: 22px;
+        font-family: 'Archivo', sans-serif;
+        font-size: 78px;
+        font-weight: 900;
+        font-stretch: 112%;
+        line-height: 1;
+        letter-spacing: -0.01em;
+        text-transform: uppercase;
+      }
+      .subtitle {
+        max-width: 900px;
+        margin-bottom: 38px;
+        font-size: 31px;
+        font-weight: 300;
+        line-height: 1.3;
+        color: #d6d6d0;
+      }
+      .chips {
+        display: flex;
+        gap: 14px;
+      }
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        border: 2px solid #262626;
+        background: #070707;
+        padding: 13px 22px;
+        font-size: 24px;
+        font-weight: 500;
+        letter-spacing: 0.06em;
+      }
+      .chip i {
+        display: block;
+        width: 11px;
+        height: 11px;
+        background: #c8ff00;
+      }
+      .has-headline .sponsor {
+        display: none;
+      }
+      .has-headline .wordmark {
+        width: 380px;
+        margin-bottom: 40px;
+      }
+      .has-headline .headline {
+        display: block;
+      }
+      .has-headline .subtitle {
+        font-size: 29px;
+      }
+    </style>
+  </head>
+  <body class="{{bodyClass}}">
+    <div class="dots"></div>
+    <div class="glow"></div>
+    <div class="frame"></div>
+    <div class="content">
+      <div class="sponsor">
+        <span>Sponsoreado por</span>
+        <span class="ibm"
+          ><span><img src="{{ibmLogo}}" /></span
+        ></span>
+      </div>
+      <div class="wordmark">{{wordmark}}</div>
+      <h1 class="headline">{{headline}}</h1>
+      <p class="subtitle">{{subtitle}}</p>
+      <div class="chips">{{chips}}</div>
+    </div>
+  </body>
+</html>
