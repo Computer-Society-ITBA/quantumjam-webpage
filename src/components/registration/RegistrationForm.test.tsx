@@ -79,6 +79,10 @@ describe('RegistrationForm (workshops)', () => {
       expect(api.requestCode).toHaveBeenCalledWith(EMAIL, 'workshops', 'en'),
     )
 
+    expect(
+      screen.queryByText(/you agree to share your data/i),
+    ).not.toBeInTheDocument()
+
     // Still no details form: the code comes first.
     expect(screen.queryByLabelText(/Full name/)).not.toBeInTheDocument()
     expect(screen.getAllByLabelText(/Verification code \d/)).toHaveLength(6)
@@ -92,6 +96,10 @@ describe('RegistrationForm (workshops)', () => {
 
     // Only now are the details asked for.
     expect(await screen.findByLabelText(/Full name/)).toBeInTheDocument()
+    // And only the step that actually submits carries the consent notice.
+    expect(
+      screen.getByText(/you agree to share your data/i),
+    ).toBeInTheDocument()
     expect(api.submitWorkshop).not.toHaveBeenCalled()
   })
 

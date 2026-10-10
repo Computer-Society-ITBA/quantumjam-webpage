@@ -542,9 +542,11 @@ export function RegistrationForm({
                       : t(`registration.${event}.submit`)
                     : t(`registration.wizard.${current}.submit`)}
                 </Button>
-                <p className="text-brand-text-dim max-w-[46ch] text-[0.76rem]">
-                  {t('registration.consent')}
-                </p>
+                {current === 'details' && (
+                  <p className="text-brand-text-dim max-w-[46ch] text-[0.76rem]">
+                    {t('registration.consent')}
+                  </p>
+                )}
               </div>
             </form>
           </>

@@ -749,9 +749,11 @@ export function CompetitionWizard() {
                 ? t('registration.competition.submitting')
                 : t(`registration.wizard.${current}.submit`)}
             </Button>
-            <p className="text-brand-text-dim max-w-[46ch] text-[0.76rem]">
-              {t('registration.consent')}
-            </p>
+            {current === 'team' && (
+              <p className="text-brand-text-dim max-w-[46ch] text-[0.76rem]">
+                {t('registration.consent')}
+              </p>
+            )}
           </div>
         </form>
       </div>
