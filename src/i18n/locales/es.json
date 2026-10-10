@@ -166,7 +166,8 @@
       "submitFailed": "Algo salió mal. Probá de nuevo.",
       "numeric": "Ingresá solo números.",
       "year": "Ingresá un año válido de 4 dígitos.",
-      "invalidId": "Ingresá un DNI o pasaporte válido."
+      "invalidId": "Ingresá un DNI o pasaporte válido.",
+      "invalidName": "Ingresá un nombre válido, solo letras (hasta 60)."
     },
     "fields": {
       "name": {
@@ -202,6 +203,16 @@
         "label": "¿Por qué querés participar? (opcional)",
         "ghost1": "Curiosidad nomás",
         "ghost2": "Quiero laburar en esto"
+      },
+      "firstName": {
+        "label": "Nombre",
+        "ghost1": "Como figura en tu documento",
+        "ghost2": "Marie"
+      },
+      "lastName": {
+        "label": "Apellido",
+        "ghost1": "Como figura en tu documento",
+        "ghost2": "Curie"
       },
       "dni": {
         "label": "Documento",
@@ -471,6 +482,8 @@
       "university": "Universidad",
       "major": "Carrera",
       "gradYear": "Año de egreso",
+      "firstName": "Nombre",
+      "lastName": "Apellido",
       "location": "Ubicación",
       "diet": "Restricción alimentaria",
       "github": "GitHub",

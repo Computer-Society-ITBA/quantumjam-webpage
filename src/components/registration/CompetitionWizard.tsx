@@ -37,7 +37,11 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const ID_RE = /^[a-zA-Z0-9]{5,20}$/
 const AGE_RE = /^\d{1,3}$/
 const GRAD_YEAR_RE = /^\d{4}$/
+// Mirrors NAME_RE in functions/src/competition.ts.
+const NAME_RE = /^(?=.*\p{L})[\p{L}\p{M}'’ .-]{1,60}$/u
 const REQUIRED_PERSONAL_FIELDS = [
+  'firstName',
+  'lastName',
   'dni',
   'age',
   'university',
@@ -46,6 +50,8 @@ const REQUIRED_PERSONAL_FIELDS = [
 
 type Details = {
   email: string
+  firstName: string
+  lastName: string
   dni: string
   age: string
   university: string
@@ -62,6 +68,8 @@ type Details = {
 
 const emptyDetails: Details = {
   email: '',
+  firstName: '',
+  lastName: '',
   dni: '',
   age: '',
   university: '',
@@ -82,6 +90,8 @@ type FieldErrors = Partial<Record<keyof Details, string>>
 // sign-up can be resumed. Mirrors the parsers in functions/src/drafts.ts.
 const DRAFT_FIELDS = {
   personal: [
+    'firstName',
+    'lastName',
     'dni',
     'age',
     'university',
@@ -258,6 +268,11 @@ export function CompetitionWizard() {
       for (const key of REQUIRED_PERSONAL_FIELDS) {
         if (!details[key].trim()) next[key] = required
       }
+      for (const key of ['firstName', 'lastName'] as const) {
+        if (!next[key] && !NAME_RE.test(details[key].trim())) {
+          next[key] = t('registration.validation.invalidName')
+        }
+      }
       if (!next.dni && !ID_RE.test(details.dni.trim())) {
         next.dni = t('registration.validation.invalidId')
       }
@@ -366,6 +381,7 @@ export function CompetitionWizard() {
         const result = await confirmCode(details.email, 'competition', code)
         setVerificationToken(result.verificationToken)
         const draft = result.draft
+        let personalComplete = true
         if (draft) {
           // Anything already typed in this session is newer than the save.
           const typed = Object.fromEntries(
@@ -374,7 +390,13 @@ export function CompetitionWizard() {
           const saved = Object.fromEntries(
             Object.entries(draft.data).filter(([key]) => key in emptyDetails),
           )
-          setDetails({ ...emptyDetails, ...saved, ...typed })
+          const restored = { ...emptyDetails, ...saved, ...typed }
+          setDetails(restored)
+          // A draft saved before a field became required is not past the
+          // personal step after all.
+          personalComplete = REQUIRED_PERSONAL_FIELDS.every((key) =>
+            restored[key].trim(),
+          )
           const savedTeam = teamFromDraft(draft.data)
           if (savedTeam && team.choice === null) {
             setTeam(savedTeam)
@@ -387,7 +409,7 @@ export function CompetitionWizard() {
         } else if (draft) {
           setResumed(true)
           const done = draft.lastCompletedStep as StepId | null
-          setStep(done ? STEPS.indexOf(done) + 1 : step + 1)
+          setStep(done && personalComplete ? STEPS.indexOf(done) + 1 : step + 1)
         } else {
           setStep(step + 1)
         }
@@ -420,6 +442,8 @@ export function CompetitionWizard() {
       await submitCompetition({
         email: details.email,
         verificationToken,
+        firstName: details.firstName.trim(),
+        lastName: details.lastName.trim(),
         dni: details.dni.trim(),
         age: details.age.trim(),
         university: details.university,
@@ -615,6 +639,8 @@ export function CompetitionWizard() {
 
           {current === 'personal' && (
             <div className="grid gap-3.5 sm:grid-cols-2">
+              <QuantumField {...field('firstName', true)} />
+              <QuantumField {...field('lastName', true)} />
               <QuantumField {...field('dni', true)} />
               <QuantumField {...field('age', true)} />
               <div className="sm:col-span-2">

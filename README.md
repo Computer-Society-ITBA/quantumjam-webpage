@@ -181,7 +181,8 @@ email and **verifying it again, every time**: `confirmVerificationCode`
 returns the draft only after the code checks out, so nothing saved is
 shown, and whether a draft exists at all is not revealed, to someone
 who merely types the address. The frontend then jumps to the first
-incomplete step with the earlier answers loaded. A finished sign-up is
+incomplete step with the earlier answers loaded (back to `personal` if
+the draft predates a field that is now required). A finished sign-up is
 final: `saveSignupDraft` refuses to reopen it and the `submit*`
 transaction deletes the draft, and `requestVerificationCode` rejects
 its email with `already-exists`. Drafts do not expire on their

@@ -26,7 +26,8 @@ const ROUTES = {
   competition: {
     collection: "competitionSignups",
     fields: [
-      "email", "dni", "age", "university", "major", "gradYear", "location",
+      "email", "firstName", "lastName", "dni", "age", "university", "major",
+      "gradYear", "location",
       "diet", "github", "linkedin", "x", "instagram", "website",
       "teamChoice", "teamId", "status", "createdAt", "lang",
     ],

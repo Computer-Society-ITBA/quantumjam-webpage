@@ -35,7 +35,9 @@ async function verifyEmail() {
 }
 
 const fillPersonal = async () => {
-  type(await screen.findByLabelText(/ID number/), '12345678')
+  type(await screen.findByLabelText(/First name/), 'Ada')
+  type(screen.getByLabelText(/Last name/), 'Lovelace')
+  type(screen.getByLabelText(/ID number/), '12345678')
   type(screen.getByLabelText(/Age/), '21')
   type(screen.getByLabelText(/^University/), 'ITBA')
   type(screen.getByLabelText(/Where you live/), 'CABA')
@@ -68,6 +70,8 @@ describe('CompetitionWizard', () => {
         verificationToken: 'token-abc',
         step: 'personal',
         data: {
+          firstName: 'Ada',
+          lastName: 'Lovelace',
           dni: '12345678',
           age: '21',
           university: 'ITBA',
@@ -88,6 +92,8 @@ describe('CompetitionWizard', () => {
       draft: {
         lastCompletedStep: 'personal',
         data: {
+          firstName: 'Ada',
+          lastName: 'Lovelace',
           dni: '12345678',
           age: '21',
           university: 'ITBA',
@@ -134,6 +140,8 @@ describe('CompetitionWizard', () => {
       draft: {
         lastCompletedStep: 'socials',
         data: {
+          firstName: 'Ada',
+          lastName: 'Lovelace',
           dni: '12345678',
           age: '21',
           university: 'ITBA',
@@ -162,5 +170,16 @@ describe('CompetitionWizard', () => {
         }),
       { timeout: 3000 },
     )
+  })
+
+  it('rejects a name that is not a name', async () => {
+    render(<CompetitionWizard />)
+    await verifyEmail()
+    await fillPersonal()
+    type(screen.getByLabelText(/First name/), 'A1')
+    fireEvent.click(screen.getByRole('button', { name: /continue/i }))
+
+    expect(await screen.findByText(/valid name/i)).toBeInTheDocument()
+    expect(api.saveDraft).not.toHaveBeenCalled()
   })
 })

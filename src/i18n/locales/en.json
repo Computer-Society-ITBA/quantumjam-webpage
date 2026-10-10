@@ -166,7 +166,8 @@
       "submitFailed": "Something went wrong. Please try again.",
       "numeric": "Enter numbers only.",
       "year": "Enter a valid 4-digit year.",
-      "invalidId": "Enter a valid ID or passport number."
+      "invalidId": "Enter a valid ID or passport number.",
+      "invalidName": "Enter a valid name, letters only (up to 60)."
     },
     "fields": {
       "name": {
@@ -202,6 +203,16 @@
         "label": "Why do you want to participate? (optional)",
         "ghost1": "Just curious",
         "ghost2": "Want to work on this"
+      },
+      "firstName": {
+        "label": "First name",
+        "ghost1": "As on your ID",
+        "ghost2": "Marie"
+      },
+      "lastName": {
+        "label": "Last name",
+        "ghost1": "As on your ID",
+        "ghost2": "Curie"
       },
       "dni": {
         "label": "ID number",
@@ -471,6 +482,8 @@
       "university": "University",
       "major": "Major",
       "gradYear": "Graduation year",
+      "firstName": "First name",
+      "lastName": "Last name",
       "location": "Location",
       "diet": "Dietary restriction",
       "github": "GitHub",

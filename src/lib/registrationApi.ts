@@ -23,6 +23,8 @@ export type WorkshopSubmission = {
 export type CompetitionSubmission = {
   email: string
   verificationToken: string
+  firstName: string
+  lastName: string
   dni: string
   age: string
   university: string

@@ -30,6 +30,10 @@ type TeamChoice = "join" | "create" | "alone";
 const ID_RE = /^[a-zA-Z0-9]{5,20}$/;
 const AGE_RE = /^\d{1,3}$/;
 const GRAD_YEAR_RE = /^\d{4}$/;
+// 1 to 60 characters: letters in any script, plus the spaces, hyphens,
+// apostrophes and periods real names carry. Built from a string because
+// the es2017 target rejects \p{...} in a regex literal.
+const NAME_RE = new RegExp("^(?=.*\\p{L})[\\p{L}\\p{M}'’ .-]{1,60}$", "u");
 
 /**
  * Asserts a value is a non-empty string, trimmed.
@@ -100,6 +104,8 @@ type Fields = Record<string, unknown> | null | undefined;
  */
 export function parsePersonalFields(body: Fields) {
   return {
+    firstName: requirePattern(body?.firstName, "firstName", NAME_RE),
+    lastName: requirePattern(body?.lastName, "lastName", NAME_RE),
     dni: requirePattern(body?.dni, "dni", ID_RE),
     age: requirePattern(body?.age, "age", AGE_RE),
     university: requireString(body?.university, "university"),
@@ -163,8 +169,17 @@ export const submitCompetitionSignup = onCall(
       "verificationToken",
     );
 
-    const {dni, age, university, location, major, gradYear, diet} =
-      parsePersonalFields(body);
+    const {
+      firstName,
+      lastName,
+      dni,
+      age,
+      university,
+      location,
+      major,
+      gradYear,
+      diet,
+    } = parsePersonalFields(body);
     const {github, linkedin, x, instagram, website} = parseSocialFields(body);
 
     const team = body?.team as Record<string, unknown> | undefined;
@@ -261,6 +276,8 @@ export const submitCompetitionSignup = onCall(
 
       tx.create(signupRef, {
         email,
+        firstName,
+        lastName,
         dni,
         age,
         university,
