@@ -182,4 +182,33 @@ describe('CompetitionWizard', () => {
     expect(await screen.findByText(/valid name/i)).toBeInTheDocument()
     expect(api.saveDraft).not.toHaveBeenCalled()
   })
+
+  it('shows a finished sign-up read-only instead of the wizard', async () => {
+    api.confirmCode.mockResolvedValue({
+      ok: true,
+      verificationToken: null,
+      draft: null,
+      signup: {
+        firstName: 'Ada',
+        lastName: 'Lovelace',
+        dni: '12345678',
+        university: 'ITBA',
+        github: '',
+        teamChoice: 'create',
+        teamName: 'Qubits',
+        teamCode: 'qubits',
+      },
+    })
+    render(<CompetitionWizard />)
+    await verifyEmail()
+
+    expect(await screen.findByText(/already signed up/i)).toBeInTheDocument()
+    expect(screen.getByText('Lovelace')).toBeInTheDocument()
+    expect(screen.getByText('Qubits')).toBeInTheDocument()
+    expect(screen.getByText('qubits')).toBeInTheDocument()
+    expect(screen.queryByText(/GitHub/)).not.toBeInTheDocument()
+    expect(screen.queryByLabelText(/ID number/)).not.toBeInTheDocument()
+    expect(api.saveDraft).not.toHaveBeenCalled()
+    expect(api.submitCompetition).not.toHaveBeenCalled()
+  })
 })

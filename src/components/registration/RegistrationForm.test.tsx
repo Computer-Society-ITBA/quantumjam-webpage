@@ -186,4 +186,27 @@ describe('RegistrationForm (workshops)', () => {
       { timeout: 3000 },
     )
   })
+
+  it('shows a finished sign-up read-only instead of the form', async () => {
+    api.confirmCode.mockResolvedValue({
+      ok: true,
+      verificationToken: null,
+      draft: null,
+      signup: {
+        name: 'Ada Lovelace',
+        career: 'ITBA, Physics',
+        level: 'basic',
+        reason: '',
+      },
+    })
+    render(<RegistrationForm event="workshops" />)
+    await verifyEmail()
+
+    expect(await screen.findByText(/already signed up/i)).toBeInTheDocument()
+    expect(screen.getByText('Ada Lovelace')).toBeInTheDocument()
+    expect(screen.getByText('ITBA, Physics')).toBeInTheDocument()
+    expect(screen.queryByLabelText(/Full name/)).not.toBeInTheDocument()
+    expect(api.saveDraft).not.toHaveBeenCalled()
+    expect(api.submitWorkshop).not.toHaveBeenCalled()
+  })
 })

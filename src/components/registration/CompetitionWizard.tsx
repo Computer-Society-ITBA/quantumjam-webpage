@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 
 import { Button } from '@/components/ui/button'
 import { QuantumField } from '@/components/landing/QuantumField'
+import { SignupSummary } from '@/components/registration/SignupSummary'
 import { StepRail, type StepRailItem } from '@/components/registration/StepRail'
 import { VerifyCodeInput } from '@/components/registration/VerifyCodeInput'
 import { TeamStep } from '@/components/registration/TeamStep'
@@ -24,6 +25,7 @@ import {
   requestCode,
   saveDraft,
   submitCompetition,
+  type RegisteredSignup,
   type TeamChoicePayload,
 } from '@/lib/registrationApi'
 import { cn } from '@/lib/utils'
@@ -107,6 +109,11 @@ type DraftStepId = keyof typeof DRAFT_FIELDS
 
 const isDraftStep = (id: StepId): id is DraftStepId => id in DRAFT_FIELDS
 
+const SUMMARY_FIELDS = [
+  ...DRAFT_FIELDS.personal,
+  ...DRAFT_FIELDS.socials,
+] as const
+
 const AUTOSAVE_DELAY_MS = 1200
 
 const teamDraft = (team: TeamState) => ({
@@ -146,6 +153,7 @@ export function CompetitionWizard() {
   const [teamLookup, setTeamLookup] = useState<TeamLookup | null>(null)
   const [teamLookupLoading, setTeamLookupLoading] = useState(false)
   const [resumed, setResumed] = useState(false)
+  const [existing, setExisting] = useState<RegisteredSignup | null>(null)
   // Where to land after re-verifying when the verification lapsed mid-form.
   const returnStep = useRef<number | null>(null)
   const lastSavedTeam = useRef(JSON.stringify(teamDraft(emptyTeam)))
@@ -379,6 +387,10 @@ export function CompetitionWizard() {
       setBusy(true)
       try {
         const result = await confirmCode(details.email, 'competition', code)
+        if (result.signup) {
+          setExisting(result.signup)
+          return
+        }
         setVerificationToken(result.verificationToken)
         const draft = result.draft
         let personalComplete = true
@@ -485,7 +497,7 @@ export function CompetitionWizard() {
     label: t(`registration.wizard.steps.${id}`),
   }))
 
-  if (submitted) {
+  if (submitted || existing) {
     return (
       <section className="relative z-10 px-[clamp(40px,6vw,80px)] pt-20 pb-16">
         <div className="border-brand-line bg-brand-panel mx-auto max-w-[560px] border p-8 text-center">
@@ -512,11 +524,51 @@ export function CompetitionWizard() {
             />
           </svg>
           <h3 className="mb-2 text-[1.15rem] font-semibold">
-            {t('registration.competition.success.title')}
+            {existing
+              ? t('registration.competition.registered.title')
+              : t('registration.competition.success.title')}
           </h3>
           <p className="text-brand-text-dim mx-auto max-w-[58ch]">
-            {t('registration.competition.success.desc')}
+            {existing
+              ? t('registration.competition.registered.desc')
+              : t('registration.competition.success.desc')}
           </p>
+          {existing && (existing.teamName || existing.teamCode) && (
+            <div className="border-brand-green/35 bg-brand-green/[0.05] mt-7 border p-5">
+              <p className="font-display text-brand-text-dim mb-1.5 text-[0.76rem] font-bold tracking-[0.04em] uppercase">
+                {t('registration.wizard.steps.team')}
+              </p>
+              <p className="text-foreground text-[1.5rem] leading-tight font-semibold break-words">
+                {existing.teamName || existing.teamCode}
+              </p>
+              <p className="font-display text-brand-text-dim mt-4 mb-1.5 text-[0.76rem] font-bold tracking-[0.04em] uppercase">
+                {t('registration.fields.teamCode.label')}
+              </p>
+              <code className="text-brand-green font-sans text-[1.3rem] tracking-[0.02em] break-all">
+                {existing.teamCode}
+              </code>
+            </div>
+          )}
+          {existing && (
+            <SignupSummary
+              rows={[
+                [t('registration.fields.email.label'), details.email.trim()],
+                ...SUMMARY_FIELDS.map(
+                  (key) =>
+                    [
+                      t(`registration.fields.${key}.label`),
+                      existing[key],
+                    ] as const,
+                ),
+                [
+                  t('registration.wizard.steps.team'),
+                  existing.teamChoice === 'alone'
+                    ? t('registration.wizard.team.choices.alone.title')
+                    : '',
+                ],
+              ]}
+            />
+          )}
         </div>
       </section>
     )

@@ -368,6 +368,10 @@
       "description": "Only for the workshops. Registering for the competition is separate.",
       "submit": "Collapse the wavefunction",
       "submitting": "Measuring the system…",
+      "registered": {
+        "title": "You're already signed up",
+        "desc": "This email already has a workshops sign-up. Here is what we have on file."
+      },
       "success": {
         "title": "You're in!",
         "desc": "Check your inbox: we just sent you the same Discord details, so you have them even if you close this tab.",
@@ -391,6 +395,10 @@
       "submit": "Collapse the wavefunction",
       "submitting": "Measuring the system…",
       "note": "We review every application and email you about your status in the coming days.",
+      "registered": {
+        "title": "You're already signed up",
+        "desc": "This email already has a competition sign-up. Here is what we have on file."
+      },
       "success": {
         "title": "Your application is in",
         "desc": "We'll review it and email you about your status ahead of November 21."

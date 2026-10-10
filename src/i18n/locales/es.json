@@ -368,6 +368,10 @@
       "description": "Solo para los workshops. La inscripción a la competencia es aparte.",
       "submit": "Colapsar función de onda",
       "submitting": "Midiendo el sistema…",
+      "registered": {
+        "title": "Ya estás inscripto",
+        "desc": "Este email ya tiene una inscripción a los workshops. Estos son los datos que tenemos."
+      },
       "success": {
         "title": "¡Ya estás adentro!",
         "desc": "Revisá tu casilla: te acabamos de mandar los mismos datos de Discord, así los tenés aunque cierres esta pestaña.",
@@ -391,6 +395,10 @@
       "submit": "Colapsar función de onda",
       "submitting": "Midiendo el sistema…",
       "note": "Vamos a revisar cada postulación y te vamos a avisar tu estado por mail en los próximos días.",
+      "registered": {
+        "title": "Ya estás inscripto",
+        "desc": "Este email ya tiene una inscripción a la competencia. Estos son los datos que tenemos."
+      },
       "success": {
         "title": "Tu postulación está en revisión",
         "desc": "La vamos a revisar y te avisamos tu estado por mail antes del 21 de noviembre."

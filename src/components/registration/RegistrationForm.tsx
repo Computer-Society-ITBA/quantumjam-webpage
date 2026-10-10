@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { QuantumField } from '@/components/landing/QuantumField'
 import { CustomSelect } from '@/components/registration/CustomSelect'
 import { DiscordNextSteps } from '@/components/registration/DiscordNextSteps'
+import { SignupSummary } from '@/components/registration/SignupSummary'
 import { StepRail, type StepRailItem } from '@/components/registration/StepRail'
 import { VerifyCodeInput } from '@/components/registration/VerifyCodeInput'
 import { useResendCooldown } from '@/components/registration/useResendCooldown'
@@ -15,6 +16,7 @@ import {
   requestCode,
   saveDraft,
   submitWorkshop,
+  type RegisteredSignup,
 } from '@/lib/registrationApi'
 import { cn } from '@/lib/utils'
 
@@ -73,6 +75,7 @@ export function RegistrationForm({
   )
 
   const [resumed, setResumed] = useState(false)
+  const [existing, setExisting] = useState<RegisteredSignup | null>(null)
   const lastSaved = useRef('')
 
   const current: StepId = STEPS[step]
@@ -195,6 +198,10 @@ export function RegistrationForm({
       setBusy(true)
       try {
         const result = await confirmCode(form.email, 'workshops', code)
+        if (result.signup) {
+          setExisting(result.signup)
+          return
+        }
         setVerificationToken(result.verificationToken)
         const draft = result.draft
         if (draft) {
@@ -280,7 +287,7 @@ export function RegistrationForm({
           {t(`registration.${event}.description`)}
         </p>
 
-        {submitted ? (
+        {submitted || existing ? (
           <div className="border-brand-line bg-brand-panel border p-8 text-center">
             <svg
               viewBox="0 0 64 64"
@@ -305,11 +312,29 @@ export function RegistrationForm({
               />
             </svg>
             <h3 className="mb-2 text-[1.15rem] font-semibold">
-              {t(`registration.${event}.success.title`)}
+              {existing
+                ? t('registration.workshops.registered.title')
+                : t(`registration.${event}.success.title`)}
             </h3>
             <p className="text-brand-text-dim mx-auto max-w-[58ch]">
-              {t(`registration.${event}.success.desc`)}
+              {existing
+                ? t('registration.workshops.registered.desc')
+                : t(`registration.${event}.success.desc`)}
             </p>
+            {existing && (
+              <SignupSummary
+                rows={[
+                  [t('registration.fields.email.label'), form.email.trim()],
+                  [t('registration.fields.name.label'), existing.name],
+                  [t('registration.fields.career.label'), existing.career],
+                  [
+                    t('registration.fields.level.label'),
+                    t(`registration.fields.level.options.${existing.level}`),
+                  ],
+                  [t('registration.fields.reason.label'), existing.reason],
+                ]}
+              />
+            )}
             {event === 'workshops' && <DiscordNextSteps />}
           </div>
         ) : (

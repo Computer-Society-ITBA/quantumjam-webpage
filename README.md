@@ -184,8 +184,11 @@ who merely types the address. The frontend then jumps to the first
 incomplete step with the earlier answers loaded (back to `personal` if
 the draft predates a field that is now required). A finished sign-up is
 final: `saveSignupDraft` refuses to reopen it and the `submit*`
-transaction deletes the draft, and `requestVerificationCode` rejects
-its email with `already-exists`. Drafts do not expire on their
+transaction deletes the draft. Its email still gets a code (so
+`requestVerificationCode` reveals nothing about it), and after
+verifying `confirmVerificationCode` returns the sign-up (`signup`,
+with no usable token) so the form shows it read-only instead of
+turning its owner away. Both events work this way. Drafts do not expire on their
 own; closing registration blocks every one of these functions.
 
 **Firestore collections** (`emailVerifications`, `emailContacts`,

@@ -53,6 +53,9 @@ export type SignupDraft = {
   data: Record<string, string>
 }
 
+/** A finished sign-up's fields, shown read-only to its verified owner. */
+export type RegisteredSignup = Record<string, string>
+
 export type DraftSave = {
   email: string
   purpose: Purpose
@@ -68,7 +71,12 @@ const requestVerificationCodeFn = httpsCallable<
 
 const confirmVerificationCodeFn = httpsCallable<
   { email: string; purpose: Purpose; code: string },
-  { ok: true; verificationToken: string; draft?: SignupDraft | null }
+  {
+    ok: true
+    verificationToken: string | null
+    draft?: SignupDraft | null
+    signup?: RegisteredSignup | null
+  }
 >(functions, 'confirmVerificationCode')
 
 const saveSignupDraftFn = httpsCallable<DraftSave, { ok: true }>(
