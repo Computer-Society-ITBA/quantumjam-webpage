@@ -4,6 +4,7 @@ import {Timestamp} from "firebase-admin/firestore";
 import {db} from "./admin";
 import {resolveLang} from "./lib/i18n/index";
 import {isValidEmail, normalizeEmail} from "./lib/otp";
+import { collections } from "./lib/collections";
 
 const NAME_MAX = 120;
 const ORG_MAX = 160;
@@ -69,7 +70,7 @@ export const submitSponsorInquiry = onCall(async (request) => {
     typeof body?.lang === "string" ? body.lang : undefined,
   );
 
-  await db.collection("sponsorInquiries").add({
+  await db.collection(collections.sponsorInquiries).add({
     email,
     name,
     organization,

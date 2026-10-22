@@ -23,6 +23,7 @@ import {
 import {assertRegistrationOpen} from "./lib/flags";
 import {assertVerifiedSession, draftRef} from "./lib/drafts";
 import {MAX_TEAM_SIZE, teamIdFrom} from "./lib/slug";
+import { collections } from "./lib/collections";
 
 type TeamChoice = "join" | "create" | "alone";
 
@@ -216,12 +217,12 @@ export const submitCompetitionSignup = onCall(
     }
 
     const verRef = db
-      .collection("emailVerifications")
+      .collection(collections.emailVerifications)
       .doc(verificationId("competition", email));
     const signupRef = db
-      .collection("competitionSignups")
+      .collection(collections.competitionSignups)
       .doc(canonicalEmail(email));
-    const teamRef = teamSlug ? db.collection("teams").doc(teamSlug) : null;
+    const teamRef = teamSlug ? db.collection(collections.teams).doc(teamSlug) : null;
 
     await db.runTransaction(async (tx) => {
       const verSnap = await tx.get(verRef);
@@ -356,7 +357,7 @@ export const lookupTeam = onCall(async (request) => {
     return {exists: false, memberCount: 0, isFull: false};
   }
 
-  const snap = await db.collection("teams").doc(slug).get();
+  const snap = await db.collection(collections.teams).doc(slug).get();
   if (!snap.exists) {
     return {exists: false, memberCount: 0, isFull: false};
   }

@@ -24,7 +24,7 @@ if (
   import.meta.env.DEV &&
   import.meta.env.VITE_USE_FIREBASE_EMULATORS === 'true'
 ) {
-  connectFirestoreEmulator(db, '127.0.0.1', 8080)
+  //connectFirestoreEmulator(db, '127.0.0.1', 8080)
   connectFunctionsEmulator(functions, '127.0.0.1', 5001)
 }
 
