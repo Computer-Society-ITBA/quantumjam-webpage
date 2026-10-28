@@ -74,6 +74,64 @@
       }
     }
   },
+  "faq": {
+    "title": "FAQ",
+    "cta": "Sign Up",
+    "items": {
+      "what": {
+        "q": "What is the Quantum Jam?",
+        "a": "The Quantum Jam is a quantum computing hackathon organized by Computer Society ITBA. During the event, participants work in teams to solve challenges related to this technology."
+      },
+      "experience": {
+        "q": "Do I need prior knowledge of quantum computing?",
+        "a": "No. The idea is that you can take part even if you have never studied quantum computing. We also run workshops beforehand so you can get familiar with the basic concepts."
+      },
+      "coding": {
+        "q": "Do I need to know how to code?",
+        "a": "You don't need to be an expert, although basic programming knowledge can help you solve the challenges."
+      },
+      "non_itba": {
+        "q": "Can I take part if I don't study at ITBA?",
+        "a": "Yes! You don't need to be an ITBA student to participate."
+      },
+      "team": {
+        "q": "Do I need a team before signing up?",
+        "a": "Teams are formed before the competition. If you don't have one yet, we will assign you one."
+      },
+      "pre_jam": {
+        "q": "What are the Pre-Jam Sessions?",
+        "a": "They are four online workshops we run before the hackathon. We go from the fundamentals of quantum computing all the way to circuits and algorithms, so you can follow along even if you are starting from scratch."
+      },
+      "workshops_required": {
+        "q": "Are the workshops mandatory?",
+        "a": "They are not mandatory, but we recommend them, especially if you have no experience with quantum computing."
+      },
+      "when_where": {
+        "q": "When and where does the Quantum Jam take place?",
+        "a": "The 2026 edition takes place on Saturday, November 21 at ITBA SDF (San Martín 202)."
+      },
+      "packing": {
+        "q": "What should I bring?",
+        "a": "We recommend bringing your laptop, your charger and anything else you need to work during the competition."
+      },
+      "register": {
+        "q": "How do I sign up?",
+        "a": "Fill out the registration form available on our website."
+      }
+    },
+    "packing": {
+      "laptop": "Laptop",
+      "charger": "Charger"
+    },
+    "sessions": {
+      "start": "Fundamentals",
+      "end": "Circuits and algorithms"
+    },
+    "contact": {
+      "title": "Where can I ask other questions?",
+      "desc": "If you have a question we didn't answer here, you can reach us through our social media."
+    }
+  },
   "registerCta": {
     "title": "Ready to sign up?",
     "cta": "Sign Up",
@@ -396,6 +454,7 @@
       "hardware": "The emulator",
       "agenda": "Program",
       "sponsor": "IBM Quantum",
+      "faq": "FAQ",
       "register": "Sign Up",
       "email": "computersociety@itba.edu.ar",
       "place": "ITBA SDF (San Martín 202)"
