@@ -74,6 +74,64 @@
       }
     }
   },
+  "faq": {
+    "title": "Preguntas frecuentes",
+    "cta": "Inscribirme",
+    "items": {
+      "what": {
+        "q": "¿Qué es la Quantum Jam?",
+        "a": "La Quantum Jam es una hackathon de computación cuántica organizada por Computer Society ITBA. Durante el evento, los participantes trabajan en equipo para resolver desafíos relacionados con esta tecnología."
+      },
+      "experience": {
+        "q": "¿Necesito conocimientos previos de computación cuántica?",
+        "a": "No. La idea es que puedas participar incluso si nunca estudiaste computación cuántica. Además, organizamos workshops previos para que puedas familiarizarte con los conceptos básicos."
+      },
+      "coding": {
+        "q": "¿Tengo que saber programar?",
+        "a": "No necesitás ser un experto, aunque tener conocimientos básicos de programación puede ayudarte a resolver los desafíos."
+      },
+      "non_itba": {
+        "q": "¿Puedo participar si no estudio en el ITBA?",
+        "a": "¡Sí! No es necesario ser estudiante del ITBA para participar."
+      },
+      "team": {
+        "q": "¿Tengo que tener un equipo antes de inscribirme?",
+        "a": "Los equipos se forman antes de la competencia. Si todavía no tenés, nosotros te asignamos uno."
+      },
+      "pre_jam": {
+        "q": "¿Qué son las Pre-Jam Sessions?",
+        "a": "Son cuatro workshops online que organizamos antes de la hackathon. Vamos desde los fundamentos de la computación cuántica hasta circuitos y algoritmos, así que podés seguirlos aunque estés empezando de cero."
+      },
+      "workshops_required": {
+        "q": "¿Es obligatorio participar de los workshops?",
+        "a": "No son obligatorios, pero te recomendamos hacerlos, especialmente si no tenés experiencia en computación cuántica."
+      },
+      "when_where": {
+        "q": "¿Cuándo y dónde se realiza Quantum Jam?",
+        "a": "La edición 2026 se realizará el sábado 21 de noviembre en el ITBA SDF (San Martín 202)."
+      },
+      "packing": {
+        "q": "¿Qué necesito llevar?",
+        "a": "Te recomendamos llevar tu notebook, cargador y todo lo que necesites para trabajar durante la competencia."
+      },
+      "register": {
+        "q": "¿Cómo puedo inscribirme?",
+        "a": "Podés completar el formulario de inscripción disponible en nuestra web."
+      }
+    },
+    "packing": {
+      "laptop": "Notebook",
+      "charger": "Cargador"
+    },
+    "sessions": {
+      "start": "Fundamentos",
+      "end": "Circuitos y algoritmos"
+    },
+    "contact": {
+      "title": "¿Dónde puedo hacer otras consultas?",
+      "desc": "Si tenés alguna duda que no respondimos acá, podés escribirnos a través de nuestras redes sociales."
+    }
+  },
   "registerCta": {
     "title": "¿Te querés inscribir?",
     "cta": "Inscribirme",
@@ -416,6 +474,7 @@
       "hardware": "El emulador",
       "agenda": "Agenda",
       "sponsor": "IBM Quantum",
+      "faq": "Preguntas frecuentes",
       "register": "Inscribirme",
       "email": "computersociety@itba.edu.ar",
       "place": "ITBA SDF (San Martín 202)"

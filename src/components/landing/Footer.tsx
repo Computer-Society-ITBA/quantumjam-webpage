@@ -2,8 +2,9 @@ import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 
 import { LogoMark } from '@/components/landing/Nav'
+import { INSTAGRAM_URL } from '@/lib/links'
 
-function InstagramIcon() {
+export function InstagramIcon() {
   return (
     <svg
       viewBox="0 0 24 24"
@@ -21,7 +22,7 @@ function InstagramIcon() {
   )
 }
 
-function EmailIcon() {
+export function EmailIcon() {
   return (
     <svg
       viewBox="0 0 24 24"
@@ -114,7 +115,7 @@ export function Footer() {
           </p>
           <div className="-ml-[3px] flex gap-4">
             <Social
-              href="https://www.instagram.com/computer.society.itba/"
+              href={INSTAGRAM_URL}
               labelKey="a11y.instagram"
               icon={<InstagramIcon />}
             />
@@ -163,6 +164,12 @@ export function Footer() {
               className="text-brand-text-dim hover:text-foreground text-[0.85rem] transition-colors"
             >
               {t('footer.links.sponsor')}
+            </a>
+            <a
+              href="#faq"
+              className="text-brand-text-dim hover:text-foreground text-[0.85rem] transition-colors"
+            >
+              {t('footer.links.faq')}
             </a>
             <Link
               to="/register"

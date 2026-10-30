@@ -1,4 +1,5 @@
 import { About } from '@/components/landing/About'
+import { Faq } from '@/components/landing/Faq'
 import { Footer } from '@/components/landing/Footer'
 import { Hardware } from '@/components/landing/Hardware'
 import { Hero } from '@/components/landing/Hero'
@@ -16,6 +17,7 @@ export default function LandingPage() {
       <Program />
       <Hardware />
       <Sponsor />
+      <Faq />
       <RegisterCta />
       <Footer />
     </>
