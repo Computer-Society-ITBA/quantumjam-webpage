@@ -3,8 +3,9 @@ import * as logger from "firebase-functions/logger";
 
 import {db} from "../admin";
 import type {Purpose} from "./otp";
+import { collections } from "./collections";
 
-export const FEATURE_FLAGS_COLLECTION = "featureFlags";
+export const FEATURE_FLAGS_COLLECTION = collections.featureFlags;
 export const REGISTRATION_FLAGS_DOC = "registration";
 
 const FLAG_KEY: Record<Purpose, string> = {

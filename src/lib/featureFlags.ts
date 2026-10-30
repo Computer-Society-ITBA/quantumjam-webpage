@@ -1,6 +1,7 @@
 import { doc, onSnapshot } from 'firebase/firestore'
 
 import { db } from '@/lib/firebase'
+import { collections } from './collections.ts'
 
 export type RegistrationEvent = 'workshops' | 'competition'
 
@@ -9,7 +10,7 @@ export type RegistrationFlags = {
   competitionRegistrationOpen: boolean
 }
 
-export const FEATURE_FLAGS_COLLECTION = 'featureFlags'
+export const FEATURE_FLAGS_COLLECTION = collections.featureFlags
 export const REGISTRATION_FLAGS_DOC = 'registration'
 
 /**
@@ -75,6 +76,7 @@ function publish(flags: RegistrationFlags) {
 
 function start() {
   const ref = doc(db, FEATURE_FLAGS_COLLECTION, REGISTRATION_FLAGS_DOC)
+  console.log(FEATURE_FLAGS_COLLECTION, REGISTRATION_FLAGS_DOC)
   unsubscribeFromFirestore = onSnapshot(
     ref,
     (snap) => publish(parseRegistrationFlags(snap.data())),

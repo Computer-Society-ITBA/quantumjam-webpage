@@ -6,6 +6,7 @@ import * as logger from "firebase-functions/logger";
 import {defineSecret} from "firebase-functions/params";
 
 import {db} from "./admin";
+import {collections} from "./lib/collections";
 
 const ADMIN_USERNAME = defineSecret("QUANTUMJAM_ADMIN_USERNAME");
 const ADMIN_PASSWORD = defineSecret("QUANTUMJAM_ADMIN_PASSWORD");
@@ -17,14 +18,14 @@ const ROUTE_PREFIX = "/api/admin/";
 // accident. Timestamp fields are serialized as ISO 8601 UTC strings.
 const ROUTES = {
   workshops: {
-    collection: "workshopSignups",
+    collection: collections.workshopSignups,
     fields: [
       "email", "name", "career", "level", "reason", "status", "createdAt",
       "lang",
     ],
   },
   competition: {
-    collection: "competitionSignups",
+    collection: collections.competitionSignups,
     fields: [
       "email", "firstName", "lastName", "dni", "age", "university", "major",
       "gradYear", "location",
@@ -33,7 +34,7 @@ const ROUTES = {
     ],
   },
   contacts: {
-    collection: "emailContacts",
+    collection: collections.emailContacts,
     fields: [
       "email", "canonicalEmail", "status", "purposes", "firstSeenAt",
       "updatedAt", "verifiedAt",
