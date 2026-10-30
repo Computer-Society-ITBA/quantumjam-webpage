@@ -19,12 +19,15 @@ export const functions = getFunctions(app, 'us-central1')
 
 // Opt-in: `npm run dev` talks to the real project by default. Set
 // VITE_USE_FIREBASE_EMULATORS=true to point at `firebase emulators:start`
-// instead.
+// instead. VITE_USE_FIRESTORE_EMULATOR=false keeps the Functions emulator
+// but reads the real Firestore (see DEVELOPMENT.md).
 if (
   import.meta.env.DEV &&
   import.meta.env.VITE_USE_FIREBASE_EMULATORS === 'true'
 ) {
-  connectFirestoreEmulator(db, '127.0.0.1', 8080)
+  if (import.meta.env.VITE_USE_FIRESTORE_EMULATOR !== 'false') {
+    connectFirestoreEmulator(db, '127.0.0.1', 8080)
+  }
   connectFunctionsEmulator(functions, '127.0.0.1', 5001)
 }
 

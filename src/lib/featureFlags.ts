@@ -1,6 +1,7 @@
 import { doc, onSnapshot } from 'firebase/firestore'
 
 import { db } from '@/lib/firebase'
+import { COLLECTION_SUFFIX } from '@/lib/environment'
 
 export type RegistrationEvent = 'workshops' | 'competition'
 
@@ -9,7 +10,7 @@ export type RegistrationFlags = {
   competitionRegistrationOpen: boolean
 }
 
-export const FEATURE_FLAGS_COLLECTION = 'featureFlags'
+export const FEATURE_FLAGS_COLLECTION = `featureFlags${COLLECTION_SUFFIX}`
 export const REGISTRATION_FLAGS_DOC = 'registration'
 
 /**

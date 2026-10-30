@@ -1,7 +1,7 @@
 /// <reference types="vitest/config" />
 import fs from 'node:fs'
 import path from 'node:path'
-import { defineConfig, type Plugin } from 'vite'
+import { defineConfig, loadEnv, type Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 
@@ -86,17 +86,33 @@ function linkPreviews(): Plugin {
   }
 }
 
+// With the emulators on, forward /api/admin to the Functions emulator the
+// way Hosting's rewrite does in production. Same origin, so no CORS.
+function adminApiProxy(env: Record<string, string>) {
+  if (env.VITE_USE_FIREBASE_EMULATORS !== 'true') return undefined
+  const fn = `/${env.VITE_FIREBASE_PROJECT_ID}/us-central1/quantumjamAdminApi`
+  return {
+    '/api/admin': {
+      target: 'http://127.0.0.1:5001',
+      rewrite: (p: string) => fn + p,
+    },
+  }
+}
+
 // https://vite.dev/config/
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   plugins: [react(), tailwindcss(), linkPreviews()],
   resolve: {
     alias: {
       '@': path.resolve(import.meta.dirname, './src'),
     },
   },
+  server: {
+    proxy: adminApiProxy(loadEnv(mode, import.meta.dirname, 'VITE_')),
+  },
   test: {
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
     css: false,
   },
-})
+}))

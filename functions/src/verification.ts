@@ -25,6 +25,9 @@ import {
 } from "./lib/otp";
 import {GMAIL_APP_PASSWORD, sendVerificationCodeEmail} from "./lib/email";
 import {assertRegistrationOpen} from "./lib/flags";
+import {ENVIRONMENT} from "./lib/environment";
+import * as logger from "firebase-functions/logger";
+import {collections} from "./lib/collections";
 
 const PURPOSES: Purpose[] = ["workshops", "competition"];
 const HOUR_MS = 60 * 60 * 1000;
@@ -157,7 +160,7 @@ async function loadSignupSummary(
     summary.teamCode = teamId;
     summary.teamName = "";
     if (teamId) {
-      const team = await db.collection("teams").doc(teamId).get();
+      const team = await db.collection(collections.teams).doc(teamId).get();
       summary.teamName = (team.data()?.name as string | undefined) ?? "";
     }
   }
@@ -172,7 +175,7 @@ export const requestVerificationCode = onCall(
 
     const code = generateCode();
     const verRef = db
-      .collection("emailVerifications")
+      .collection(collections.emailVerifications)
       .doc(verificationId(purpose, email));
 
     await claimVerificationSlot(verRef, email, purpose, hashCode(code));
@@ -182,7 +185,13 @@ export const requestVerificationCode = onCall(
     await recordEmailContact(email, purpose);
 
     try {
-      await sendVerificationCodeEmail(email, code, lang);
+      if (ENVIRONMENT === "development") {
+        logger.info(
+          `DEV: verification code for ${email} (${purpose}) is ${code}`,
+        );
+      } else {
+        await sendVerificationCodeEmail(email, code, lang);
+      }
     } catch {
       // Don't leave the user cooldown-locked if delivery failed.
       await verRef.update({lastRequestAt: null});
@@ -206,7 +215,7 @@ export const confirmVerificationCode = onCall(async (request) => {
   }
 
   const verRef = db
-    .collection("emailVerifications")
+    .collection(collections.emailVerifications)
     .doc(verificationId(purpose, email));
 
   const verificationToken = await db.runTransaction(async (tx) => {

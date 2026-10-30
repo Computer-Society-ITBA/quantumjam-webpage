@@ -5,3 +5,5 @@
  * TypeScript project and cannot import from `src/`.
  */
 export const DISCORD_INVITE_URL = 'https://discord.gg/SxzVS5dzVg'
+export const INSTAGRAM_URL = 'https://www.instagram.com/computer.society.itba/'
+export const INSTAGRAM_HANDLE = '@computer.society.itba'

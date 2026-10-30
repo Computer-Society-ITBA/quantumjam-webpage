@@ -14,6 +14,7 @@ import {
   normalizeEmail,
   verificationId,
 } from "./lib/otp";
+import {collections} from "./lib/collections";
 
 export const LEVELS = ["none", "basic", "intermediate"] as const;
 type Level = (typeof LEVELS)[number];
@@ -57,10 +58,10 @@ export const submitWorkshopSignup = onCall(
       typeof body?.reason === "string" ? body.reason.trim() : "";
 
     const verRef = db
-      .collection("emailVerifications")
+      .collection(collections.emailVerifications)
       .doc(verificationId("workshops", email));
     const signupRef = db
-      .collection("workshopSignups")
+      .collection(collections.workshopSignups)
       .doc(canonicalEmail(email));
     const lang = resolveLang(
       typeof body?.lang === "string" ? body.lang : undefined,

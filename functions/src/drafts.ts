@@ -23,6 +23,7 @@ import {
   type Purpose,
 } from "./lib/otp";
 import {LEVELS} from "./workshops";
+import {collections} from "./lib/collections";
 
 type Fields = Record<string, unknown> | null | undefined;
 
@@ -84,7 +85,7 @@ export const saveSignupDraft = onCall(async (request) => {
   const fields = parse(body?.data as Fields);
 
   const verRef = db
-    .collection("emailVerifications")
+    .collection(collections.emailVerifications)
     .doc(verificationId(purpose, email));
   const signupRef = db
     .collection(signupCollection(purpose))

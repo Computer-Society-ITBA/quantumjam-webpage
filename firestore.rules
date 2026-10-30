@@ -12,6 +12,13 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    // Same flags for local development (VITE_ENVIRONMENT=development reads
+    // the `_staging` collections). See DEVELOPMENT.md.
+    match /featureFlags_staging/{flagId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
     // All sign-up data (emailVerifications, workshopSignups,
     // competitionSignups, teams) is written and read exclusively by Cloud
     // Functions through the Admin SDK, which bypasses these rules entirely.
