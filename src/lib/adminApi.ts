@@ -1,5 +1,3 @@
-import { API_BASE_URL } from './environment.ts'
-
 export type AdminCollection = 'workshops' | 'competition' | 'contacts'
 
 export const ADMIN_COLLECTIONS: readonly AdminCollection[] = [
@@ -111,7 +109,7 @@ export async function fetchAdminCollection(
 ): Promise<AdminList> {
   let res: Response
   try {
-    res = await fetch(`${API_BASE_URL}/api/admin/${collection}`, {
+    res = await fetch(`/api/admin/${collection}`, {
       headers: {
         Accept: 'application/json',
         Authorization: basicAuthHeader(credentials),

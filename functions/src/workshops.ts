@@ -14,7 +14,7 @@ import {
   normalizeEmail,
   verificationId,
 } from "./lib/otp";
-import { collections } from "./lib/collections";
+import {collections} from "./lib/collections";
 
 export const LEVELS = ["none", "basic", "intermediate"] as const;
 type Level = (typeof LEVELS)[number];

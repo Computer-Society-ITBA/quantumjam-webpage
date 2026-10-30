@@ -23,7 +23,7 @@ import {
 import {assertRegistrationOpen} from "./lib/flags";
 import {assertVerifiedSession, draftRef} from "./lib/drafts";
 import {MAX_TEAM_SIZE, teamIdFrom} from "./lib/slug";
-import { collections } from "./lib/collections";
+import {collections} from "./lib/collections";
 
 type TeamChoice = "join" | "create" | "alone";
 
@@ -222,7 +222,9 @@ export const submitCompetitionSignup = onCall(
     const signupRef = db
       .collection(collections.competitionSignups)
       .doc(canonicalEmail(email));
-    const teamRef = teamSlug ? db.collection(collections.teams).doc(teamSlug) : null;
+    const teamRef = teamSlug ?
+      db.collection(collections.teams).doc(teamSlug) :
+      null;
 
     await db.runTransaction(async (tx) => {
       const verSnap = await tx.get(verRef);

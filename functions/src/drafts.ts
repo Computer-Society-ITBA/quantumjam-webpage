@@ -23,7 +23,7 @@ import {
   type Purpose,
 } from "./lib/otp";
 import {LEVELS} from "./workshops";
-import { collections } from "./lib/collections";
+import {collections} from "./lib/collections";
 
 type Fields = Record<string, unknown> | null | undefined;
 

@@ -3,7 +3,7 @@ import * as logger from "firebase-functions/logger";
 
 import {db} from "../admin";
 import {canonicalEmail, type Purpose} from "./otp";
-import { collections } from "./collections";
+import {collections} from "./collections";
 
 export const EMAIL_CONTACTS_COLLECTION = collections.emailContacts;
 

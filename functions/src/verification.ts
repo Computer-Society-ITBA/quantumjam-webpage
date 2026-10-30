@@ -25,9 +25,9 @@ import {
 } from "./lib/otp";
 import {GMAIL_APP_PASSWORD, sendVerificationCodeEmail} from "./lib/email";
 import {assertRegistrationOpen} from "./lib/flags";
-import { ENVIRONMENT } from "./lib/environment";
-import { logger } from "firebase-functions/logger";
-import { collections } from "./lib/collections";
+import {ENVIRONMENT} from "./lib/environment";
+import * as logger from "firebase-functions/logger";
+import {collections} from "./lib/collections";
 
 const PURPOSES: Purpose[] = ["workshops", "competition"];
 const HOUR_MS = 60 * 60 * 1000;
@@ -187,9 +187,9 @@ export const requestVerificationCode = onCall(
     try {
       if (ENVIRONMENT === "development") {
         logger.info(
-          `DEV: verification code for ${email} (${purpose}) is ${code}`
+          `DEV: verification code for ${email} (${purpose}) is ${code}`,
         );
-      }else {
+      } else {
         await sendVerificationCodeEmail(email, code, lang);
       }
     } catch {

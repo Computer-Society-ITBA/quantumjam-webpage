@@ -7,7 +7,7 @@ import {
 
 import {db} from "../admin";
 import {verificationId, type Purpose} from "./otp";
-import { collections } from "./collections";
+import {collections} from "./collections";
 
 export const SIGNUP_DRAFTS_COLLECTION = collections.signupDrafts;
 
@@ -31,7 +31,9 @@ export type SignupDraft = {
  * @return {string} The Firestore collection name.
  */
 export function signupCollection(purpose: Purpose): string {
-  return purpose === "workshops" ? collections.workshopSignups : collections.competitionSignups;
+  return purpose === "workshops" ?
+    collections.workshopSignups :
+    collections.competitionSignups;
 }
 
 /**

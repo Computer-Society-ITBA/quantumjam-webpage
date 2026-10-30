@@ -3,7 +3,7 @@ import * as logger from "firebase-functions/logger";
 
 import {db} from "../admin";
 import type {Purpose} from "./otp";
-import { collections } from "./collections";
+import {collections} from "./collections";
 
 export const FEATURE_FLAGS_COLLECTION = collections.featureFlags;
 export const REGISTRATION_FLAGS_DOC = "registration";

@@ -2,76 +2,116 @@
 
 ## TL;DR
 
-To run with emulated functions and hit '_staging' db's run:
+1. Root `.env.local`:
 
-```bash
-npm run dev
-```
+   ```
+   VITE_USE_FIREBASE_EMULATORS=true
+   VITE_ENVIRONMENT=development
+   ```
 
-and
+2. `functions/.env.local` (copy `functions/.env.example`):
 
-```bash
-cd ./functions
-npm run serve
-```
+   ```
+   ENVIRONMENT=development
+   ```
 
-while having both root .env variables set as 'VITE_ENVIRONMENT=development' and 'VITE_USE_FIREBASE_EMULATORS=true' and functions .env variable set as 'ENVIRONMENT=development' as well. Might also have to configure .secret.local file for the required functions secrets.
+3. Run both:
 
-## Intro
+   ```bash
+   npm run dev
+   ```
 
-The following document explains the proposed development environment and instructions on how to run it.
+   ```bash
+   cd ./functions
+   npm run serve
+   ```
 
-## How to run
+This runs the Functions and Firestore emulators, so nothing touches the
+real database. You might also need a `functions/.secret.local` file for the
+functions secrets (see below).
 
-Firstly, configure local .env files.
-Two have to exist, the first one on the application's root directory and the second on functions directory (see .env.example files).
+## Where the env variables go (read this before deploying)
 
-On the first .env file it is required to have the following variables set as shown:
+| File                   | Read by                     | Deployed?                  |
+| ---------------------- | --------------------------- | -------------------------- |
+| `.env` / `.env.local`  | Vite                        | Baked into `npm run build` |
+| `functions/.env`       | Emulator and deployed funcs | **Yes**, with the code     |
+| `functions/.env.local` | Functions emulator only     | No (`*.local` is ignored)  |
 
-```
-VITE_USE_FIREBASE_EMULATORS=true
-VITE_ENVIRONMENT=development
-```
-
-On the second one:
-
-```
-ENVIRONMENT=development
-```
-
-Having these files set, proceed to execute the following commands to start running:
-
-```bash
-npm run dev
-```
-
-```bash
-cd ./functions
-npm run serve
-```
-
-Some functions depend on secrets, therefore you might need to also configure the .secret.local file on the functions directory.
-It should look as follows:
-
-```
-QUANTUMJAM_ADMIN_USERNAME=admin
-QUANTUMJAM_ADMIN_PASSWORD=contraseña123
-GMAIL_APP_PASSWORD=noseusa
-```
+- Put `ENVIRONMENT=development` in `functions/.env.local`, never in
+  `functions/.env`. The Firebase CLI uploads `functions/.env` on every
+  deploy.
+- Both switches are guarded in code as a second line of defense:
+  `functions/src/lib/environment.ts` only honours `ENVIRONMENT` under the
+  emulator (`FUNCTIONS_EMULATOR=true`), and `src/lib/environment.ts` only
+  honours `VITE_ENVIRONMENT` on the dev server (`import.meta.env.DEV`). A
+  production build or deploy always runs in production mode.
 
 ## How it works
 
-Currently, the frontend saves/queries data one of three ways:
+The frontend reads and writes data three ways:
 
-- Directly through firestore's SDK
-- Through firebase function's SDK
-- Through an endpoint wired to a function
+- Directly through the Firestore SDK (only `featureFlags/registration`)
+- Through the Functions SDK (callables)
+- Through `/api/admin/*`, an HTTP function behind a Hosting rewrite
 
-All three approaches interact with Firestore collections or individual documents.
+In development mode (`VITE_ENVIRONMENT=development` on the frontend,
+`ENVIRONMENT=development` in the emulator):
 
-The goal of emulating these interactions was to have an environment similar to that of production where to test safely new features. This meant having separate compute and storage. This was achieved through emulating the functions locally and hitting different collections to those of production (distinguished by the "_staging" suffix).
+- Every collection name gets a `_staging` suffix (`featureFlags_staging`,
+  `workshopSignups_staging`, ...). The suffix lives in
+  `src/lib/environment.ts` and `functions/src/lib/environment.ts`; keep
+  them in sync.
+- `requestVerificationCode` logs the code to the emulator terminal
+  instead of emailing it.
+- `npm run dev` proxies `/api/admin/*` to the Functions emulator (see
+  `vite.config.ts`), the same way the Hosting rewrite does in production,
+  so the admin panel works without CORS.
 
-Furthermore, some changes to logic had to be applied so as to make certain features work best for a development environment. The endpoint was changed so as to refer to localhost and the verification codes are logged (can be seen on the function's emulator terminal) instead of sent via email.
+### Data isolation
+
+With the default setup (`npm run serve` starts the Functions **and**
+Firestore emulators) all data stays in the local emulator. The emulator
+starts empty: create `featureFlags_staging/registration` in the Emulator UI
+(<http://127.0.0.1:4000/firestore>) with `workshopsRegistrationOpen` and
+`competitionRegistrationOpen` set to `true`, or registration shows as
+closed.
+
+### Using the real Firestore (not isolated)
+
+If you need real data, run only the Functions emulator and point the
+frontend at the real Firestore:
+
+```
+# root .env.local
+VITE_USE_FIRESTORE_EMULATOR=false
+```
+
+```bash
+cd ./functions
+npm run build && firebase emulators:start --only functions
+```
+
+**This writes to the production `quantumjam` database.** The `_staging`
+suffix only keeps your documents out of the production collections; it is
+not a separate environment. The Admin SDK uses your local Google
+credentials, which usually have full access to the project. Clean up after
+yourself.
+
+Reading `featureFlags_staging` from the browser needs the rule in
+`firestore.rules`, which must be deployed
+(`firebase deploy --only firestore:rules`).
+
+## Secrets
+
+Some functions depend on secrets. Configure them in
+`functions/.secret.local`:
+
+```
+QUANTUMJAM_ADMIN_USERNAME=admin
+QUANTUMJAM_ADMIN_PASSWORD=<any local password>
+GMAIL_APP_PASSWORD=<unused locally>
+```
 
 ### Production vs. Development
 
@@ -93,10 +133,10 @@ flowchart TB
     subgraph DEV["Development"]
         DFE["Local frontend<br/>npm run dev"]
         DF["Local Functions Emulator<br/>npm run serve"]
-        DDB[("Firestore<br/>Collections with _staging suffix")]
+        DDB[("Firestore Emulator<br/>Collections with _staging suffix")]
 
         DFE -->|"Direct Firestore SDK"| DDB
-        DFE -->|"Functions SDK / HTTP"| DF
+        DFE -->|"Functions SDK / proxied HTTP"| DF
         DF --> DDB
     end
 ```

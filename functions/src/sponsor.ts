@@ -4,7 +4,7 @@ import {Timestamp} from "firebase-admin/firestore";
 import {db} from "./admin";
 import {resolveLang} from "./lib/i18n/index";
 import {isValidEmail, normalizeEmail} from "./lib/otp";
-import { collections } from "./lib/collections";
+import {collections} from "./lib/collections";
 
 const NAME_MAX = 120;
 const ORG_MAX = 160;

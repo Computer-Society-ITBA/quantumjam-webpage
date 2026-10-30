@@ -1,14 +1,12 @@
-import { ENVIRONMENT } from './environment'
-
-const suffix = ENVIRONMENT === 'development' ? '_staging' : ''
+import {COLLECTION_SUFFIX} from "./environment";
 
 export const collections = {
-  emailContacts: `emailContacts${suffix}`,
-  emailVerifications: `emailVerifications${suffix}`,
-  featureFlags: `featureFlags${suffix}`,
-  workshopSignups: `workshopSignups${suffix}`,
-  competitionSignups: `competitionSignups${suffix}`,
-  sponsorInquiries: `sponsorInquiries${suffix}`,
-  signupDrafts: `signupDrafts${suffix}`,
-  teams: `teams${suffix}`,
-} as const
+  emailContacts: `emailContacts${COLLECTION_SUFFIX}`,
+  emailVerifications: `emailVerifications${COLLECTION_SUFFIX}`,
+  featureFlags: `featureFlags${COLLECTION_SUFFIX}`,
+  workshopSignups: `workshopSignups${COLLECTION_SUFFIX}`,
+  competitionSignups: `competitionSignups${COLLECTION_SUFFIX}`,
+  sponsorInquiries: `sponsorInquiries${COLLECTION_SUFFIX}`,
+  signupDrafts: `signupDrafts${COLLECTION_SUFFIX}`,
+  teams: `teams${COLLECTION_SUFFIX}`,
+} as const;

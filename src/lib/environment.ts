@@ -1,15 +1,15 @@
+// Development mode is dev-server only: a production build ignores
+// VITE_ENVIRONMENT even if it is left set in .env.
 const environment = import.meta.env.VITE_ENVIRONMENT
 
 export const ENVIRONMENT =
-  environment === 'dev' ||
-  environment === 'development' ||
-  environment === 'staging'
+  import.meta.env.DEV &&
+  (environment === 'dev' ||
+    environment === 'development' ||
+    environment === 'staging')
     ? 'development'
     : 'production'
 
-export const API_BASE_URL =
-  ENVIRONMENT === 'development'
-    ? 'http://127.0.0.1:5001/' +
-      import.meta.env.VITE_FIREBASE_PROJECT_ID +
-      '/us-central1/quantumjamAdminApi'
-    : ''
+// Appended to collection names in development. Keep in sync with
+// functions/src/lib/environment.ts.
+export const COLLECTION_SUFFIX = ENVIRONMENT === 'development' ? '_staging' : ''
