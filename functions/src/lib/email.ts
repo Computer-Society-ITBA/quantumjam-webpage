@@ -83,16 +83,6 @@ const STYLE = {
     "font-size:11px;letter-spacing:0.08em;text-transform:uppercase;" +
     `color:${COLOR.textDim};`,
   detailValue: `margin:0 0 20px;font-size:15px;color:${COLOR.text};`,
-  // Blockquote-style callout: a left accent bar with indented text.
-  // Used for the intro (pending-approval explainer) and the closing
-  // "still subject to confirmation" disclaimer.
-  calloutBox:
-    `border-left:3px solid ${COLOR.line};margin:0 0 24px;` +
-    "padding:2px 0 2px 18px;",
-  calloutTitle:
-    `margin:0 0 10px;font-size:15px;font-weight:700;color:${COLOR.text};`,
-  calloutText:
-    `margin:0;font-size:15px;line-height:1.6;color:${COLOR.text};`,
   transitionText:
     "margin:0 0 20px;font-size:14px;line-height:1.6;" +
     `color:${COLOR.textDim};`,
@@ -511,11 +501,10 @@ export function renderWorkshopConfirmationHtml(lang: Lang): string {
 }
 
 /**
- * Renders the competition confirmation email: an intro callout
- * explaining the pending-approval status, the event-details card
- * (date/time, location, duration, team), the event-page CTA, and a
- * closing callout noting those details and the team's spot are still
- * unconfirmed.
+ * Renders the competition confirmation email: an intro explaining the
+ * pending-approval status, the event-details card (date/time, location,
+ * duration, team), the event-page CTA, and a closing note that the
+ * team's spot is still unconfirmed.
  * @param {CompetitionConfirmationTeam} team Team info to include.
  * @param {Lang} lang Language to render the email in.
  * @return {string} The full HTML document.
@@ -525,14 +514,12 @@ export function renderCompetitionConfirmationHtml(
   lang: Lang,
 ): string {
   return renderEmailShell(`
-    <div style="${STYLE.calloutBox}">
-      <p style="${STYLE.calloutTitle}">
-        ${t(lang, "competition.calloutTitle")}
-      </p>
-      <p style="${STYLE.calloutText}">
-        ${t(lang, "competition.calloutTextHtml")}
-      </p>
-    </div>
+    <p style="${STYLE.bodyText}">
+      ${t(lang, "competition.calloutTitle")}
+    </p>
+    <p style="${STYLE.bodyText}">
+      ${t(lang, "competition.calloutTextHtml")}
+    </p>
     <hr style="${STYLE.divider}">
     <table role="presentation" width="100%" cellpadding="0"
       cellspacing="0" border="0" style="margin:0 0 20px;">
@@ -570,19 +557,17 @@ export function renderCompetitionConfirmationHtml(
         ${t(lang, "competition.ctaEventPage")}
       </a>
     </p>
-    <div style="${STYLE.calloutBox}">
-      <p style="${STYLE.calloutText}">
-        ${t(lang, "competition.disclaimerHtml")}
-      </p>
-    </div>
+    <p style="${STYLE.bodyText}">
+      ${t(lang, "competition.disclaimerHtml")}
+    </p>
   `, lang);
 }
 
 /**
  * Sends the post-registration confirmation email for the competition
  * flow: a pending-approval explainer, the event details card (date,
- * time, location, duration, team), and a closing disclaimer noting
- * those details and the team's spot are still unconfirmed.
+ * time, location, duration, team), and a closing note that the team's
+ * spot is still unconfirmed.
  * @param {string} email Recipient address.
  * @param {CompetitionConfirmationTeam} team Team info to include.
  * @param {Lang} lang Language to render the email in.
