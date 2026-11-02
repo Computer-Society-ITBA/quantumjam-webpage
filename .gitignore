@@ -17,6 +17,10 @@ dist-ssr
 .env.*
 !.env.example
 
+# Mailing list (personal data)
+personas.csv
+scripts/campaign/data/
+
 # Test / build artifacts
 coverage
 *.tsbuildinfo

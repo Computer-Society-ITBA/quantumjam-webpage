@@ -134,8 +134,8 @@ const EVENT_PAGE_URL = "https://quantumjam.com.ar";
 // since t() resolves one string at a time.
 const DISCORD_STEP_KEYS = ["join", "rules", "intro", "sessions"] as const;
 
-const INSTAGRAM_URL = "https://instagram.com/csitba";
-const LINKEDIN_URL = "https://linkedin.com/company/csitba";
+const INSTAGRAM_URL = "https://www.instagram.com/computer.society.itba/";
+const LINKEDIN_URL = "https://www.linkedin.com/company/itba-computer-society";
 const CONTACT_EMAIL_MAILTO = `mailto:${FROM_EMAIL}`;
 
 let transporter: nodemailer.Transporter | null = null;
