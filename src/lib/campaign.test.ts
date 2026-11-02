@@ -45,6 +45,15 @@ describe('trackCampaignClick', () => {
     expect(images[0].onerror).toBeNull()
   })
 
+  it('never throws, so the site still loads', () => {
+    window.history.replaceState(null, '', `/register?c=${TOKEN}`)
+    vi.stubGlobal('Image', function () {
+      throw new Error('boom')
+    })
+
+    expect(() => trackCampaignClick()).not.toThrow()
+  })
+
   it('does nothing without a token', () => {
     window.history.replaceState(null, '', '/register')
     trackCampaignClick()
