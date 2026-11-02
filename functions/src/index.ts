@@ -14,3 +14,4 @@ export {submitCompetitionSignup, lookupTeam} from "./competition";
 export {saveSignupDraft} from "./drafts";
 export {submitSponsorInquiry} from "./sponsor";
 export {quantumjamAdminApi} from "./backoffice";
+export {campaignEvent} from "./campaign";

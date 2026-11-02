@@ -1,6 +1,7 @@
 import {COLLECTION_SUFFIX} from "./environment";
 
 export const collections = {
+  campaignEvents: `campaignEvents${COLLECTION_SUFFIX}`,
   emailContacts: `emailContacts${COLLECTION_SUFFIX}`,
   emailVerifications: `emailVerifications${COLLECTION_SUFFIX}`,
   featureFlags: `featureFlags${COLLECTION_SUFFIX}`,
