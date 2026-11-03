@@ -20,15 +20,22 @@ function axisLeft(month: number, day: number) {
   return `${5 + progress * 90}%`
 }
 
+function gateAt(left: string, mobileLeft = left) {
+  return { '--left': left, '--mobile-left': mobileLeft } as CSSProperties
+}
+
+// On a phone the workshop gates are evenly spaced instead of placed by date:
+// gate 2's line has to clear the |competition⟩ label above that wire.
 const WORKSHOP_GATES = [
-  { label: '1', left: axisLeft(9, 4) },
-  { label: '2', left: axisLeft(9, 11) },
-  { label: '3', left: axisLeft(9, 18) },
-  { label: '4', left: axisLeft(9, 25) },
+  { label: '1', at: gateAt(axisLeft(9, 4), '18%') },
+  { label: '2', at: gateAt(axisLeft(9, 11), '33%') },
+  { label: '3', at: gateAt(axisLeft(9, 18), '48%') },
+  { label: '4', at: gateAt(axisLeft(9, 25), '63%') },
 ]
-const ENTANGLING_WORKSHOP_LEFT = WORKSHOP_GATES[1].left
-const EXTRA_MATERIAL_LEFT = '78%'
-const TALK_LEFT = axisLeft(10, 6)
+const ENTANGLING_WORKSHOP_AT = WORKSHOP_GATES[1].at
+const EXTRA_MATERIAL_AT = gateAt('78%', '82%')
+const TALK_AT = gateAt(axisLeft(10, 6))
+const gateLeftClass = 'left-[var(--mobile-left)] md:left-[var(--left)]'
 
 const WIRE_ZONES: { wire: Wire; className: string }[] = [
   { wire: 'workshops', className: 'top-0 h-[68px]' },
@@ -45,15 +52,22 @@ const INFO_COLOR: Record<Wire, string> = {
 const gateClass =
   'font-display absolute top-4 flex size-7 -translate-x-1/2 items-center justify-center text-[0.85rem] font-extrabold md:top-2.5 md:size-10 md:text-[1.05rem]'
 
-function CnotTarget({ left, className }: { left: string; className: string }) {
+function CnotTarget({
+  at,
+  className,
+}: {
+  at: CSSProperties
+  className: string
+}) {
   return (
     <svg
       viewBox="0 0 28 28"
       className={cn(
         'absolute top-[92px] size-7 -translate-x-1/2 fill-[var(--brand-bg)] stroke-2',
+        gateLeftClass,
         className,
       )}
-      style={{ left }}
+      style={at}
     >
       <circle cx="14" cy="14" r="12.5" />
       <path d="M14 2 V26 M2 14 H26" />
@@ -166,7 +180,7 @@ export function Program() {
         >
           <span
             className={cn(
-              'text-brand-magenta absolute top-0 left-0 md:top-[19px]',
+              'text-brand-magenta absolute top-[-8px] left-0 md:top-[19px]',
               dimmed('workshops'),
             )}
           >
@@ -174,9 +188,7 @@ export function Program() {
           </span>
           <span
             className={cn(
-              // On a phone it sits under its wire: above it, the line from
-              // workshop 2 would cut through the text.
-              'text-brand-green absolute top-[122px] left-0 md:top-[95px]',
+              'text-brand-green absolute top-[84px] left-0 md:top-[95px]',
               dimmed('competition'),
             )}
           >
@@ -220,18 +232,25 @@ export function Program() {
           >
             <span className="bg-brand-magenta/45 absolute top-[30px] right-0 left-0 h-px" />
             <span
-              className="bg-brand-magenta absolute top-[30px] h-[76px] w-0.5 -translate-x-1/2"
-              style={{ left: ENTANGLING_WORKSHOP_LEFT }}
+              className={cn(
+                'bg-brand-magenta absolute top-[30px] h-[76px] w-0.5 -translate-x-1/2',
+                gateLeftClass,
+              )}
+              style={ENTANGLING_WORKSHOP_AT}
             />
             <CnotTarget
-              left={ENTANGLING_WORKSHOP_LEFT}
+              at={ENTANGLING_WORKSHOP_AT}
               className="stroke-[var(--brand-magenta)]"
             />
             {WORKSHOP_GATES.map((gate) => (
               <span
                 key={gate.label}
-                className={cn(gateClass, 'bg-brand-magenta text-brand-bg')}
-                style={{ left: gate.left }}
+                className={cn(
+                  gateClass,
+                  gateLeftClass,
+                  'bg-brand-magenta text-brand-bg',
+                )}
+                style={gate.at}
               >
                 {gate.label}
               </span>
@@ -239,9 +258,10 @@ export function Program() {
             <span
               className={cn(
                 gateClass,
+                gateLeftClass,
                 'border-brand-magenta bg-brand-bg text-brand-magenta border-2 border-dashed',
               )}
-              style={{ left: EXTRA_MATERIAL_LEFT }}
+              style={EXTRA_MATERIAL_AT}
             >
               +
             </span>
@@ -249,23 +269,26 @@ export function Program() {
 
           <div
             className={cn('absolute inset-0', dimmed('talks'))}
-            style={{ '--talk-left': TALK_LEFT } as CSSProperties}
+            style={TALK_AT}
           >
             <span className="bg-brand-cyan/50 absolute top-[182px] right-0 left-0 h-px" />
-            <span className="bg-brand-cyan absolute top-[106px] left-[var(--talk-left)] h-[100px] w-0.5 -translate-x-1/2" />
-            <CnotTarget
-              left={TALK_LEFT}
-              className="stroke-[var(--brand-cyan)]"
-            />
             <span
               className={cn(
-                'bg-brand-cyan absolute top-[176px] left-[var(--talk-left)] size-3 -translate-x-1/2 transition-shadow duration-300',
+                'bg-brand-cyan absolute top-[106px] h-[100px] w-0.5 -translate-x-1/2',
+                gateLeftClass,
+              )}
+            />
+            <CnotTarget at={TALK_AT} className="stroke-[var(--brand-cyan)]" />
+            <span
+              className={cn(
+                'bg-brand-cyan absolute top-[176px] size-3 -translate-x-1/2 transition-shadow duration-300',
+                gateLeftClass,
                 active === 'talks' && 'shadow-[0_0_0_5px_rgba(0,229,255,0.18)]',
               )}
             />
             {/* On a phone there is no room to the right of the node, so the
                 tag anchors to the end of the wire instead. */}
-            <span className="font-display bg-brand-cyan absolute top-[206px] right-0 flex min-h-11 items-center px-4 text-[0.8rem] font-bold tracking-[0.1em] whitespace-nowrap text-[#001317] uppercase md:right-auto md:left-[var(--talk-left)] md:-ml-px">
+            <span className="font-display bg-brand-cyan absolute top-[206px] right-0 flex min-h-11 items-center px-4 text-[0.8rem] font-bold tracking-[0.1em] whitespace-nowrap text-[#001317] uppercase md:right-auto md:left-[var(--left)] md:-ml-px">
               {t('program.talks.tag')}
             </span>
           </div>
