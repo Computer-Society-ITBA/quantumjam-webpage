@@ -259,7 +259,7 @@ export function Faq() {
           lifts it into the left column under the heading. */}
       <div className="grid grid-cols-1 gap-12 lg:grid-cols-[380px_minmax(0,1fr)] lg:grid-rows-[auto_1fr] lg:gap-x-[72px] lg:gap-y-10">
         <div className="lg:col-start-1 lg:row-start-1">
-          <SectionHeading index="05">{t('faq.title')}</SectionHeading>
+          <SectionHeading index="04">{t('faq.title')}</SectionHeading>
         </div>
         <div className="border-brand-line min-w-0 border-t lg:col-start-2 lg:row-span-2 lg:row-start-1">
           {items.map((item, index) => (

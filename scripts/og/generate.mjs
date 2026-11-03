@@ -72,12 +72,10 @@ const wordmark = fs.readFileSync(
   path.join(root, 'src/assets/quantum-jam-logo-primary.svg'),
   'utf8',
 )
-const ibmLogo = pathToFileURL(path.join(publicDir, 'ibm-logo.png')).href
 
 for (const { image, card } of Object.values(pages)) {
   const html = fill(cardTemplate, {
     bodyClass: card.headline ? 'has-headline' : '',
-    ibmLogo,
     wordmark,
     headline: escapeHtml(card.headline ?? ''),
     subtitle: escapeHtml(card.subtitle),

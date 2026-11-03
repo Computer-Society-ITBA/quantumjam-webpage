@@ -23,14 +23,20 @@ type Props = {
    */
   renderScale?: number
   /**
-   * Max FPS the animation loop targets. Interference at 45 fps is visually
-   * indistinguishable from 120 fps but costs a third as much on a high
-   * refresh rate display.
+   * Max FPS the animation loop targets. The pattern drifts slowly enough
+   * that 30 fps reads as smooth, and it divides 60 Hz evenly: a cap like 45
+   * would skip every fourth frame, which shows up as stutter.
    */
   fpsCap?: number
 }
 
 const MOTION_REFERENCE_HEIGHT = 520
+// Upper bound on the buffer size, so a large or high-DPI display can't scale
+// the fragment cost up with it. Roughly a 1080p screen at 0.9x.
+const MAX_RENDER_PIXELS = 1_700_000
+// rAF timestamps jitter around the display's period, so an exact comparison
+// against the frame interval would randomly skip an extra frame.
+const FRAME_TOLERANCE_MS = 2
 
 // Full-screen triangle via gl_VertexID - no vertex buffer needed.
 const vertexShaderSource = /* glsl */ `#version 300 es
@@ -58,14 +64,6 @@ uniform vec3  uPulse;
 uniform float uDensity, uSpeed, uMotionScale, uWeight, uMouseAmt, uGlow, uAlphaScale;
 uniform vec3  uC1, uC2;
 
-float ln(float v, float w){
-  float g = abs(fract(v - 0.5) - 0.5) / max(fwidth(v), 1e-6);
-  return 1.0 - smoothstep(0.0, w, g);
-}
-float halo(float v, float w){
-  float g = abs(fract(v - 0.5) - 0.5) / max(fwidth(v), 1e-6);
-  return 1.0 - smoothstep(0.0, w * 7.0, g);
-}
 float pulse(vec2 p){
   float age = uTime - uPulse.z;
   if(age > 4.0 || age < 0.0) return 0.0;
@@ -76,6 +74,20 @@ float pulse(vec2 p){
 void main(){
   vec2 p = (gl_FragCoord.xy - 0.5 * uRes) / uRes.y;
   float t = uTime * uSpeed * uMotionScale;
+
+  // Distance to the nearest line, in pixels. u is linear in x, so its
+  // per-pixel step is a constant and needs no screen derivatives.
+  float u = p.x * 44.0 * uDensity + t * 0.12;
+  float g = abs(fract(u - 0.5) - 0.5) * uRes.y / (44.0 * uDensity);
+
+  // Most pixels sit between lines, outside both the line and its halo, so
+  // they can skip the wave math below. The halo is always the wider of the two.
+  float haloWidth = uWeight * 7.0;
+  if(g >= haloWidth){
+    O = vec4(0.0);
+    return;
+  }
+
   vec2 m = uMouse * uMouseAmt;
 
   vec2 s1 = vec2(-0.75, -0.55) + m * 0.16;
@@ -85,15 +97,18 @@ void main(){
   float k = 20.0 * uDensity;
   float fr = abs(cos(k * (r1 - r2) * 0.5 - t * 0.9 + pulse(p) * 0.5));
 
-  float u = p.x * 44.0 * uDensity + t * 0.12;
-  float l = ln(u, uWeight * (0.22 + 2.3 * fr * fr));
+  float l = 1.0 - smoothstep(0.0, uWeight * (0.22 + 2.3 * fr * fr), g);
+  float halo = 1.0 - smoothstep(0.0, haloWidth, g);
   // Bias the color mix toward magenta (uC2). fr spends more time near its
   // extremes than in the middle, so a linear mix ends up green-dominated;
   // pow(fr, 1.4) pulls mid values down without changing the underlying
   // geometry that drives line width and glow.
   vec3 col = mix(uC2, uC1, pow(fr, 1.4));
-  float intensity = (l + halo(u, uWeight) * uGlow * fr * 0.28) * uAlphaScale;
-  O = vec4(col * intensity, intensity);
+  float intensity = (l + halo * uGlow * fr * 0.28) * uAlphaScale;
+  // Blending is off (the triangle covers the whole buffer), so this applies
+  // the source-alpha weighting the look was tuned with.
+  float a = min(intensity, 1.0);
+  O = vec4(min(col * intensity, vec3(1.0)) * a, a * a);
 }
 `
 
@@ -161,7 +176,7 @@ export function HeroField({
   mouseAmt = 1,
   glow = 1,
   renderScale = 1,
-  fpsCap = 45,
+  fpsCap = 30,
 }: Props) {
   const mountRef = useRef<HTMLDivElement>(null)
 
@@ -189,6 +204,8 @@ export function HeroField({
     const gl = canvas.getContext('webgl2', {
       alpha: true,
       antialias: false,
+      depth: false,
+      stencil: false,
       powerPreference: 'low-power',
     })
     if (!gl) return
@@ -196,8 +213,6 @@ export function HeroField({
     const program = createProgram(gl)
     if (!program) return
     gl.useProgram(program)
-    gl.enable(gl.BLEND)
-    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
 
     const u = {
       res: gl.getUniformLocation(program, 'uRes'),
@@ -238,8 +253,9 @@ export function HeroField({
     const setSize = (w: number, h: number) => {
       width = w
       height = h
-      canvas.width = Math.max(1, Math.round(w * pixelScale))
-      canvas.height = Math.max(1, Math.round(h * pixelScale))
+      const scale = Math.min(pixelScale, Math.sqrt(MAX_RENDER_PIXELS / (w * h)))
+      canvas.width = Math.max(1, Math.round(w * scale))
+      canvas.height = Math.max(1, Math.round(h * scale))
       gl.viewport(0, 0, canvas.width, canvas.height)
       gl.uniform2f(u.res, canvas.width, canvas.height)
       gl.uniform1f(u.motionScale, MOTION_REFERENCE_HEIGHT / h)
@@ -313,14 +329,12 @@ export function HeroField({
       const [mx, my] = toFieldSpace(mouseSmooth.x, mouseSmooth.y)
       gl.uniform2f(u.mouse, mx, my)
 
-      gl.clear(gl.COLOR_BUFFER_BIT)
       gl.drawArrays(gl.TRIANGLES, 0, 3)
     }
 
     const tick = (now: number) => {
-      if (now - lastDraw >= frameInterval) {
-        // Snap to interval boundaries so we don't drift toward always-skip.
-        lastDraw = now - ((now - lastDraw) % frameInterval)
+      if (now - lastDraw >= frameInterval - FRAME_TOLERANCE_MS) {
+        lastDraw = now
         drawFrame(now)
       }
       if (!reduced && visible) frame = requestAnimationFrame(tick)

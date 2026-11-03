@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next'
 
 import quantumJamLogo from '@/assets/quantum-jam-logo-primary.svg?raw'
 import { HeroField } from '@/components/landing/HeroField'
-import { IbmLogo } from '@/components/landing/IbmLogo'
 import { Nav } from './Nav'
 
 const heroWordmarkSvg = quantumJamLogo.replace(
@@ -26,14 +25,6 @@ function MetaChip({
   )
 }
 
-function IbmBadge() {
-  return (
-    <span className="border-brand-line bg-brand-bg/85 inline-flex items-center border-2 px-3 pt-2 pb-1.5 sm:px-[18px] sm:pt-2.5 sm:pb-2">
-      <IbmLogo className="h-[11px] sm:h-[14px]" />
-    </span>
-  )
-}
-
 export function Hero() {
   const { t } = useTranslation()
 
@@ -52,11 +43,6 @@ export function Hero() {
       />
 
       <div className="relative z-10 flex max-w-[1200px] flex-col items-center">
-        <div className="bg-brand-bg/85 text-brand-text-dim mb-6 inline-flex items-center gap-2 px-2 py-1 text-[0.65rem] sm:mb-0 sm:gap-[10px] sm:px-3 sm:py-1.5 sm:text-[0.8rem]">
-          <span>{t('hero.sponsored_by')}</span>
-          <IbmBadge />
-        </div>
-
         <h1
           aria-label={t('nav.brand')}
           className="hero-wordmark mx-auto mb-5 w-[clamp(240px,70vw,760px)] sm:-translate-y-2"

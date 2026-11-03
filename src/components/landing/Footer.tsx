@@ -148,22 +148,16 @@ export function Footer() {
               {t('footer.links.about')}
             </a>
             <a
-              href="#hardware"
-              className="text-brand-text-dim hover:text-foreground text-[0.85rem] transition-colors"
-            >
-              {t('footer.links.hardware')}
-            </a>
-            <a
               href="#program"
               className="text-brand-text-dim hover:text-foreground text-[0.85rem] transition-colors"
             >
               {t('footer.links.agenda')}
             </a>
             <a
-              href="#sponsor"
+              href="#qiskit"
               className="text-brand-text-dim hover:text-foreground text-[0.85rem] transition-colors"
             >
-              {t('footer.links.sponsor')}
+              {t('footer.links.qiskit')}
             </a>
             <a
               href="#faq"
