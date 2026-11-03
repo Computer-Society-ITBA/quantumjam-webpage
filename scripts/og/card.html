@@ -72,36 +72,6 @@
         flex-direction: column;
         align-items: center;
       }
-      .sponsor {
-        display: inline-flex;
-        align-items: center;
-        gap: 14px;
-        margin-bottom: 34px;
-        font-size: 22px;
-        color: #a8a8a8;
-      }
-      .ibm {
-        display: inline-flex;
-        border: 2px solid #262626;
-        background: #070707;
-        padding: 12px 20px 10px;
-      }
-      /* Same ink crop as src/components/landing/IbmLogo.tsx. */
-      .ibm span {
-        position: relative;
-        display: block;
-        width: 154px;
-        height: 22px;
-        overflow: hidden;
-      }
-      .ibm img {
-        position: absolute;
-        top: -153.9%;
-        left: -22.056%;
-        width: 144.155%;
-        max-width: none;
-        filter: invert(1);
-      }
       .wordmark {
         width: 860px;
         margin-bottom: 30px;
@@ -152,9 +122,6 @@
         height: 11px;
         background: #c8ff00;
       }
-      .has-headline .sponsor {
-        display: none;
-      }
       .has-headline .wordmark {
         width: 380px;
         margin-bottom: 40px;
@@ -172,12 +139,6 @@
     <div class="glow"></div>
     <div class="frame"></div>
     <div class="content">
-      <div class="sponsor">
-        <span>Sponsoreado por</span>
-        <span class="ibm"
-          ><span><img src="{{ibmLogo}}" /></span
-        ></span>
-      </div>
       <div class="wordmark">{{wordmark}}</div>
       <h1 class="headline">{{headline}}</h1>
       <p class="subtitle">{{subtitle}}</p>

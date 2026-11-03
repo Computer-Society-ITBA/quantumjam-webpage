@@ -4,9 +4,7 @@
     "cta": "Inscribirme"
   },
   "hero": {
-    "eyebrow": "Computer Society ITBA × IBM Quantum",
     "subtitle": "Workshops y clases virtuales que llevan a una competencia de computación cuántica presencial en el ITBA.",
-    "sponsored_by": "Sponsoreado por",
     "date": "Sáb 21 de noviembre",
     "place": "ITBA SDF (San Martín 202)",
     "capacity": "Gratis, cupo limitado",
@@ -22,26 +20,12 @@
       },
       "hands_on": {
         "title": "Hands-on con Qiskit",
-        "desc": "Armá y corré tu primer circuito cuántico con el simulador de Qiskit, basado en los procesadores reales de IBM."
+        "desc": "Armá y corré tu primer circuito cuántico con el simulador de Qiskit, basado en procesadores cuánticos reales."
       },
       "community": {
         "title": "Comunidad",
         "desc": "Charla técnica, mentoría y networking con la comunidad cuántica de Buenos Aires."
       }
-    }
-  },
-  "hardware": {
-    "title": "El emulador",
-    "description": "Así es un procesador de IBM Quantum: cada qubit vive en un circuito superconductor, enfriado a una fracción de grado sobre el cero absoluto. En QuantumJam no vas a necesitar un criostato: cada circuito que armes corre en el simulador de Qiskit, modelado fielmente sobre esta arquitectura real de IBM.",
-    "specs": {
-      "qubit_label": "Qubit",
-      "qubit_value": "Qubit superconductor simulado (diseño de IBM)",
-      "temp_label": "Backend",
-      "temp_value": "Simulador Qiskit Aer",
-      "control_label": "Control",
-      "control_value": "Python y el SDK de Qiskit",
-      "arch_label": "Arquitectura",
-      "arch_value": "Misma topología que los dispositivos reales de IBM"
     }
   },
   "program": {
@@ -73,13 +57,13 @@
       "cta": "Reservar mi lugar"
     }
   },
-  "sponsor": {
-    "title": "IBM Quantum",
-    "description": "IBM Quantum potencia QuantumJam con Qiskit, el framework open-source con el que armamos, simulamos y corremos cada circuito, basado en los procesadores cuánticos reales de IBM.",
+  "qiskit": {
+    "title": "Qiskit Fall Fest 2026",
+    "description": "QuantumJam es parte del Qiskit Fall Fest 2026. Usamos Qiskit, el framework open-source con el que armamos, simulamos y corremos cada circuito.",
     "items": {
       "hardware": {
         "label": "Simulador",
-        "value": "El simulador de Qiskit, basado en los mismos procesadores superconductores que IBM usa en producción."
+        "value": "El simulador de Qiskit, basado en procesadores superconductores reales."
       },
       "software": {
         "label": "Software",
@@ -481,23 +465,21 @@
     }
   },
   "footer": {
-    "brand_desc": "Comunidad de estudiantes de ITBA. QuantumJam es nuestra jornada anual de computación cuántica, sponsoreada por IBM Quantum.",
+    "brand_desc": "Comunidad de estudiantes de ITBA. QuantumJam es nuestra jornada anual de computación cuántica, parte del Qiskit Fall Fest 2026.",
     "columns": {
       "event": "Evento",
       "contact": "Contacto"
     },
     "links": {
       "about": "¿Qué es QuantumJam?",
-      "hardware": "El emulador",
       "agenda": "Agenda",
-      "sponsor": "IBM Quantum",
+      "qiskit": "Qiskit Fall Fest 2026",
       "faq": "Preguntas frecuentes",
       "register": "Inscribirme",
       "email": "computersociety@itba.edu.ar",
       "place": "ITBA SDF (San Martín 202)"
     },
-    "copyright": "© 2026 Computer Society ITBA",
-    "tagline": "QuantumJam, en conjunto con IBM Quantum"
+    "copyright": "© 2026 Computer Society ITBA"
   },
   "a11y": {
     "instagram": "Instagram",
