@@ -36,6 +36,8 @@ describe('competition date', () => {
       ...flatten(en as unknown as Nested),
       ...flatten(es as unknown as Nested),
     ]
+      // Talks are separate events with their own November dates.
+      .filter(([path]) => !path.startsWith('program.talks.'))
       .filter(([, value]) => /November|noviembre/.test(value))
       .map(([, value]) => value)
 

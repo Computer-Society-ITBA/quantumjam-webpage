@@ -46,14 +46,31 @@
   },
   "program": {
     "title": "Program",
-    "now": "Now",
     "workshops": {
-      "label": "Virtual workshops",
-      "desc": "Regular online sessions on our Discord server. Registration required."
+      "ket": "|workshops⟩",
+      "label": "Workshops",
+      "desc": "Four classes with Qiskit exercises, October 4 to 25, already published. More material is on the way.",
+      "notebooks": "See the notebooks"
     },
     "competition": {
+      "ket": "|competition⟩",
       "label": "Competition day",
-      "desc": "November 21, about 8 hours, in person at ITBA SDF."
+      "desc": "November 21, in person at ITBA SDF. One specific challenge to solve."
+    },
+    "talks": {
+      "ket": "|talks⟩",
+      "label": "Open talks",
+      "desc": "In person, free and open to everyone, with limited spots.",
+      "tag": "Open talk",
+      "speaker": "Julio Cella",
+      "role": "IBM Quantum Ambassador for Argentina and Uruguay",
+      "when_label": "When",
+      "when": "Friday, November 6, 4:00 PM",
+      "where_label": "Where",
+      "where": "ITBA SDF, San Martín 202, CABA. Rooms 301 and 302",
+      "entry_label": "Entry",
+      "entry": "Free and open to everyone, with limited spots",
+      "cta": "Save my spot"
     }
   },
   "sponsor": {
