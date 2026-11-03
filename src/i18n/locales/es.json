@@ -46,14 +46,31 @@
   },
   "program": {
     "title": "Agenda",
-    "now": "Ahora",
     "workshops": {
-      "label": "Workshops virtuales",
-      "desc": "Sesiones online periódicas en nuestro servidor de Discord. Requieren inscripción."
+      "ket": "|workshops⟩",
+      "label": "Workshops",
+      "desc": "Cuatro clases con ejercicios en Qiskit, del 4 al 25 de octubre, ya publicadas. Va a haber material adicional.",
+      "notebooks": "Ver los notebooks"
     },
     "competition": {
+      "ket": "|competencia⟩",
       "label": "Día de la competencia",
-      "desc": "21 de noviembre, unas 8 horas, presencial en el ITBA SDF."
+      "desc": "21 de noviembre, presencial en el ITBA SDF. Una consigna específica para resolver."
+    },
+    "talks": {
+      "ket": "|charlas⟩",
+      "label": "Charlas abiertas",
+      "desc": "Presenciales, gratuitas y abiertas a todo público, con cupos limitados.",
+      "tag": "Charla abierta",
+      "speaker": "Julio Cella",
+      "role": "IBM Quantum Ambassador de Argentina y Uruguay",
+      "when_label": "Cuándo",
+      "when": "Viernes 6 de noviembre, 16:00 hs",
+      "where_label": "Dónde",
+      "where": "ITBA SDF, San Martín 202, CABA. Aulas 301 y 302",
+      "entry_label": "Entrada",
+      "entry": "Gratuita y abierta a todo público, con cupos limitados",
+      "cta": "Reservar mi lugar"
     }
   },
   "sponsor": {
