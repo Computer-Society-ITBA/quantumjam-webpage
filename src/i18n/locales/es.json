@@ -545,7 +545,8 @@
     "collections": {
       "workshops": "Inscripciones a workshops",
       "competition": "Inscripciones a la competencia",
-      "contacts": "Mails recolectados"
+      "contacts": "Mails recolectados",
+      "talkAttendees": "Asistentes a charlas"
     },
     "countFailed": "Error al cargar",
     "notUnique": "Los totales no son personas únicas: un mismo mail puede aparecer en varias listas, y un mail verificado no implica una inscripción completa.",

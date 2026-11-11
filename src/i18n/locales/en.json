@@ -602,6 +602,7 @@
       "purposes": "Sources",
       "firstSeenAt": "First seen at",
       "updatedAt": "Last updated",
+      "verifiedAt": "Verified at",
       "qrSentAt": "Talks QR sent",
       "competitionQrSentAt": "Competition QR sent",
       "competitionCheckedInAt": "Competition check-in",
