@@ -56,5 +56,20 @@
   "footer": {
     "address": "ITBA SDF, San Martín 202, CABA",
     "copyright": "© 2026 Computer Society ITBA"
+  },
+  "ticket": {
+    "subject": "Tu QR de ingreso a las charlas de QNTMJAM",
+      "introHtml": "Mostrá este código QR en la entrada para registrar tu ingreso a las charlas.",
+      "qrAlt": "Código QR de ingreso a las charlas",
+      "hint": "Tip: subí el brillo de la pantalla y tené este mail a mano. El QR también va adjunto como imagen.",
+      "textBody": "Mostrá el código QR adjunto en la entrada para registrar tu ingreso a las charlas."
+  },
+  "competitionTicket": {
+    "subject": "Tu QR de ingreso a la competencia de QNTMJAM",
+    "introHtml": "Mostrá este código QR en la entrada de la competencia para registrar tu ingreso.",
+    "qrAlt": "Código QR de ingreso a la competencia",
+    "hint": "Tip: subí el brillo de la pantalla y tené este mail a mano. El QR también va adjunto como imagen.",
+    "textBody": "Mostrá el código QR adjunto en la entrada de la competencia para registrar tu ingreso."
   }
+
 }

@@ -10,4 +10,5 @@ export const collections = {
   sponsorInquiries: `sponsorInquiries${COLLECTION_SUFFIX}`,
   signupDrafts: `signupDrafts${COLLECTION_SUFFIX}`,
   teams: `teams${COLLECTION_SUFFIX}`,
+  talkAttendees: `talkAttendees${COLLECTION_SUFFIX}`,
 } as const;
