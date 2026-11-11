@@ -56,5 +56,35 @@
   "footer": {
     "address": "ITBA SDF, San Martín 202, CABA",
     "copyright": "© 2026 Computer Society ITBA"
+  },
+  "competitionTicket": {
+    "subject": "Tu QR de ingreso a la competencia de la QuantumJam",
+    "preheader": "Tu QR de ingreso, los datos de la competencia y tu equipo.",
+    "dateBanner": "Sábado 21 de noviembre",
+    "headline": "¡Este finde es la Quantum Jam!",
+    "greeting": "¡Hola, {name}!",
+    "greetingNoName": "¡Hola!",
+    "intro": "Te mandamos tu QR de ingreso y los datos de la competencia. Mostralo en la entrada para registrar tu llegada.",
+    "qrAlt": "Código QR de ingreso a la competencia",
+    "whenLabel": "Cuándo",
+    "whenValue": "Sáb 21 de noviembre",
+    "timeLabel": "Horario",
+    "timeValue": "9:00 a 17:00 hs",
+    "whereLabel": "Dónde",
+    "cantComeTag": "¿No podés venir?",
+    "cantCome": "Por favor avisanos respondiendo este mail, así le cedemos tu lugar a otra persona.",
+    "bringTitle": "Qué traer para estar a full",
+    "bring": {
+      "laptopHtml": "<b>Computadora y cargador</b> (es lo único indispensable)",
+      "dni": "DNI, para entrar al edificio",
+      "power": "Una zapatilla o alargue, si tenés",
+      "headphones": "Auriculares"
+    },
+    "teamTitle": "Tu equipo asignado es {team}",
+    "teamMatesText": "Tus compañeros:",
+    "noMates": "Todavía no tenés compañeros confirmados en tu equipo.",
+    "closing": "¡Nos vemos el sábado!",
+    "reason": "Te escribimos porque tu inscripción a la competencia de la Quantum Jam 2026 fue aceptada.",
+    "qrText": "Tu QR de ingreso va adjunto como imagen. Mostralo en la entrada para registrar tu llegada."
   }
 }

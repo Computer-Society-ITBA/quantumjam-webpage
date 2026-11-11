@@ -7,9 +7,15 @@ import {defineSecret} from "firebase-functions/params";
 
 import {db} from "./admin";
 import {collections} from "./lib/collections";
+import {GMAIL_APP_PASSWORD} from "./lib/email";
+import {
+  checkInByToken,
+  sendCompetitionQr,
+} from "./competitionQr";
 
 const ADMIN_USERNAME = defineSecret("QUANTUMJAM_ADMIN_USERNAME");
 const ADMIN_PASSWORD = defineSecret("QUANTUMJAM_ADMIN_PASSWORD");
+const QR_SECRET = defineSecret("QUANTUMJAM_QR_SECRET");
 
 const ROUTE_PREFIX = "/api/admin/";
 
@@ -31,6 +37,8 @@ const ROUTES = {
       "gradYear", "location",
       "diet", "github", "linkedin", "x", "instagram", "website",
       "teamChoice", "teamId", "status", "createdAt", "lang",
+      "competitionQrSentAt", "competitionQrClaimedAt",
+      "competitionCheckedInAt",
     ],
   },
   contacts: {
@@ -150,12 +158,23 @@ function sendError(res: Response, status: number, error: string): void {
 }
 
 /**
- * Read-only API behind /admin. Every request is authenticated before any
- * Firestore read, whether it arrives through the Hosting rewrite or at
- * the function's own URL. Credentials live only in Secret Manager.
+ * API behind /admin. Every request is authenticated before any Firestore
+ * access, whether it arrives through the Hosting rewrite or at the
+ * function's own URL. Credentials live only in Secret Manager.
+ *
+ * GET  /api/admin/<route>               list a collection
+ * POST /api/admin/checkin               competition check-in from a scanned
+ *                                       QR; body {token}
+ * POST /api/admin/competition/<id>/send-competition-qr
+ *                                       email a competitor their competition
+ *                                       QR; body {resend?: boolean}
  */
 export const quantumjamAdminApi = onRequest(
-  {region: "us-central1", secrets: [ADMIN_USERNAME, ADMIN_PASSWORD]},
+  {
+    region: "us-central1",
+    // GMAIL_APP_PASSWORD: the competition QR is emailed through Gmail SMTP.
+    secrets: [ADMIN_USERNAME, ADMIN_PASSWORD, QR_SECRET, GMAIL_APP_PASSWORD],
+  },
   async (req, res) => {
     res.set("Cache-Control", "private, no-store");
 
@@ -182,8 +201,8 @@ export const quantumjamAdminApi = onRequest(
       return;
     }
 
-    if (req.method !== "GET") {
-      res.set("Allow", "GET");
+    if (req.method !== "GET" && req.method !== "POST") {
+      res.set("Allow", "GET, POST");
       sendError(res, 405, "method-not-allowed");
       return;
     }
@@ -192,16 +211,72 @@ export const quantumjamAdminApi = onRequest(
     const route = path.startsWith(ROUTE_PREFIX) ?
       path.slice(ROUTE_PREFIX.length) :
       "";
-    if (!Object.prototype.hasOwnProperty.call(ROUTES, route)) {
-      sendError(res, 404, "not-found");
+
+    if (req.method === "GET") {
+      if (!Object.prototype.hasOwnProperty.call(ROUTES, route)) {
+        sendError(res, 404, "not-found");
+        return;
+      }
+      try {
+        const items = await readRows(route as RouteName);
+        res.status(200).json({items, fetchedAt: new Date().toISOString()});
+      } catch (err) {
+        logger.error("Backoffice read failed", {route, err});
+        sendError(res, 500, "internal");
+      }
+      return;
+    }
+
+    // Writes must be JSON. A cross-site form cannot send that without a
+    // CORS preflight, which this function never approves, so a browser that
+    // cached the Basic credentials cannot be tricked into writing.
+    if (!req.is("application/json")) {
+      sendError(res, 415, "unsupported-media-type");
+      return;
+    }
+    const qrSecret = readSecret(QR_SECRET);
+    if (!qrSecret) {
+      logger.error("QR signing secret is not configured");
+      sendError(res, 500, "not-configured");
       return;
     }
 
     try {
-      const items = await readRows(route as RouteName);
-      res.status(200).json({items, fetchedAt: new Date().toISOString()});
+      if (route === "checkin") {
+        const token = String(req.body?.token ?? "");
+        res.status(200).json(await checkInByToken(qrSecret, token));
+        return;
+      }
+
+      const [target, rawId, action, ...extra] = route.split("/");
+      // req.path is not URL-decoded, and doc IDs here can be emails.
+      let id = "";
+      try {
+        id = decodeURIComponent(rawId ?? "");
+      } catch {
+        id = "";
+      }
+      const hasTarget = id !== "" && extra.length === 0;
+
+      if (
+        hasTarget && action === "send-competition-qr" &&
+        target === "competition"
+      ) {
+        const outcome = await sendCompetitionQr(
+          qrSecret,
+          id,
+          req.body?.resend === true,
+        );
+        if (outcome.result === "notFound") {
+          sendError(res, 404, "not-found");
+          return;
+        }
+        res.status(200).json(outcome);
+        return;
+      }
+      sendError(res, 404, "not-found");
     } catch (err) {
-      logger.error("Backoffice read failed", {route, err});
+      logger.error("Backoffice write failed", {route, err});
       sendError(res, 500, "internal");
     }
   },
