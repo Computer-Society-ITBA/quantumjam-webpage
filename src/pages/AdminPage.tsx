@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next'
 
 import { CheckInScanner } from '@/components/admin/CheckInScanner'
 import { INPUT_CLASSES } from '@/components/admin/inputClasses'
-import { WalkInForm } from '@/components/admin/WalkInForm'
 import { FieldLabel } from '@/components/landing/QuantumField'
 import { Button } from '@/components/ui/button'
 import {
@@ -13,17 +12,14 @@ import {
   TIMESTAMP_FIELDS,
   checkInToken,
   fetchAdminCollection,
-  registerWalkIn,
   sendCompetitionQr,
-  sendQr,
   type AdminCollection,
   type AdminCredentials,
   type AdminField,
   type AdminRow,
   type AdminValue,
-  type CheckInEvent,
   type CheckInResult,
-  type WalkInValues,
+  type CompetitionQrOutcome,
 } from '@/lib/adminApi'
 import { downloadCsv, toCsv } from '@/lib/csv'
 import { cn } from '@/lib/utils'
@@ -33,15 +29,7 @@ const MISSING = '—'
 
 // The rest of each collection's fields live in the row's detail view.
 const MAIN_COLUMNS: Record<AdminCollection, readonly AdminField[]> = {
-  workshops: [
-    'createdAt',
-    'name',
-    'email',
-    'career',
-    'level',
-    'status',
-    'qrSentAt',
-  ],
+  workshops: ['createdAt', 'name', 'email', 'career', 'level', 'status'],
   competition: [
     'createdAt',
     'firstName',
@@ -51,23 +39,17 @@ const MAIN_COLUMNS: Record<AdminCollection, readonly AdminField[]> = {
     'university',
     'teamId',
     'status',
-    'qrSentAt',
     'competitionQrSentAt',
     'competitionCheckedInAt',
   ],
   contacts: ['firstSeenAt', 'email', 'status', 'purposes', 'verifiedAt'],
-  talkAttendees: ['checkedInAt', 'name', 'age', 'university', 'source'],
 }
 
 const SORT_FIELD: Record<AdminCollection, AdminField> = {
   workshops: 'createdAt',
   competition: 'createdAt',
   contacts: 'firstSeenAt',
-  talkAttendees: 'checkedInAt',
 }
-
-// Collections whose registrants receive a QR by email.
-const QR_COLLECTIONS: readonly AdminCollection[] = ['workshops', 'competition']
 
 type LoadState =
   | { status: 'loading' }
@@ -78,19 +60,27 @@ type Collections = Record<AdminCollection, LoadState>
 
 type LoginError = 'invalid' | 'expired' | 'unavailable'
 
-type Panel = 'scan-talks' | 'scan-competition' | 'walkin' | null
+type Panel = 'scan' | null
+
+type BulkCounts = {
+  total: number
+  sent: number
+  skipped: number
+  failed: number
+}
 
 type Bulk =
   | { phase: 'idle' }
   | { phase: 'confirm'; ids: string[] }
-  | { phase: 'running'; total: number; sent: number; failed: number }
-  | { phase: 'done'; total: number; sent: number; failed: number }
+  | ({ phase: 'running' | 'done' } & BulkCounts)
+
+// Must match ACCEPTED_STATUS in functions/src/competitionQrPolicy.ts.
+const ACCEPTED_STATUS = 'accepted'
 
 const EMPTY_QUERIES: Record<AdminCollection, string> = {
   workshops: '',
   competition: '',
   contacts: '',
-  talkAttendees: '',
 }
 
 function normalize(text: string): string {
@@ -218,11 +208,9 @@ export default function AdminPage() {
         workshops: { status: 'ready', ...workshops },
         competition: { status: 'loading' },
         contacts: { status: 'loading' },
-        talkAttendees: { status: 'loading' },
       })
       void load('competition', credentials, controller.signal)
       void load('contacts', credentials, controller.signal)
-      void load('talkAttendees', credentials, controller.signal)
     } catch (err) {
       if (controller.signal.aborted) return
       setLoginError(
@@ -271,31 +259,22 @@ export default function AdminPage() {
   }
 
   const afterCheckIn = (result: CheckInResult) => {
-    if (result.result === 'ok') {
-      retry(result.event === 'competition' ? 'competition' : 'talkAttendees')
-    }
+    if (result.result === 'ok') retry('competition')
     return result
   }
 
-  const handleScan = (event: CheckInEvent) => (token: string) =>
-    guard((c) => checkInToken(token, event, c)).then(afterCheckIn)
-
-  const handleWalkIn = (values: WalkInValues) =>
-    guard((c) => registerWalkIn(values, c)).then(afterCheckIn)
+  const handleScan = (token: string) =>
+    guard((c) => checkInToken(token, c)).then(afterCheckIn)
 
   // refreshAfter is false for bulk sends, which refresh once at the end.
   const handleSendQr = async (
-    collection: AdminCollection,
     id: string,
-    event: CheckInEvent,
     refreshAfter = true,
-  ) => {
-    await guard((c) =>
-      event === 'competition'
-        ? sendCompetitionQr(id, c)
-        : sendQr(collection, id, c),
-    )
-    if (refreshAfter) retry(collection) // picks up the new sent-at
+    resend = false,
+  ): Promise<CompetitionQrOutcome> => {
+    const outcome = await guard((c) => sendCompetitionQr(id, c, resend))
+    if (refreshAfter) retry('competition') // picks up the new sent-at
+    return outcome
   }
 
   const onTabKeyDown = (e: React.KeyboardEvent) => {
@@ -403,28 +382,10 @@ export default function AdminPage() {
           <div>{heading}</div>
           <div className="mb-9 flex flex-wrap gap-3">
             <Button
-              variant={panel === 'scan-talks' ? 'hero' : 'outline'}
-              onClick={() =>
-                setPanel(panel === 'scan-talks' ? null : 'scan-talks')
-              }
-            >
-              {t('admin.scanner.openTalks')}
-            </Button>
-            <Button
-              variant={panel === 'scan-competition' ? 'hero' : 'outline'}
-              onClick={() =>
-                setPanel(
-                  panel === 'scan-competition' ? null : 'scan-competition',
-                )
-              }
+              variant={panel === 'scan' ? 'hero' : 'outline'}
+              onClick={() => setPanel(panel === 'scan' ? null : 'scan')}
             >
               {t('admin.scanner.openCompetition')}
-            </Button>
-            <Button
-              variant={panel === 'walkin' ? 'hero' : 'outline'}
-              onClick={() => setPanel(panel === 'walkin' ? null : 'walkin')}
-            >
-              {t('admin.walkIn.open')}
             </Button>
             <Button
               variant="outline"
@@ -443,27 +404,10 @@ export default function AdminPage() {
         {/* Mounted only while open, so the camera is released on close. */}
         {panel && (
           <div className="border-brand-line mb-8 border p-5">
-            {panel === 'walkin' ? (
-              <WalkInForm onSubmit={handleWalkIn} />
-            ) : (
-              <>
-                <p className="text-brand-green mb-3 text-center text-[0.85rem] font-medium tracking-wide uppercase">
-                  {t(
-                    panel === 'scan-competition'
-                      ? 'admin.scanner.modeCompetition'
-                      : 'admin.scanner.modeTalks',
-                  )}
-                </p>
-                {/* key: switching event remounts the scanner, so a QR is
-                    never checked in against the wrong event by a stale one */}
-                <CheckInScanner
-                  key={panel}
-                  onScan={handleScan(
-                    panel === 'scan-competition' ? 'competition' : 'talks',
-                  )}
-                />
-              </>
-            )}
+            <p className="text-brand-green mb-3 text-center text-[0.85rem] font-medium tracking-wide uppercase">
+              {t('admin.scanner.modeCompetition')}
+            </p>
+            <CheckInScanner onScan={handleScan} />
           </div>
         )}
 
@@ -530,9 +474,7 @@ export default function AdminPage() {
               setQueries((q) => ({ ...q, [active]: query }))
             }
             onRetry={() => retry(active)}
-            onSendQr={(id, event, refreshAfter) =>
-              handleSendQr(active, id, event, refreshAfter)
-            }
+            onSendQr={handleSendQr}
           />
         </div>
       </div>
@@ -555,23 +497,27 @@ function CollectionPanel({
   onRetry: () => void
   onSendQr: (
     id: string,
-    event: CheckInEvent,
     refreshAfter?: boolean,
-  ) => Promise<void>
+    resend?: boolean,
+  ) => Promise<CompetitionQrOutcome>
 }) {
   const { t, i18n } = useTranslation()
   const baseId = useId()
   const [expanded, setExpanded] = useState<string | null>(null)
-  // "<row id>:<event>" of the single send in flight / that failed.
+  // The row whose single send is in flight / failed.
   const [sending, setSending] = useState<string | null>(null)
   const [sendFailed, setSendFailed] = useState<string | null>(null)
+  // The outcome of the last competition send from a row.
+  const [sendOutcome, setSendOutcome] = useState<{
+    id: string
+    outcome: CompetitionQrOutcome
+  } | null>(null)
+  // The row whose competition resend is waiting for confirmation.
+  const [confirmResend, setConfirmResend] = useState<string | null>(null)
   const [bulk, setBulk] = useState<Bulk>({ phase: 'idle' })
   const fields = ADMIN_FIELDS[collection]
   const columns = MAIN_COLUMNS[collection]
-  const canSendQr = QR_COLLECTIONS.includes(collection)
-  // The talks QR goes to everyone; the competition QR only to competitors.
-  const qrEvents: CheckInEvent[] =
-    collection === 'competition' ? ['talks', 'competition'] : ['talks']
+  const canSendQr = collection === 'competition'
 
   const dateFormat = useMemo(
     () =>
@@ -615,14 +561,19 @@ function CollectionPanel({
     : rows
 
   // Bulk send targets the rows currently shown (so the search box doubles
-  // as a filter, e.g. by status) that have an email and no competition QR
-  // yet. Rows already sent are skipped, so re-running only retries failures.
+  // as a filter) that are approved, have a team and have no competition QR
+  // sent or in flight. The server enforces the same rules in a transaction,
+  // so an interrupted or concurrent run never emails anyone twice.
   const pendingIds =
     collection === 'competition'
       ? visible
           .filter(
             (row) =>
-              !isMissing(row.email) && isMissing(row.competitionQrSentAt),
+              row.status === ACCEPTED_STATUS &&
+              !isMissing(row.teamId) &&
+              !isMissing(row.email) &&
+              isMissing(row.competitionQrSentAt) &&
+              isMissing(row.competitionQrClaimedAt),
           )
           .map((row) => row.id)
       : []
@@ -630,9 +581,10 @@ function CollectionPanel({
   const runBulk = async (ids: string[]) => {
     let next = 0
     let sent = 0
+    let skipped = 0
     let failed = 0
     const progress = (phase: 'running' | 'done') =>
-      setBulk({ phase, total: ids.length, sent, failed })
+      setBulk({ phase, total: ids.length, sent, skipped, failed })
     progress('running')
 
     // A few sends at a time: faster than one by one, gentle on Gmail's SMTP.
@@ -640,8 +592,9 @@ function CollectionPanel({
       while (next < ids.length) {
         const id = ids[next++]
         try {
-          await onSendQr(id, 'competition', false)
-          sent++
+          const outcome = await onSendQr(id, false)
+          if (outcome === 'sent') sent++
+          else skipped++
         } catch {
           failed++
         }
@@ -650,7 +603,7 @@ function CollectionPanel({
     }
     await Promise.all([worker(), worker(), worker()])
     progress('done')
-    onRetry() // one refresh to pick up every new qrSentAt
+    onRetry() // one refresh to pick up every new competitionQrSentAt
   }
 
   const onExport = () => {
@@ -665,14 +618,16 @@ function CollectionPanel({
     downloadCsv(`quantumjam-${collection}${scope}-${date}.csv`, csv)
   }
 
-  const sendRowQr = async (id: string, event: CheckInEvent) => {
-    const key = `${id}:${event}`
-    setSending(key)
+  const sendRowQr = async (id: string, resend = false) => {
+    setSending(id)
     setSendFailed(null)
+    setSendOutcome(null)
+    setConfirmResend(null)
     try {
-      await onSendQr(id, event)
+      const outcome = await onSendQr(id, true, resend)
+      setSendOutcome({ id, outcome })
     } catch {
-      setSendFailed(key)
+      setSendFailed(id)
     } finally {
       setSending(null)
     }
@@ -773,10 +728,14 @@ function CollectionPanel({
         <p role="status" className="text-brand-text-dim mb-3 text-[0.85rem]">
           {bulk.phase === 'running'
             ? t('admin.bulk.running', {
-                done: bulk.sent + bulk.failed,
+                done: bulk.sent + bulk.skipped + bulk.failed,
                 total: bulk.total,
               })
-            : t('admin.bulk.done', { sent: bulk.sent, failed: bulk.failed })}
+            : t('admin.bulk.done', {
+                sent: bulk.sent,
+                skipped: bulk.skipped,
+                failed: bulk.failed,
+              })}
         </p>
       )}
 
@@ -871,24 +830,68 @@ function CollectionPanel({
                           </dl>
                           {canSendQr && (
                             <div className="mt-4 flex flex-wrap items-center gap-3">
-                              {qrEvents.map((event) => {
-                                const key = `${row.id}:${event}`
+                              {(() => {
+                                // A QR that was sent, or whose send never
+                                // confirmed, only goes out again through an
+                                // explicit, confirmed resend.
+                                const isResend =
+                                  !isMissing(row.competitionQrSentAt) ||
+                                  !isMissing(row.competitionQrClaimedAt)
+                                if (isResend && confirmResend === row.id) {
+                                  return (
+                                    <>
+                                      <span className="text-[0.85rem]">
+                                        {t('admin.sendQr.resendConfirm')}
+                                      </span>
+                                      <Button
+                                        onClick={() => sendRowQr(row.id, true)}
+                                      >
+                                        {t('admin.sendQr.resendYes')}
+                                      </Button>
+                                      <Button
+                                        variant="outline"
+                                        onClick={() => setConfirmResend(null)}
+                                      >
+                                        {t('admin.bulk.cancel')}
+                                      </Button>
+                                    </>
+                                  )
+                                }
                                 return (
-                                  <Fragment key={event}>
+                                  <>
                                     <Button
                                       variant="outline"
-                                      disabled={sending === key}
-                                      onClick={() => sendRowQr(row.id, event)}
+                                      disabled={sending === row.id}
+                                      onClick={() =>
+                                        isResend
+                                          ? setConfirmResend(row.id)
+                                          : sendRowQr(row.id)
+                                      }
                                     >
-                                      {sending === key
+                                      {sending === row.id
                                         ? t('admin.sendQr.sending')
                                         : t(
-                                            event === 'competition'
-                                              ? 'admin.sendQr.competitionButton'
-                                              : 'admin.sendQr.button',
+                                            isResend
+                                              ? 'admin.sendQr.competitionResend'
+                                              : 'admin.sendQr.competitionButton',
                                           )}
                                     </Button>
-                                    {sendFailed === key && (
+                                    {sendOutcome?.id === row.id && (
+                                      <span
+                                        role="status"
+                                        className={cn(
+                                          'text-[0.85rem]',
+                                          sendOutcome.outcome === 'sent'
+                                            ? 'text-brand-green'
+                                            : 'text-brand-magenta-bright',
+                                        )}
+                                      >
+                                        {t(
+                                          `admin.sendQr.outcome.${sendOutcome.outcome}`,
+                                        )}
+                                      </span>
+                                    )}
+                                    {sendFailed === row.id && (
                                       <span
                                         role="alert"
                                         className="text-brand-magenta-bright text-[0.85rem]"
@@ -896,9 +899,9 @@ function CollectionPanel({
                                         {t('admin.sendQr.failed')}
                                       </span>
                                     )}
-                                  </Fragment>
+                                  </>
                                 )
-                              })}
+                              })()}
                             </div>
                           )}
                         </td>

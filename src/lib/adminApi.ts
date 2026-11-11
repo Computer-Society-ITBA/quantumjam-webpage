@@ -1,11 +1,9 @@
-export type AdminCollection =
-  'workshops' | 'competition' | 'contacts' | 'talkAttendees'
+export type AdminCollection = 'workshops' | 'competition' | 'contacts'
 
 export const ADMIN_COLLECTIONS: readonly AdminCollection[] = [
   'workshops',
   'competition',
   'contacts',
-  'talkAttendees',
 ]
 
 // Mirrors the allowlist in functions/src/backoffice.ts. Order here is the
@@ -21,7 +19,6 @@ export const ADMIN_FIELDS = {
     'reason',
     'status',
     'lang',
-    'qrSentAt',
   ],
   competition: [
     'id',
@@ -45,8 +42,8 @@ export const ADMIN_FIELDS = {
     'teamId',
     'status',
     'lang',
-    'qrSentAt',
     'competitionQrSentAt',
+    'competitionQrClaimedAt',
     'competitionCheckedInAt',
   ],
   contacts: [
@@ -59,16 +56,6 @@ export const ADMIN_FIELDS = {
     'updatedAt',
     'verifiedAt',
   ],
-  talkAttendees: [
-    'id',
-    'checkedInAt',
-    'name',
-    'age',
-    'university',
-    'email',
-    'source',
-    'registrationId',
-  ],
 } as const satisfies Record<AdminCollection, readonly string[]>
 
 export type AdminField = (typeof ADMIN_FIELDS)[AdminCollection][number]
@@ -78,9 +65,8 @@ export const TIMESTAMP_FIELDS: ReadonlySet<AdminField> = new Set([
   'firstSeenAt',
   'updatedAt',
   'verifiedAt',
-  'qrSentAt',
-  'checkedInAt',
   'competitionQrSentAt',
+  'competitionQrClaimedAt',
   'competitionCheckedInAt',
 ])
 
@@ -97,20 +83,11 @@ export type AdminCredentials = {
   password: string
 }
 
-export type CheckInEvent = 'talks' | 'competition'
-
 export type CheckInResult =
-  | { result: 'ok'; label: string; event: CheckInEvent }
-  | {
-      result: 'already'
-      label: string
-      checkedInAt: string
-      event: CheckInEvent
-    }
-  | { result: 'wrongEvent' }
+  | { result: 'ok'; label: string }
+  | { result: 'already'; label: string; checkedInAt: string }
+  | { result: 'notAccepted'; label: string }
   | { result: 'invalid' }
-
-export type WalkInValues = { name: string; age: string; university: string }
 
 export class AdminApiError extends Error {
   readonly kind: 'unauthorized' | 'unavailable'
@@ -134,15 +111,15 @@ function isAdminList(body: unknown): body is AdminList {
 
 function isCheckInResult(body: unknown): body is CheckInResult {
   if (typeof body !== 'object' || body === null) return false
-  const { result, label, checkedInAt, event } = body as Record<string, unknown>
-  if (result === 'invalid' || result === 'wrongEvent') return true
-  const eventOk = event === 'talks' || event === 'competition'
-  if (result === 'ok') return typeof label === 'string' && eventOk
+  const { result, label, checkedInAt } = body as Record<string, unknown>
+  if (result === 'invalid') return true
+  if (result === 'ok' || result === 'notAccepted') {
+    return typeof label === 'string'
+  }
   return (
     result === 'already' &&
     typeof label === 'string' &&
-    typeof checkedInAt === 'string' &&
-    eventOk
+    typeof checkedInAt === 'string'
   )
 }
 
@@ -223,47 +200,38 @@ async function postCheckIn(
   return body
 }
 
+/** Checks someone in to the competition from a scanned QR token. */
+export const checkInToken = (token: string, credentials: AdminCredentials) =>
+  postCheckIn('checkin', { token }, credentials)
+
+export const COMPETITION_QR_OUTCOMES = [
+  'sent',
+  'alreadySent',
+  'inProgress',
+  'notApproved',
+  'noTeam',
+  'notConfigured',
+] as const
+export type CompetitionQrOutcome = (typeof COMPETITION_QR_OUTCOMES)[number]
+
 /**
- * Checks someone in from a scanned QR token, for the event the scanner is
- * set to. The server refuses a QR that belongs to the other event.
+ * Emails a competition registrant their competition check-in QR. The
+ * server only sends to approved registrants with a team, and never twice
+ * unless `resend` is set.
  */
-export const checkInToken = (
-  token: string,
-  event: CheckInEvent,
-  credentials: AdminCredentials,
-) => postCheckIn('checkin', { token, event }, credentials)
-
-/** Registers (and checks in) someone on the spot. */
-export const registerWalkIn = (
-  values: WalkInValues,
-  credentials: AdminCredentials,
-) => postCheckIn('walkin', values, credentials)
-
-/** Emails a workshop or competition registrant their check-in QR. */
-export async function sendQr(
-  collection: AdminCollection,
-  id: string,
-  credentials: AdminCredentials,
-): Promise<void> {
-  const body = await postAdmin(
-    `${collection}/${encodeURIComponent(id)}/send-qr`,
-    {},
-    credentials,
-  )
-  const ok = (body as { ok?: unknown } | null)?.ok === true
-  if (!ok) throw new AdminApiError('unavailable')
-}
-
-/** Emails a competition registrant their competition check-in QR. */
 export async function sendCompetitionQr(
   id: string,
   credentials: AdminCredentials,
-): Promise<void> {
+  resend = false,
+): Promise<CompetitionQrOutcome> {
   const body = await postAdmin(
     `competition/${encodeURIComponent(id)}/send-competition-qr`,
-    {},
+    { resend },
     credentials,
   )
-  const ok = (body as { ok?: unknown } | null)?.ok === true
-  if (!ok) throw new AdminApiError('unavailable')
+  const result = (body as { result?: unknown } | null)?.result
+  if (!COMPETITION_QR_OUTCOMES.includes(result as CompetitionQrOutcome)) {
+    throw new AdminApiError('unavailable')
+  }
+  return result as CompetitionQrOutcome
 }

@@ -57,18 +57,34 @@
     "address": "ITBA SDF, San Martín 202, CABA",
     "copyright": "© 2026 Computer Society ITBA"
   },
-  "ticket": {
-    "subject": "Your QNTMJAM talks check-in QR",
-    "introHtml": "Show this QR code at the entrance to check in to the talks.",
-    "qrAlt": "Talks check-in QR code",
-    "hint": "Tip: raise your screen brightness and keep this email handy. The QR is also attached as an image.",
-    "textBody": "Show the attached QR code at the entrance to check in to the talks."
-  },
   "competitionTicket": {
-    "subject": "Your QNTMJAM competition check-in QR",
-    "introHtml": "Show this QR code at the competition entrance to check in.",
+    "subject": "Your check-in QR for the QuantumJam competition",
+    "preheader": "Your check-in QR, the competition details and your team.",
+    "dateBanner": "Saturday, November 21",
+    "headline": "Quantum Jam is this weekend!",
+    "greeting": "Hi, {name}!",
+    "greetingNoName": "Hi!",
+    "intro": "Here's your check-in QR and the competition details. Show it at the entrance to check in.",
     "qrAlt": "Competition check-in QR code",
-    "hint": "Tip: raise your screen brightness and keep this email handy. The QR is also attached as an image.",
-    "textBody": "Show the attached QR code at the competition entrance to check in."
+    "whenLabel": "When",
+    "whenValue": "Sat, November 21",
+    "timeLabel": "Time",
+    "timeValue": "9:00 AM to 5:00 PM",
+    "whereLabel": "Where",
+    "cantComeTag": "Can't make it?",
+    "cantCome": "Please let us know by replying to this email, so we can give your spot to someone else.",
+    "bringTitle": "What to bring",
+    "bring": {
+      "laptopHtml": "<b>Laptop and charger</b> (the only must-have)",
+      "dni": "Your ID, to get into the building",
+      "power": "A power strip or extension cord, if you have one",
+      "headphones": "Headphones"
+    },
+    "teamTitle": "Your assigned team is {team}",
+    "teamMatesText": "Your teammates:",
+    "noMates": "You don't have any confirmed teammates yet.",
+    "closing": "See you on Saturday!",
+    "reason": "You're receiving this because your Quantum Jam 2026 competition application was accepted.",
+    "qrText": "Your check-in QR is attached as an image. Show it at the entrance to check in."
   }
 }

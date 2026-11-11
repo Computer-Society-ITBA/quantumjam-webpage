@@ -501,42 +501,38 @@
       }
     },
     "scanner": {
-      "openTalks": "Escanear QR de charlas",
       "openCompetition": "Escanear QR de competencia",
-      "modeTalks": "Ingreso a las charlas",
       "modeCompetition": "Ingreso a la competencia",
-      "ok": "Ingreso a las charlas: {{name}}",
-      "already": "Ya ingresó a las charlas: {{name}}",
       "okCompetition": "Ingreso a la competencia: {{name}}",
       "alreadyCompetition": "Ya ingresó a la competencia: {{name}}",
-      "wrongEvent": "Este QR es del otro evento.",
+      "notAccepted": "No está aceptada en la competencia: {{name}}. No se registró el ingreso.",
       "invalid": "QR inválido",
       "error": "No se pudo registrar el ingreso. Reintentá.",
       "cameraError": "Cámara no disponible. Permití el acceso a la cámara y usá HTTPS."
     },
-    "walkIn": {
-      "open": "Registrar en el momento (charlas)",
-      "name": "Nombre completo",
-      "age": "Edad",
-      "university": "Universidad",
-      "submit": "Registrar e ingresar",
-      "submitting": "Registrando…",
-      "ok": "Registrado: {{name}}",
-      "invalid": "Revisá los campos: la edad debe ser un número válido."
-    },
     "sendQr": {
-      "button": "Enviar QR de charlas",
       "competitionButton": "Enviar QR de competencia",
       "sending": "Enviando…",
-      "failed": "No se pudo enviar el QR."
+      "failed": "No se pudo enviar el QR.",
+      "competitionResend": "Reenviar QR de competencia",
+      "resendConfirm": "Esta persona ya tiene un envío registrado. ¿Mandarle el mail de nuevo?",
+      "resendYes": "Reenviar",
+      "outcome": {
+        "sent": "QR enviado.",
+        "alreadySent": "Ya se le había enviado. No se mandó de nuevo.",
+        "inProgress": "Hay un envío sin confirmar. Usá Reenviar si no le llegó.",
+        "notApproved": "No está aprobada (el status no es accepted). No se envió.",
+        "noTeam": "No tiene equipo asignado. No se envió.",
+        "notConfigured": "Falta configurar la dirección del lugar. No se envió."
+      }
     },
     "bulk": {
-      "button": "Enviar QR de competencia a {{n}}",
-      "confirm": "¿Enviar el QR de la competencia a {{n}} personas que todavía no lo recibieron?",
+      "button": "Enviar QR de competencia a {{n}} aprobados",
+      "confirm": "¿Enviar el QR de la competencia a {{n}} personas aprobadas que todavía no lo recibieron?",
       "confirmYes": "Enviar",
       "cancel": "Cancelar",
       "running": "Enviando {{done}} de {{total}}…",
-      "done": "Enviados: {{sent}}. Fallidos: {{failed}}."
+      "done": "Enviados: {{sent}}. Salteados: {{skipped}}. Fallidos: {{failed}}."
     },
     "refresh": "Actualizar",
     "refreshing": "Actualizando...",
@@ -545,8 +541,7 @@
     "collections": {
       "workshops": "Inscripciones a workshops",
       "competition": "Inscripciones a la competencia",
-      "contacts": "Mails recolectados",
-      "talkAttendees": "Asistentes a charlas"
+      "contacts": "Mails recolectados"
     },
     "countFailed": "Error al cargar",
     "notUnique": "Los totales no son personas únicas: un mismo mail puede aparecer en varias listas, y un mail verificado no implica una inscripción completa.",
@@ -603,12 +598,9 @@
       "firstSeenAt": "Primera vez visto",
       "updatedAt": "Última actualización",
       "verifiedAt": "Verificado el",
-      "qrSentAt": "QR de charlas enviado",
       "competitionQrSentAt": "QR de competencia enviado",
-      "competitionCheckedInAt": "Ingreso a la competencia",
-      "checkedInAt": "Ingreso",
-      "source": "Origen",
-      "registrationId": "Inscripción"
+      "competitionQrClaimedAt": "QR de competencia en curso",
+      "competitionCheckedInAt": "Ingreso a la competencia"
     }
   }
 }

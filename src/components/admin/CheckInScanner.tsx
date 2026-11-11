@@ -17,6 +17,9 @@ export function CheckInScanner({
   const onScanRef = useRef(onScan)
   onScanRef.current = onScan
   const busyRef = useRef(false)
+  // The last QR read and when, so the same code left in front of the
+  // camera is not reported again as "already checked in".
+  const lastRef = useRef<{ data: string; at: number } | null>(null)
   const [feedback, setFeedback] = useState<Feedback>(null)
   const [cameraError, setCameraError] = useState(false)
 
@@ -28,12 +31,17 @@ export function CheckInScanner({
       video,
       async (scan) => {
         if (busyRef.current) return
+        const last = lastRef.current
+        if (last && last.data === scan.data && Date.now() - last.at < 10000) {
+          return
+        }
         busyRef.current = true
         try {
           setFeedback(await onScanRef.current(scan.data))
         } catch {
           setFeedback({ result: 'error' })
         }
+        lastRef.current = { data: scan.data, at: Date.now() }
         // Pause so the same QR is not processed repeatedly while in frame.
         setTimeout(() => {
           busyRef.current = false
@@ -82,20 +90,11 @@ export function CheckInScanner({
         {feedback && (
           <p className={cn('px-4 py-3 text-center font-medium', tone)}>
             {feedback.result === 'ok' &&
-              t(
-                feedback.event === 'competition'
-                  ? 'admin.scanner.okCompetition'
-                  : 'admin.scanner.ok',
-                { name: feedback.label },
-              )}
+              t('admin.scanner.okCompetition', { name: feedback.label })}
             {feedback.result === 'already' &&
-              t(
-                feedback.event === 'competition'
-                  ? 'admin.scanner.alreadyCompetition'
-                  : 'admin.scanner.already',
-                { name: feedback.label },
-              )}
-            {feedback.result === 'wrongEvent' && t('admin.scanner.wrongEvent')}
+              t('admin.scanner.alreadyCompetition', { name: feedback.label })}
+            {feedback.result === 'notAccepted' &&
+              t('admin.scanner.notAccepted', { name: feedback.label })}
             {feedback.result === 'invalid' && t('admin.scanner.invalid')}
             {feedback.result === 'error' && t('admin.scanner.error')}
           </p>

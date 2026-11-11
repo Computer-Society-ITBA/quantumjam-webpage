@@ -507,46 +507,41 @@
     "collections": {
       "workshops": "Workshop sign-ups",
       "competition": "Competition sign-ups",
-      "contacts": "Collected emails",
-      "talkAttendees": "Talk attendees"
+      "contacts": "Collected emails"
     },
     "scanner": {
-      "openTalks": "Scan talks QR",
       "openCompetition": "Scan competition QR",
-      "modeTalks": "Talks check-in",
       "modeCompetition": "Competition check-in",
-      "ok": "Talks check-in: {{name}}",
-      "already": "Already checked in to the talks: {{name}}",
       "okCompetition": "Competition check-in: {{name}}",
       "alreadyCompetition": "Already checked in to the competition: {{name}}",
-      "wrongEvent": "This QR is for the other event.",
+      "notAccepted": "Not accepted to the competition: {{name}}. Check-in not recorded.",
       "invalid": "Invalid QR code",
       "error": "Could not check in. Try again.",
       "cameraError": "Camera unavailable. Allow camera access and use HTTPS."
     },
-    "walkIn": {
-      "open": "Register on the spot (talks)",
-      "name": "Full name",
-      "age": "Age",
-      "university": "University",
-      "submit": "Register and check in",
-      "submitting": "Registering…",
-      "ok": "Registered: {{name}}",
-      "invalid": "Check the fields: age must be a valid number."
-    },
     "sendQr": {
-      "button": "Send talks QR",
       "competitionButton": "Send competition QR",
       "sending": "Sending…",
-      "failed": "Could not send the QR."
+      "failed": "Could not send the QR.",
+      "competitionResend": "Resend competition QR",
+      "resendConfirm": "This person already has a recorded send. Email them again?",
+      "resendYes": "Resend",
+      "outcome": {
+        "sent": "QR sent.",
+        "alreadySent": "It was already sent. Not sent again.",
+        "inProgress": "A send is unconfirmed. Use Resend if it didn't arrive.",
+        "notApproved": "Not approved (status is not accepted). Not sent.",
+        "noTeam": "No team assigned. Not sent.",
+        "notConfigured": "The venue address isn't configured. Not sent."
+      }
     },
     "bulk": {
-      "button": "Send competition QR to {{n}}",
-      "confirm": "Send the competition QR to {{n}} people who haven't received it yet?",
+      "button": "Send competition QR to {{n}} approved",
+      "confirm": "Send the competition QR to {{n}} approved people who haven't received it yet?",
       "confirmYes": "Send",
       "cancel": "Cancel",
       "running": "Sending {{done}} of {{total}}…",
-      "done": "Sent: {{sent}}. Failed: {{failed}}."
+      "done": "Sent: {{sent}}. Skipped: {{skipped}}. Failed: {{failed}}."
     },
     "countFailed": "Failed to load",
     "notUnique": "Totals are not unique people: the same email can appear in several lists, and a verified email does not imply a completed sign-up.",
@@ -603,12 +598,9 @@
       "firstSeenAt": "First seen at",
       "updatedAt": "Last updated",
       "verifiedAt": "Verified at",
-      "qrSentAt": "Talks QR sent",
       "competitionQrSentAt": "Competition QR sent",
-      "competitionCheckedInAt": "Competition check-in",
-      "checkedInAt": "Checked in",
-      "source": "Source",
-      "registrationId": "Registration"
+      "competitionQrClaimedAt": "Competition QR in progress",
+      "competitionCheckedInAt": "Competition check-in"
     }
   }
 }

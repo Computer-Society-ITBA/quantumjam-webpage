@@ -14,8 +14,6 @@ export const GMAIL_APP_PASSWORD = defineSecret("GMAIL_APP_PASSWORD");
 const FROM_EMAIL = "computersociety@itba.edu.ar";
 
 const LOGO_CID = "csitba-logo";
-const QR_CID = "ticket-qr";
-const QR_SIZE = 240;
 
 // functions/assets/logo.png, relative to this compiled file at
 // functions/lib/lib/email.js. Kept outside src/ since tsc only emits
@@ -191,7 +189,7 @@ function getLogoBuffer(): Buffer {
  * @param {string} value Raw text.
  * @return {string} HTML-escaped text.
  */
-function escapeHtml(value: string): string {
+export function escapeHtml(value: string): string {
   return value
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
@@ -298,14 +296,18 @@ function renderEmailShell(bodyHtml: string, lang: Lang): string {
  * @param {string} subject Email subject line.
  * @param {string} text Plain-text body.
  * @param {string} html HTML body.
+ * @param {Attachment[]} extraAttachments Attachments besides the logo.
+ * @param {boolean} withLogo Whether to attach the inline logo, which only
+ *   the shared shell references.
  * @return {Promise<void>} Resolves once the SMTP server accepts the send.
  */
-async function sendEmail(
+export async function sendEmail(
   to: string,
   subject: string,
   text: string,
   html: string,
   extraAttachments: Attachment[] = [],
+  withLogo = true,
 ): Promise<void> {
   const isEmulator = process.env.FUNCTIONS_EMULATOR === "true";
   const mail = {
@@ -315,7 +317,9 @@ async function sendEmail(
     text,
     html,
     attachments: [
-      {filename: "logo.png", content: getLogoBuffer(), cid: LOGO_CID},
+      ...(withLogo ?
+        [{filename: "logo.png", content: getLogoBuffer(), cid: LOGO_CID}] :
+        []),
       ...extraAttachments,
     ],
   };
@@ -603,49 +607,4 @@ export async function sendCompetitionConfirmationEmail(
     `${t(lang, "competition.textEventPage", {url: EVENT_PAGE_URL})}\n\n` +
     t(lang, "competition.textDisclaimer");
   await sendEmail(email, t(lang, "competition.subject"), text, html);
-}
-
-export function renderTicketQrHtml(
-  lang: Lang,
-  keys: "ticket" | "competitionTicket" = "ticket",
-): string {
-  return renderEmailShell(`
-    <p style="${STYLE.bodyText}">${t(lang, `${keys}.introHtml`)}</p>
-    <table role="presentation" align="center" cellpadding="0"
-      cellspacing="0" border="0" bgcolor="#ffffff"
-      style="margin:24px auto;background-color:#ffffff;">
-      <tr>
-        <td style="padding:12px;">
-          <img src="cid:${QR_CID}" width="${QR_SIZE}" height="${QR_SIZE}"
-            alt="${t(lang, `${keys}.qrAlt`)}"
-            style="display:block;border:0;">
-        </td>
-      </tr>
-    </table>
-    <p style="${STYLE.dimText}">${t(lang, `${keys}.hint`)}</p>
-  `, lang);
-}
- 
-/**
- * Emails a registrant a check-in QR, inline and as an attachment.
- * @param {string} email Recipient address.
- * @param {Buffer} png The QR image (dark on white).
- * @param {Lang} lang Language to render the email in.
- * @param {"talks" | "competition"} event Which event the QR is for.
- * @return {Promise<void>} Resolves once the send is accepted.
- */
-export async function sendTicketQrEmail(
-  email: string,
-  png: Buffer,
-  lang: Lang,
-  event: "talks" | "competition" = "talks",
-): Promise<void> {
-  const keys = event === "competition" ? "competitionTicket" : "ticket";
-  await sendEmail(
-    email,
-    t(lang, `${keys}.subject`),
-    t(lang, `${keys}.textBody`),
-    renderTicketQrHtml(lang, keys),
-    [{filename: "qr.png", content: png, cid: QR_CID}],
-  );
 }

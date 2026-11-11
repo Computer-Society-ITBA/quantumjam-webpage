@@ -7,13 +7,11 @@ import {defineSecret} from "firebase-functions/params";
 
 import {db} from "./admin";
 import {collections} from "./lib/collections";
+import {GMAIL_APP_PASSWORD} from "./lib/email";
 import {
   checkInByToken,
-  registerWalkIn,
   sendCompetitionQr,
-  sendRegistrationQr,
-} from "./talks";
-import {REGISTRATION_ROUTES, type RegistrationRoute} from "./tickets";
+} from "./competitionQr";
 
 const ADMIN_USERNAME = defineSecret("QUANTUMJAM_ADMIN_USERNAME");
 const ADMIN_PASSWORD = defineSecret("QUANTUMJAM_ADMIN_PASSWORD");
@@ -29,7 +27,7 @@ const ROUTES = {
     collection: collections.workshopSignups,
     fields: [
       "email", "name", "career", "level", "reason", "status", "createdAt",
-      "lang", "qrSentAt",
+      "lang",
     ],
   },
   competition: {
@@ -38,8 +36,9 @@ const ROUTES = {
       "email", "firstName", "lastName", "dni", "age", "university", "major",
       "gradYear", "location",
       "diet", "github", "linkedin", "x", "instagram", "website",
-      "teamChoice", "teamId", "status", "createdAt", "lang", "qrSentAt",
-      "competitionQrSentAt", "competitionCheckedInAt",
+      "teamChoice", "teamId", "status", "createdAt", "lang",
+      "competitionQrSentAt", "competitionQrClaimedAt",
+      "competitionCheckedInAt",
     ],
   },
   contacts: {
@@ -47,13 +46,6 @@ const ROUTES = {
     fields: [
       "email", "canonicalEmail", "status", "purposes", "firstSeenAt",
       "updatedAt", "verifiedAt",
-    ],
-  },
-  talkAttendees: {
-    collection: collections.talkAttendees,
-    fields: [
-      "name", "age", "university", "email", "source", "registrationId",
-      "checkedInAt",
     ],
   },
 } as const;
@@ -171,17 +163,17 @@ function sendError(res: Response, status: number, error: string): void {
  * function's own URL. Credentials live only in Secret Manager.
  *
  * GET  /api/admin/<route>               list a collection
- * POST /api/admin/checkin               check-in from a scanned QR; body
- *                                       {token, event: "talks"|"competition"}
- * POST /api/admin/walkin                register someone on the spot
- * POST /api/admin/<route>/<id>/send-qr  email a registrant their talks QR
+ * POST /api/admin/checkin               competition check-in from a scanned
+ *                                       QR; body {token}
  * POST /api/admin/competition/<id>/send-competition-qr
- *                                       email a competitor their competition QR
+ *                                       email a competitor their competition
+ *                                       QR; body {resend?: boolean}
  */
 export const quantumjamAdminApi = onRequest(
   {
     region: "us-central1",
-    secrets: [ADMIN_USERNAME, ADMIN_PASSWORD, QR_SECRET],
+    // GMAIL_APP_PASSWORD: the competition QR is emailed through Gmail SMTP.
+    secrets: [ADMIN_USERNAME, ADMIN_PASSWORD, QR_SECRET, GMAIL_APP_PASSWORD],
   },
   async (req, res) => {
     res.set("Cache-Control", "private, no-store");
@@ -252,14 +244,7 @@ export const quantumjamAdminApi = onRequest(
     try {
       if (route === "checkin") {
         const token = String(req.body?.token ?? "");
-        const event = req.body?.event === "competition" ?
-          "competition" :
-          "talks";
-        res.status(200).json(await checkInByToken(qrSecret, token, event));
-        return;
-      }
-      if (route === "walkin") {
-        res.status(200).json(await registerWalkIn(req.body));
+        res.status(200).json(await checkInByToken(qrSecret, token));
         return;
       }
 
@@ -274,31 +259,19 @@ export const quantumjamAdminApi = onRequest(
       const hasTarget = id !== "" && extra.length === 0;
 
       if (
-        hasTarget && action === "send-qr" &&
-        REGISTRATION_ROUTES.includes(target as RegistrationRoute)
-      ) {
-        const found = await sendRegistrationQr(
-          qrSecret,
-          target as RegistrationRoute,
-          id,
-        );
-        if (!found) {
-          sendError(res, 404, "not-found");
-          return;
-        }
-        res.status(200).json({ok: true});
-        return;
-      }
-
-      if (
         hasTarget && action === "send-competition-qr" &&
         target === "competition"
       ) {
-        if (!(await sendCompetitionQr(qrSecret, id))) {
+        const outcome = await sendCompetitionQr(
+          qrSecret,
+          id,
+          req.body?.resend === true,
+        );
+        if (outcome.result === "notFound") {
           sendError(res, 404, "not-found");
           return;
         }
-        res.status(200).json({ok: true});
+        res.status(200).json(outcome);
         return;
       }
       sendError(res, 404, "not-found");
