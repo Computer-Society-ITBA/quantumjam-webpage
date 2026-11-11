@@ -1,6 +1,8 @@
 import { Fragment, useEffect, useId, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { CheckInScanner } from '@/components/admin/CheckInScanner'
+import { INPUT_CLASSES } from '@/components/admin/inputClasses'
 import { FieldLabel } from '@/components/landing/QuantumField'
 import { Button } from '@/components/ui/button'
 import {
@@ -8,12 +10,16 @@ import {
   ADMIN_FIELDS,
   AdminApiError,
   TIMESTAMP_FIELDS,
+  checkInToken,
   fetchAdminCollection,
+  sendCompetitionQr,
   type AdminCollection,
   type AdminCredentials,
   type AdminField,
   type AdminRow,
   type AdminValue,
+  type CheckInResult,
+  type CompetitionQrOutcome,
 } from '@/lib/adminApi'
 import { downloadCsv, toCsv } from '@/lib/csv'
 import { cn } from '@/lib/utils'
@@ -33,6 +39,8 @@ const MAIN_COLUMNS: Record<AdminCollection, readonly AdminField[]> = {
     'university',
     'teamId',
     'status',
+    'competitionQrSentAt',
+    'competitionCheckedInAt',
   ],
   contacts: ['firstSeenAt', 'email', 'status', 'purposes', 'verifiedAt'],
 }
@@ -52,14 +60,28 @@ type Collections = Record<AdminCollection, LoadState>
 
 type LoginError = 'invalid' | 'expired' | 'unavailable'
 
+type Panel = 'scan' | null
+
+type BulkCounts = {
+  total: number
+  sent: number
+  skipped: number
+  failed: number
+}
+
+type Bulk =
+  | { phase: 'idle' }
+  | { phase: 'confirm'; ids: string[] }
+  | ({ phase: 'running' | 'done' } & BulkCounts)
+
+// Must match ACCEPTED_STATUS in functions/src/competitionQrPolicy.ts.
+const ACCEPTED_STATUS = 'accepted'
+
 const EMPTY_QUERIES: Record<AdminCollection, string> = {
   workshops: '',
   competition: '',
   contacts: '',
 }
-
-const INPUT_CLASSES =
-  'bg-brand-panel border-brand-line text-foreground focus:border-brand-green h-12 w-full border px-3.5 text-[0.92rem] transition-[border-color,box-shadow] duration-200 focus:shadow-[0_0_0_3px_rgba(200,255,0,0.16)] focus:outline-none'
 
 function normalize(text: string): string {
   return text
@@ -116,6 +138,7 @@ export default function AdminPage() {
   const [collections, setCollections] = useState<Collections | null>(null)
   const [active, setActive] = useState<AdminCollection>('workshops')
   const [queries, setQueries] = useState(EMPTY_QUERIES)
+  const [panel, setPanel] = useState<Panel>(null)
   const credentialsRef = useRef<AdminCredentials | null>(null)
   const controllerRef = useRef<AbortController | null>(null)
 
@@ -128,6 +151,7 @@ export default function AdminPage() {
     setCollections(null)
     setQueries(EMPTY_QUERIES)
     setActive('workshops')
+    setPanel(null)
     setSigningIn(false)
     setLoginError(reason)
   }
@@ -215,6 +239,42 @@ export default function AdminPage() {
     const controller = controllerRef.current
     if (!credentials || !controller) return
     void load(collection, credentials, controller.signal)
+  }
+
+  // Runs a write with the in-memory credentials. A rejected session signs
+  // out, exactly like the list requests do.
+  const guard = async <T,>(
+    run: (credentials: AdminCredentials) => Promise<T>,
+  ): Promise<T> => {
+    const credentials = credentialsRef.current
+    if (!credentials) throw new Error('signed out')
+    try {
+      return await run(credentials)
+    } catch (err) {
+      if (err instanceof AdminApiError && err.kind === 'unauthorized') {
+        signOut('expired')
+      }
+      throw err
+    }
+  }
+
+  const afterCheckIn = (result: CheckInResult) => {
+    if (result.result === 'ok') retry('competition')
+    return result
+  }
+
+  const handleScan = (token: string) =>
+    guard((c) => checkInToken(token, c)).then(afterCheckIn)
+
+  // refreshAfter is false for bulk sends, which refresh once at the end.
+  const handleSendQr = async (
+    id: string,
+    refreshAfter = true,
+    resend = false,
+  ): Promise<CompetitionQrOutcome> => {
+    const outcome = await guard((c) => sendCompetitionQr(id, c, resend))
+    if (refreshAfter) retry('competition') // picks up the new sent-at
+    return outcome
   }
 
   const onTabKeyDown = (e: React.KeyboardEvent) => {
@@ -320,7 +380,13 @@ export default function AdminPage() {
       <div className="mx-auto w-full max-w-[1200px]">
         <div className="flex flex-wrap items-start justify-between gap-x-6">
           <div>{heading}</div>
-          <div className="mb-9 flex gap-3">
+          <div className="mb-9 flex flex-wrap gap-3">
+            <Button
+              variant={panel === 'scan' ? 'hero' : 'outline'}
+              onClick={() => setPanel(panel === 'scan' ? null : 'scan')}
+            >
+              {t('admin.scanner.openCompetition')}
+            </Button>
             <Button
               variant="outline"
               onClick={refresh}
@@ -335,10 +401,20 @@ export default function AdminPage() {
           </div>
         </div>
 
+        {/* Mounted only while open, so the camera is released on close. */}
+        {panel && (
+          <div className="border-brand-line mb-8 border p-5">
+            <p className="text-brand-green mb-3 text-center text-[0.85rem] font-medium tracking-wide uppercase">
+              {t('admin.scanner.modeCompetition')}
+            </p>
+            <CheckInScanner onScan={handleScan} />
+          </div>
+        )}
+
         <div
           role="tablist"
           aria-label={t('admin.collectionsLabel')}
-          className="grid gap-3 sm:grid-cols-3"
+          className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4"
           onKeyDown={onTabKeyDown}
         >
           {ADMIN_COLLECTIONS.map((collection) => {
@@ -398,6 +474,7 @@ export default function AdminPage() {
               setQueries((q) => ({ ...q, [active]: query }))
             }
             onRetry={() => retry(active)}
+            onSendQr={handleSendQr}
           />
         </div>
       </div>
@@ -411,18 +488,36 @@ function CollectionPanel({
   query,
   onQueryChange,
   onRetry,
+  onSendQr,
 }: {
   collection: AdminCollection
   state: LoadState
   query: string
   onQueryChange: (query: string) => void
   onRetry: () => void
+  onSendQr: (
+    id: string,
+    refreshAfter?: boolean,
+    resend?: boolean,
+  ) => Promise<CompetitionQrOutcome>
 }) {
   const { t, i18n } = useTranslation()
   const baseId = useId()
   const [expanded, setExpanded] = useState<string | null>(null)
+  // The row whose single send is in flight / failed.
+  const [sending, setSending] = useState<string | null>(null)
+  const [sendFailed, setSendFailed] = useState<string | null>(null)
+  // The outcome of the last competition send from a row.
+  const [sendOutcome, setSendOutcome] = useState<{
+    id: string
+    outcome: CompetitionQrOutcome
+  } | null>(null)
+  // The row whose competition resend is waiting for confirmation.
+  const [confirmResend, setConfirmResend] = useState<string | null>(null)
+  const [bulk, setBulk] = useState<Bulk>({ phase: 'idle' })
   const fields = ADMIN_FIELDS[collection]
   const columns = MAIN_COLUMNS[collection]
+  const canSendQr = collection === 'competition'
 
   const dateFormat = useMemo(
     () =>
@@ -465,6 +560,52 @@ function CollectionPanel({
     ? rows.filter((_, i) => searchIndex[i].includes(needle))
     : rows
 
+  // Bulk send targets the rows currently shown (so the search box doubles
+  // as a filter) that are approved, have a team and have no competition QR
+  // sent or in flight. The server enforces the same rules in a transaction,
+  // so an interrupted or concurrent run never emails anyone twice.
+  const pendingIds =
+    collection === 'competition'
+      ? visible
+          .filter(
+            (row) =>
+              row.status === ACCEPTED_STATUS &&
+              !isMissing(row.teamId) &&
+              !isMissing(row.email) &&
+              isMissing(row.competitionQrSentAt) &&
+              isMissing(row.competitionQrClaimedAt),
+          )
+          .map((row) => row.id)
+      : []
+
+  const runBulk = async (ids: string[]) => {
+    let next = 0
+    let sent = 0
+    let skipped = 0
+    let failed = 0
+    const progress = (phase: 'running' | 'done') =>
+      setBulk({ phase, total: ids.length, sent, skipped, failed })
+    progress('running')
+
+    // A few sends at a time: faster than one by one, gentle on Gmail's SMTP.
+    const worker = async () => {
+      while (next < ids.length) {
+        const id = ids[next++]
+        try {
+          const outcome = await onSendQr(id, false)
+          if (outcome === 'sent') sent++
+          else skipped++
+        } catch {
+          failed++
+        }
+        progress('running')
+      }
+    }
+    await Promise.all([worker(), worker(), worker()])
+    progress('done')
+    onRetry() // one refresh to pick up every new competitionQrSentAt
+  }
+
   const onExport = () => {
     const csv = toCsv(
       fields,
@@ -475,6 +616,21 @@ function CollectionPanel({
     }).format(new Date())
     const scope = needle ? '-filtered' : ''
     downloadCsv(`quantumjam-${collection}${scope}-${date}.csv`, csv)
+  }
+
+  const sendRowQr = async (id: string, resend = false) => {
+    setSending(id)
+    setSendFailed(null)
+    setSendOutcome(null)
+    setConfirmResend(null)
+    try {
+      const outcome = await onSendQr(id, true, resend)
+      setSendOutcome({ id, outcome })
+    } catch {
+      setSendFailed(id)
+    } finally {
+      setSending(null)
+    }
   }
 
   if (state.status === 'loading') {
@@ -539,7 +695,49 @@ function CollectionPanel({
         >
           {needle ? t('admin.export.filtered') : t('admin.export.all')}
         </Button>
+        {collection === 'competition' &&
+          (bulk.phase === 'confirm' ? (
+            <div className="flex flex-wrap items-center gap-3">
+              <span className="text-[0.85rem]">
+                {t('admin.bulk.confirm', { n: bulk.ids.length })}
+              </span>
+              <Button className="h-12" onClick={() => runBulk(bulk.ids)}>
+                {t('admin.bulk.confirmYes')}
+              </Button>
+              <Button
+                variant="outline"
+                className="h-12"
+                onClick={() => setBulk({ phase: 'idle' })}
+              >
+                {t('admin.bulk.cancel')}
+              </Button>
+            </div>
+          ) : (
+            <Button
+              variant="outline"
+              className="h-12"
+              disabled={bulk.phase === 'running' || pendingIds.length === 0}
+              onClick={() => setBulk({ phase: 'confirm', ids: pendingIds })}
+            >
+              {t('admin.bulk.button', { n: pendingIds.length })}
+            </Button>
+          ))}
       </div>
+
+      {(bulk.phase === 'running' || bulk.phase === 'done') && (
+        <p role="status" className="text-brand-text-dim mb-3 text-[0.85rem]">
+          {bulk.phase === 'running'
+            ? t('admin.bulk.running', {
+                done: bulk.sent + bulk.skipped + bulk.failed,
+                total: bulk.total,
+              })
+            : t('admin.bulk.done', {
+                sent: bulk.sent,
+                skipped: bulk.skipped,
+                failed: bulk.failed,
+              })}
+        </p>
+      )}
 
       <p
         id={`${baseId}-results`}
@@ -630,6 +828,82 @@ function CollectionPanel({
                               </Fragment>
                             ))}
                           </dl>
+                          {canSendQr && (
+                            <div className="mt-4 flex flex-wrap items-center gap-3">
+                              {(() => {
+                                // A QR that was sent, or whose send never
+                                // confirmed, only goes out again through an
+                                // explicit, confirmed resend.
+                                const isResend =
+                                  !isMissing(row.competitionQrSentAt) ||
+                                  !isMissing(row.competitionQrClaimedAt)
+                                if (isResend && confirmResend === row.id) {
+                                  return (
+                                    <>
+                                      <span className="text-[0.85rem]">
+                                        {t('admin.sendQr.resendConfirm')}
+                                      </span>
+                                      <Button
+                                        onClick={() => sendRowQr(row.id, true)}
+                                      >
+                                        {t('admin.sendQr.resendYes')}
+                                      </Button>
+                                      <Button
+                                        variant="outline"
+                                        onClick={() => setConfirmResend(null)}
+                                      >
+                                        {t('admin.bulk.cancel')}
+                                      </Button>
+                                    </>
+                                  )
+                                }
+                                return (
+                                  <>
+                                    <Button
+                                      variant="outline"
+                                      disabled={sending === row.id}
+                                      onClick={() =>
+                                        isResend
+                                          ? setConfirmResend(row.id)
+                                          : sendRowQr(row.id)
+                                      }
+                                    >
+                                      {sending === row.id
+                                        ? t('admin.sendQr.sending')
+                                        : t(
+                                            isResend
+                                              ? 'admin.sendQr.competitionResend'
+                                              : 'admin.sendQr.competitionButton',
+                                          )}
+                                    </Button>
+                                    {sendOutcome?.id === row.id && (
+                                      <span
+                                        role="status"
+                                        className={cn(
+                                          'text-[0.85rem]',
+                                          sendOutcome.outcome === 'sent'
+                                            ? 'text-brand-green'
+                                            : 'text-brand-magenta-bright',
+                                        )}
+                                      >
+                                        {t(
+                                          `admin.sendQr.outcome.${sendOutcome.outcome}`,
+                                        )}
+                                      </span>
+                                    )}
+                                    {sendFailed === row.id && (
+                                      <span
+                                        role="alert"
+                                        className="text-brand-magenta-bright text-[0.85rem]"
+                                      >
+                                        {t('admin.sendQr.failed')}
+                                      </span>
+                                    )}
+                                  </>
+                                )
+                              })()}
+                            </div>
+                          )}
                         </td>
                       </tr>
                     )}

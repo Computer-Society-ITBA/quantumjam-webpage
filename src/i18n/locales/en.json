@@ -509,6 +509,40 @@
       "competition": "Competition sign-ups",
       "contacts": "Collected emails"
     },
+    "scanner": {
+      "openCompetition": "Scan competition QR",
+      "modeCompetition": "Competition check-in",
+      "okCompetition": "Competition check-in: {{name}}",
+      "alreadyCompetition": "Already checked in to the competition: {{name}}",
+      "notAccepted": "Not accepted to the competition: {{name}}. Check-in not recorded.",
+      "invalid": "Invalid QR code",
+      "error": "Could not check in. Try again.",
+      "cameraError": "Camera unavailable. Allow camera access and use HTTPS."
+    },
+    "sendQr": {
+      "competitionButton": "Send competition QR",
+      "sending": "Sending…",
+      "failed": "Could not send the QR.",
+      "competitionResend": "Resend competition QR",
+      "resendConfirm": "This person already has a recorded send. Email them again?",
+      "resendYes": "Resend",
+      "outcome": {
+        "sent": "QR sent.",
+        "alreadySent": "It was already sent. Not sent again.",
+        "inProgress": "A send is unconfirmed. Use Resend if it didn't arrive.",
+        "notApproved": "Not approved (status is not accepted). Not sent.",
+        "noTeam": "No team assigned. Not sent.",
+        "notConfigured": "The venue address isn't configured. Not sent."
+      }
+    },
+    "bulk": {
+      "button": "Send competition QR to {{n}} approved",
+      "confirm": "Send the competition QR to {{n}} approved people who haven't received it yet?",
+      "confirmYes": "Send",
+      "cancel": "Cancel",
+      "running": "Sending {{done}} of {{total}}…",
+      "done": "Sent: {{sent}}. Skipped: {{skipped}}. Failed: {{failed}}."
+    },
     "countFailed": "Failed to load",
     "notUnique": "Totals are not unique people: the same email can appear in several lists, and a verified email does not imply a completed sign-up.",
     "loading": "Loading...",
@@ -563,7 +597,10 @@
       "purposes": "Sources",
       "firstSeenAt": "First seen at",
       "updatedAt": "Last updated",
-      "verifiedAt": "Verified at"
+      "verifiedAt": "Verified at",
+      "competitionQrSentAt": "Competition QR sent",
+      "competitionQrClaimedAt": "Competition QR in progress",
+      "competitionCheckedInAt": "Competition check-in"
     }
   }
 }

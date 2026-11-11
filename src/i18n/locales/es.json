@@ -500,6 +500,40 @@
         "unavailable": "No pudimos conectar con el servidor. Probá de nuevo en un rato."
       }
     },
+    "scanner": {
+      "openCompetition": "Escanear QR de competencia",
+      "modeCompetition": "Ingreso a la competencia",
+      "okCompetition": "Ingreso a la competencia: {{name}}",
+      "alreadyCompetition": "Ya ingresó a la competencia: {{name}}",
+      "notAccepted": "No está aceptada en la competencia: {{name}}. No se registró el ingreso.",
+      "invalid": "QR inválido",
+      "error": "No se pudo registrar el ingreso. Reintentá.",
+      "cameraError": "Cámara no disponible. Permití el acceso a la cámara y usá HTTPS."
+    },
+    "sendQr": {
+      "competitionButton": "Enviar QR de competencia",
+      "sending": "Enviando…",
+      "failed": "No se pudo enviar el QR.",
+      "competitionResend": "Reenviar QR de competencia",
+      "resendConfirm": "Esta persona ya tiene un envío registrado. ¿Mandarle el mail de nuevo?",
+      "resendYes": "Reenviar",
+      "outcome": {
+        "sent": "QR enviado.",
+        "alreadySent": "Ya se le había enviado. No se mandó de nuevo.",
+        "inProgress": "Hay un envío sin confirmar. Usá Reenviar si no le llegó.",
+        "notApproved": "No está aprobada (el status no es accepted). No se envió.",
+        "noTeam": "No tiene equipo asignado. No se envió.",
+        "notConfigured": "Falta configurar la dirección del lugar. No se envió."
+      }
+    },
+    "bulk": {
+      "button": "Enviar QR de competencia a {{n}} aprobados",
+      "confirm": "¿Enviar el QR de la competencia a {{n}} personas aprobadas que todavía no lo recibieron?",
+      "confirmYes": "Enviar",
+      "cancel": "Cancelar",
+      "running": "Enviando {{done}} de {{total}}…",
+      "done": "Enviados: {{sent}}. Salteados: {{skipped}}. Fallidos: {{failed}}."
+    },
     "refresh": "Actualizar",
     "refreshing": "Actualizando...",
     "logout": "Salir",
@@ -563,7 +597,10 @@
       "purposes": "Orígenes",
       "firstSeenAt": "Primera vez visto",
       "updatedAt": "Última actualización",
-      "verifiedAt": "Verificado el"
+      "verifiedAt": "Verificado el",
+      "competitionQrSentAt": "QR de competencia enviado",
+      "competitionQrClaimedAt": "QR de competencia en curso",
+      "competitionCheckedInAt": "Ingreso a la competencia"
     }
   }
 }

@@ -6,12 +6,15 @@ import * as logger from "firebase-functions/logger";
 
 import {t, type Lang} from "./i18n";
 
+import type {Attachment} from "nodemailer/lib/mailer";
+
 import {MAX_TEAM_SIZE} from "./slug";
 
 export const GMAIL_APP_PASSWORD = defineSecret("GMAIL_APP_PASSWORD");
 const FROM_EMAIL = "computersociety@itba.edu.ar";
 
 const LOGO_CID = "csitba-logo";
+
 // functions/assets/logo.png, relative to this compiled file at
 // functions/lib/lib/email.js. Kept outside src/ since tsc only emits
 // compiled .ts output into lib/, it doesn't copy other file types.
@@ -186,7 +189,7 @@ function getLogoBuffer(): Buffer {
  * @param {string} value Raw text.
  * @return {string} HTML-escaped text.
  */
-function escapeHtml(value: string): string {
+export function escapeHtml(value: string): string {
   return value
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
@@ -293,13 +296,18 @@ function renderEmailShell(bodyHtml: string, lang: Lang): string {
  * @param {string} subject Email subject line.
  * @param {string} text Plain-text body.
  * @param {string} html HTML body.
+ * @param {Attachment[]} extraAttachments Attachments besides the logo.
+ * @param {boolean} withLogo Whether to attach the inline logo, which only
+ *   the shared shell references.
  * @return {Promise<void>} Resolves once the SMTP server accepts the send.
  */
-async function sendEmail(
+export async function sendEmail(
   to: string,
   subject: string,
   text: string,
   html: string,
+  extraAttachments: Attachment[] = [],
+  withLogo = true,
 ): Promise<void> {
   const isEmulator = process.env.FUNCTIONS_EMULATOR === "true";
   const mail = {
@@ -309,7 +317,10 @@ async function sendEmail(
     text,
     html,
     attachments: [
-      {filename: "logo.png", content: getLogoBuffer(), cid: LOGO_CID},
+      ...(withLogo ?
+        [{filename: "logo.png", content: getLogoBuffer(), cid: LOGO_CID}] :
+        []),
+      ...extraAttachments,
     ],
   };
   try {
