@@ -6,12 +6,17 @@ import * as logger from "firebase-functions/logger";
 
 import {t, type Lang} from "./i18n";
 
+import type {Attachment} from "nodemailer/lib/mailer";
+
 import {MAX_TEAM_SIZE} from "./slug";
 
 export const GMAIL_APP_PASSWORD = defineSecret("GMAIL_APP_PASSWORD");
 const FROM_EMAIL = "computersociety@itba.edu.ar";
 
 const LOGO_CID = "csitba-logo";
+const QR_CID = "ticket-qr";
+const QR_SIZE = 240;
+
 // functions/assets/logo.png, relative to this compiled file at
 // functions/lib/lib/email.js. Kept outside src/ since tsc only emits
 // compiled .ts output into lib/, it doesn't copy other file types.
@@ -300,6 +305,7 @@ async function sendEmail(
   subject: string,
   text: string,
   html: string,
+  extraAttachments: Attachment[] = [],
 ): Promise<void> {
   const isEmulator = process.env.FUNCTIONS_EMULATOR === "true";
   const mail = {
@@ -310,6 +316,7 @@ async function sendEmail(
     html,
     attachments: [
       {filename: "logo.png", content: getLogoBuffer(), cid: LOGO_CID},
+      ...extraAttachments,
     ],
   };
   try {
@@ -596,4 +603,49 @@ export async function sendCompetitionConfirmationEmail(
     `${t(lang, "competition.textEventPage", {url: EVENT_PAGE_URL})}\n\n` +
     t(lang, "competition.textDisclaimer");
   await sendEmail(email, t(lang, "competition.subject"), text, html);
+}
+
+export function renderTicketQrHtml(
+  lang: Lang,
+  keys: "ticket" | "competitionTicket" = "ticket",
+): string {
+  return renderEmailShell(`
+    <p style="${STYLE.bodyText}">${t(lang, `${keys}.introHtml`)}</p>
+    <table role="presentation" align="center" cellpadding="0"
+      cellspacing="0" border="0" bgcolor="#ffffff"
+      style="margin:24px auto;background-color:#ffffff;">
+      <tr>
+        <td style="padding:12px;">
+          <img src="cid:${QR_CID}" width="${QR_SIZE}" height="${QR_SIZE}"
+            alt="${t(lang, `${keys}.qrAlt`)}"
+            style="display:block;border:0;">
+        </td>
+      </tr>
+    </table>
+    <p style="${STYLE.dimText}">${t(lang, `${keys}.hint`)}</p>
+  `, lang);
+}
+ 
+/**
+ * Emails a registrant a check-in QR, inline and as an attachment.
+ * @param {string} email Recipient address.
+ * @param {Buffer} png The QR image (dark on white).
+ * @param {Lang} lang Language to render the email in.
+ * @param {"talks" | "competition"} event Which event the QR is for.
+ * @return {Promise<void>} Resolves once the send is accepted.
+ */
+export async function sendTicketQrEmail(
+  email: string,
+  png: Buffer,
+  lang: Lang,
+  event: "talks" | "competition" = "talks",
+): Promise<void> {
+  const keys = event === "competition" ? "competitionTicket" : "ticket";
+  await sendEmail(
+    email,
+    t(lang, `${keys}.subject`),
+    t(lang, `${keys}.textBody`),
+    renderTicketQrHtml(lang, keys),
+    [{filename: "qr.png", content: png, cid: QR_CID}],
+  );
 }

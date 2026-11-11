@@ -1,6 +1,9 @@
 import { Fragment, useEffect, useId, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { CheckInScanner } from '@/components/admin/CheckInScanner'
+import { INPUT_CLASSES } from '@/components/admin/inputClasses'
+import { WalkInForm } from '@/components/admin/WalkInForm'
 import { FieldLabel } from '@/components/landing/QuantumField'
 import { Button } from '@/components/ui/button'
 import {
@@ -8,12 +11,19 @@ import {
   ADMIN_FIELDS,
   AdminApiError,
   TIMESTAMP_FIELDS,
+  checkInToken,
   fetchAdminCollection,
+  registerWalkIn,
+  sendCompetitionQr,
+  sendQr,
   type AdminCollection,
   type AdminCredentials,
   type AdminField,
   type AdminRow,
   type AdminValue,
+  type CheckInEvent,
+  type CheckInResult,
+  type WalkInValues,
 } from '@/lib/adminApi'
 import { downloadCsv, toCsv } from '@/lib/csv'
 import { cn } from '@/lib/utils'
@@ -23,7 +33,15 @@ const MISSING = '—'
 
 // The rest of each collection's fields live in the row's detail view.
 const MAIN_COLUMNS: Record<AdminCollection, readonly AdminField[]> = {
-  workshops: ['createdAt', 'name', 'email', 'career', 'level', 'status'],
+  workshops: [
+    'createdAt',
+    'name',
+    'email',
+    'career',
+    'level',
+    'status',
+    'qrSentAt',
+  ],
   competition: [
     'createdAt',
     'firstName',
@@ -33,15 +51,23 @@ const MAIN_COLUMNS: Record<AdminCollection, readonly AdminField[]> = {
     'university',
     'teamId',
     'status',
+    'qrSentAt',
+    'competitionQrSentAt',
+    'competitionCheckedInAt',
   ],
   contacts: ['firstSeenAt', 'email', 'status', 'purposes', 'verifiedAt'],
+  talkAttendees: ['checkedInAt', 'name', 'age', 'university', 'source'],
 }
 
 const SORT_FIELD: Record<AdminCollection, AdminField> = {
   workshops: 'createdAt',
   competition: 'createdAt',
   contacts: 'firstSeenAt',
+  talkAttendees: 'checkedInAt',
 }
+
+// Collections whose registrants receive a QR by email.
+const QR_COLLECTIONS: readonly AdminCollection[] = ['workshops', 'competition']
 
 type LoadState =
   | { status: 'loading' }
@@ -52,14 +78,20 @@ type Collections = Record<AdminCollection, LoadState>
 
 type LoginError = 'invalid' | 'expired' | 'unavailable'
 
+type Panel = 'scan-talks' | 'scan-competition' | 'walkin' | null
+
+type Bulk =
+  | { phase: 'idle' }
+  | { phase: 'confirm'; ids: string[] }
+  | { phase: 'running'; total: number; sent: number; failed: number }
+  | { phase: 'done'; total: number; sent: number; failed: number }
+
 const EMPTY_QUERIES: Record<AdminCollection, string> = {
   workshops: '',
   competition: '',
   contacts: '',
+  talkAttendees: '',
 }
-
-const INPUT_CLASSES =
-  'bg-brand-panel border-brand-line text-foreground focus:border-brand-green h-12 w-full border px-3.5 text-[0.92rem] transition-[border-color,box-shadow] duration-200 focus:shadow-[0_0_0_3px_rgba(200,255,0,0.16)] focus:outline-none'
 
 function normalize(text: string): string {
   return text
@@ -116,6 +148,7 @@ export default function AdminPage() {
   const [collections, setCollections] = useState<Collections | null>(null)
   const [active, setActive] = useState<AdminCollection>('workshops')
   const [queries, setQueries] = useState(EMPTY_QUERIES)
+  const [panel, setPanel] = useState<Panel>(null)
   const credentialsRef = useRef<AdminCredentials | null>(null)
   const controllerRef = useRef<AbortController | null>(null)
 
@@ -128,6 +161,7 @@ export default function AdminPage() {
     setCollections(null)
     setQueries(EMPTY_QUERIES)
     setActive('workshops')
+    setPanel(null)
     setSigningIn(false)
     setLoginError(reason)
   }
@@ -184,9 +218,11 @@ export default function AdminPage() {
         workshops: { status: 'ready', ...workshops },
         competition: { status: 'loading' },
         contacts: { status: 'loading' },
+        talkAttendees: { status: 'loading' },
       })
       void load('competition', credentials, controller.signal)
       void load('contacts', credentials, controller.signal)
+      void load('talkAttendees', credentials, controller.signal)
     } catch (err) {
       if (controller.signal.aborted) return
       setLoginError(
@@ -215,6 +251,51 @@ export default function AdminPage() {
     const controller = controllerRef.current
     if (!credentials || !controller) return
     void load(collection, credentials, controller.signal)
+  }
+
+  // Runs a write with the in-memory credentials. A rejected session signs
+  // out, exactly like the list requests do.
+  const guard = async <T,>(
+    run: (credentials: AdminCredentials) => Promise<T>,
+  ): Promise<T> => {
+    const credentials = credentialsRef.current
+    if (!credentials) throw new Error('signed out')
+    try {
+      return await run(credentials)
+    } catch (err) {
+      if (err instanceof AdminApiError && err.kind === 'unauthorized') {
+        signOut('expired')
+      }
+      throw err
+    }
+  }
+
+  const afterCheckIn = (result: CheckInResult) => {
+    if (result.result === 'ok') {
+      retry(result.event === 'competition' ? 'competition' : 'talkAttendees')
+    }
+    return result
+  }
+
+  const handleScan = (event: CheckInEvent) => (token: string) =>
+    guard((c) => checkInToken(token, event, c)).then(afterCheckIn)
+
+  const handleWalkIn = (values: WalkInValues) =>
+    guard((c) => registerWalkIn(values, c)).then(afterCheckIn)
+
+  // refreshAfter is false for bulk sends, which refresh once at the end.
+  const handleSendQr = async (
+    collection: AdminCollection,
+    id: string,
+    event: CheckInEvent,
+    refreshAfter = true,
+  ) => {
+    await guard((c) =>
+      event === 'competition'
+        ? sendCompetitionQr(id, c)
+        : sendQr(collection, id, c),
+    )
+    if (refreshAfter) retry(collection) // picks up the new sent-at
   }
 
   const onTabKeyDown = (e: React.KeyboardEvent) => {
@@ -320,7 +401,31 @@ export default function AdminPage() {
       <div className="mx-auto w-full max-w-[1200px]">
         <div className="flex flex-wrap items-start justify-between gap-x-6">
           <div>{heading}</div>
-          <div className="mb-9 flex gap-3">
+          <div className="mb-9 flex flex-wrap gap-3">
+            <Button
+              variant={panel === 'scan-talks' ? 'hero' : 'outline'}
+              onClick={() =>
+                setPanel(panel === 'scan-talks' ? null : 'scan-talks')
+              }
+            >
+              {t('admin.scanner.openTalks')}
+            </Button>
+            <Button
+              variant={panel === 'scan-competition' ? 'hero' : 'outline'}
+              onClick={() =>
+                setPanel(
+                  panel === 'scan-competition' ? null : 'scan-competition',
+                )
+              }
+            >
+              {t('admin.scanner.openCompetition')}
+            </Button>
+            <Button
+              variant={panel === 'walkin' ? 'hero' : 'outline'}
+              onClick={() => setPanel(panel === 'walkin' ? null : 'walkin')}
+            >
+              {t('admin.walkIn.open')}
+            </Button>
             <Button
               variant="outline"
               onClick={refresh}
@@ -335,10 +440,37 @@ export default function AdminPage() {
           </div>
         </div>
 
+        {/* Mounted only while open, so the camera is released on close. */}
+        {panel && (
+          <div className="border-brand-line mb-8 border p-5">
+            {panel === 'walkin' ? (
+              <WalkInForm onSubmit={handleWalkIn} />
+            ) : (
+              <>
+                <p className="text-brand-green mb-3 text-center text-[0.85rem] font-medium tracking-wide uppercase">
+                  {t(
+                    panel === 'scan-competition'
+                      ? 'admin.scanner.modeCompetition'
+                      : 'admin.scanner.modeTalks',
+                  )}
+                </p>
+                {/* key: switching event remounts the scanner, so a QR is
+                    never checked in against the wrong event by a stale one */}
+                <CheckInScanner
+                  key={panel}
+                  onScan={handleScan(
+                    panel === 'scan-competition' ? 'competition' : 'talks',
+                  )}
+                />
+              </>
+            )}
+          </div>
+        )}
+
         <div
           role="tablist"
           aria-label={t('admin.collectionsLabel')}
-          className="grid gap-3 sm:grid-cols-3"
+          className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4"
           onKeyDown={onTabKeyDown}
         >
           {ADMIN_COLLECTIONS.map((collection) => {
@@ -398,6 +530,9 @@ export default function AdminPage() {
               setQueries((q) => ({ ...q, [active]: query }))
             }
             onRetry={() => retry(active)}
+            onSendQr={(id, event, refreshAfter) =>
+              handleSendQr(active, id, event, refreshAfter)
+            }
           />
         </div>
       </div>
@@ -411,18 +546,32 @@ function CollectionPanel({
   query,
   onQueryChange,
   onRetry,
+  onSendQr,
 }: {
   collection: AdminCollection
   state: LoadState
   query: string
   onQueryChange: (query: string) => void
   onRetry: () => void
+  onSendQr: (
+    id: string,
+    event: CheckInEvent,
+    refreshAfter?: boolean,
+  ) => Promise<void>
 }) {
   const { t, i18n } = useTranslation()
   const baseId = useId()
   const [expanded, setExpanded] = useState<string | null>(null)
+  // "<row id>:<event>" of the single send in flight / that failed.
+  const [sending, setSending] = useState<string | null>(null)
+  const [sendFailed, setSendFailed] = useState<string | null>(null)
+  const [bulk, setBulk] = useState<Bulk>({ phase: 'idle' })
   const fields = ADMIN_FIELDS[collection]
   const columns = MAIN_COLUMNS[collection]
+  const canSendQr = QR_COLLECTIONS.includes(collection)
+  // The talks QR goes to everyone; the competition QR only to competitors.
+  const qrEvents: CheckInEvent[] =
+    collection === 'competition' ? ['talks', 'competition'] : ['talks']
 
   const dateFormat = useMemo(
     () =>
@@ -465,6 +614,45 @@ function CollectionPanel({
     ? rows.filter((_, i) => searchIndex[i].includes(needle))
     : rows
 
+  // Bulk send targets the rows currently shown (so the search box doubles
+  // as a filter, e.g. by status) that have an email and no competition QR
+  // yet. Rows already sent are skipped, so re-running only retries failures.
+  const pendingIds =
+    collection === 'competition'
+      ? visible
+          .filter(
+            (row) =>
+              !isMissing(row.email) && isMissing(row.competitionQrSentAt),
+          )
+          .map((row) => row.id)
+      : []
+
+  const runBulk = async (ids: string[]) => {
+    let next = 0
+    let sent = 0
+    let failed = 0
+    const progress = (phase: 'running' | 'done') =>
+      setBulk({ phase, total: ids.length, sent, failed })
+    progress('running')
+
+    // A few sends at a time: faster than one by one, gentle on Gmail's SMTP.
+    const worker = async () => {
+      while (next < ids.length) {
+        const id = ids[next++]
+        try {
+          await onSendQr(id, 'competition', false)
+          sent++
+        } catch {
+          failed++
+        }
+        progress('running')
+      }
+    }
+    await Promise.all([worker(), worker(), worker()])
+    progress('done')
+    onRetry() // one refresh to pick up every new qrSentAt
+  }
+
   const onExport = () => {
     const csv = toCsv(
       fields,
@@ -475,6 +663,19 @@ function CollectionPanel({
     }).format(new Date())
     const scope = needle ? '-filtered' : ''
     downloadCsv(`quantumjam-${collection}${scope}-${date}.csv`, csv)
+  }
+
+  const sendRowQr = async (id: string, event: CheckInEvent) => {
+    const key = `${id}:${event}`
+    setSending(key)
+    setSendFailed(null)
+    try {
+      await onSendQr(id, event)
+    } catch {
+      setSendFailed(key)
+    } finally {
+      setSending(null)
+    }
   }
 
   if (state.status === 'loading') {
@@ -539,7 +740,45 @@ function CollectionPanel({
         >
           {needle ? t('admin.export.filtered') : t('admin.export.all')}
         </Button>
+        {collection === 'competition' &&
+          (bulk.phase === 'confirm' ? (
+            <div className="flex flex-wrap items-center gap-3">
+              <span className="text-[0.85rem]">
+                {t('admin.bulk.confirm', { n: bulk.ids.length })}
+              </span>
+              <Button className="h-12" onClick={() => runBulk(bulk.ids)}>
+                {t('admin.bulk.confirmYes')}
+              </Button>
+              <Button
+                variant="outline"
+                className="h-12"
+                onClick={() => setBulk({ phase: 'idle' })}
+              >
+                {t('admin.bulk.cancel')}
+              </Button>
+            </div>
+          ) : (
+            <Button
+              variant="outline"
+              className="h-12"
+              disabled={bulk.phase === 'running' || pendingIds.length === 0}
+              onClick={() => setBulk({ phase: 'confirm', ids: pendingIds })}
+            >
+              {t('admin.bulk.button', { n: pendingIds.length })}
+            </Button>
+          ))}
       </div>
+
+      {(bulk.phase === 'running' || bulk.phase === 'done') && (
+        <p role="status" className="text-brand-text-dim mb-3 text-[0.85rem]">
+          {bulk.phase === 'running'
+            ? t('admin.bulk.running', {
+                done: bulk.sent + bulk.failed,
+                total: bulk.total,
+              })
+            : t('admin.bulk.done', { sent: bulk.sent, failed: bulk.failed })}
+        </p>
+      )}
 
       <p
         id={`${baseId}-results`}
@@ -630,6 +869,38 @@ function CollectionPanel({
                               </Fragment>
                             ))}
                           </dl>
+                          {canSendQr && (
+                            <div className="mt-4 flex flex-wrap items-center gap-3">
+                              {qrEvents.map((event) => {
+                                const key = `${row.id}:${event}`
+                                return (
+                                  <Fragment key={event}>
+                                    <Button
+                                      variant="outline"
+                                      disabled={sending === key}
+                                      onClick={() => sendRowQr(row.id, event)}
+                                    >
+                                      {sending === key
+                                        ? t('admin.sendQr.sending')
+                                        : t(
+                                            event === 'competition'
+                                              ? 'admin.sendQr.competitionButton'
+                                              : 'admin.sendQr.button',
+                                          )}
+                                    </Button>
+                                    {sendFailed === key && (
+                                      <span
+                                        role="alert"
+                                        className="text-brand-magenta-bright text-[0.85rem]"
+                                      >
+                                        {t('admin.sendQr.failed')}
+                                      </span>
+                                    )}
+                                  </Fragment>
+                                )
+                              })}
+                            </div>
+                          )}
                         </td>
                       </tr>
                     )}

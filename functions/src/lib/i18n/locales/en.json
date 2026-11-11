@@ -56,5 +56,19 @@
   "footer": {
     "address": "ITBA SDF, San Martín 202, CABA",
     "copyright": "© 2026 Computer Society ITBA"
+  },
+  "ticket": {
+    "subject": "Your QNTMJAM talks check-in QR",
+    "introHtml": "Show this QR code at the entrance to check in to the talks.",
+    "qrAlt": "Talks check-in QR code",
+    "hint": "Tip: raise your screen brightness and keep this email handy. The QR is also attached as an image.",
+    "textBody": "Show the attached QR code at the entrance to check in to the talks."
+  },
+  "competitionTicket": {
+    "subject": "Your QNTMJAM competition check-in QR",
+    "introHtml": "Show this QR code at the competition entrance to check in.",
+    "qrAlt": "Competition check-in QR code",
+    "hint": "Tip: raise your screen brightness and keep this email handy. The QR is also attached as an image.",
+    "textBody": "Show the attached QR code at the competition entrance to check in."
   }
 }

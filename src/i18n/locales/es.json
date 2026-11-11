@@ -500,6 +500,44 @@
         "unavailable": "No pudimos conectar con el servidor. Probá de nuevo en un rato."
       }
     },
+    "scanner": {
+      "openTalks": "Escanear QR de charlas",
+      "openCompetition": "Escanear QR de competencia",
+      "modeTalks": "Ingreso a las charlas",
+      "modeCompetition": "Ingreso a la competencia",
+      "ok": "Ingreso a las charlas: {{name}}",
+      "already": "Ya ingresó a las charlas: {{name}}",
+      "okCompetition": "Ingreso a la competencia: {{name}}",
+      "alreadyCompetition": "Ya ingresó a la competencia: {{name}}",
+      "wrongEvent": "Este QR es del otro evento.",
+      "invalid": "QR inválido",
+      "error": "No se pudo registrar el ingreso. Reintentá.",
+      "cameraError": "Cámara no disponible. Permití el acceso a la cámara y usá HTTPS."
+    },
+    "walkIn": {
+      "open": "Registrar en el momento (charlas)",
+      "name": "Nombre completo",
+      "age": "Edad",
+      "university": "Universidad",
+      "submit": "Registrar e ingresar",
+      "submitting": "Registrando…",
+      "ok": "Registrado: {{name}}",
+      "invalid": "Revisá los campos: la edad debe ser un número válido."
+    },
+    "sendQr": {
+      "button": "Enviar QR de charlas",
+      "competitionButton": "Enviar QR de competencia",
+      "sending": "Enviando…",
+      "failed": "No se pudo enviar el QR."
+    },
+    "bulk": {
+      "button": "Enviar QR de competencia a {{n}}",
+      "confirm": "¿Enviar el QR de la competencia a {{n}} personas que todavía no lo recibieron?",
+      "confirmYes": "Enviar",
+      "cancel": "Cancelar",
+      "running": "Enviando {{done}} de {{total}}…",
+      "done": "Enviados: {{sent}}. Fallidos: {{failed}}."
+    },
     "refresh": "Actualizar",
     "refreshing": "Actualizando...",
     "logout": "Salir",
@@ -563,7 +601,13 @@
       "purposes": "Orígenes",
       "firstSeenAt": "Primera vez visto",
       "updatedAt": "Última actualización",
-      "verifiedAt": "Verificado el"
+      "verifiedAt": "Verificado el",
+      "qrSentAt": "QR de charlas enviado",
+      "competitionQrSentAt": "QR de competencia enviado",
+      "competitionCheckedInAt": "Ingreso a la competencia",
+      "checkedInAt": "Ingreso",
+      "source": "Origen",
+      "registrationId": "Inscripción"
     }
   }
 }

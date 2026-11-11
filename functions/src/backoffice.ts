@@ -7,9 +7,17 @@ import {defineSecret} from "firebase-functions/params";
 
 import {db} from "./admin";
 import {collections} from "./lib/collections";
+import {
+  checkInByToken,
+  registerWalkIn,
+  sendCompetitionQr,
+  sendRegistrationQr,
+} from "./talks";
+import {REGISTRATION_ROUTES, type RegistrationRoute} from "./tickets";
 
 const ADMIN_USERNAME = defineSecret("QUANTUMJAM_ADMIN_USERNAME");
 const ADMIN_PASSWORD = defineSecret("QUANTUMJAM_ADMIN_PASSWORD");
+const QR_SECRET = defineSecret("QUANTUMJAM_QR_SECRET");
 
 const ROUTE_PREFIX = "/api/admin/";
 
@@ -21,7 +29,7 @@ const ROUTES = {
     collection: collections.workshopSignups,
     fields: [
       "email", "name", "career", "level", "reason", "status", "createdAt",
-      "lang",
+      "lang", "qrSentAt",
     ],
   },
   competition: {
@@ -30,7 +38,8 @@ const ROUTES = {
       "email", "firstName", "lastName", "dni", "age", "university", "major",
       "gradYear", "location",
       "diet", "github", "linkedin", "x", "instagram", "website",
-      "teamChoice", "teamId", "status", "createdAt", "lang",
+      "teamChoice", "teamId", "status", "createdAt", "lang", "qrSentAt",
+      "competitionQrSentAt", "competitionCheckedInAt",
     ],
   },
   contacts: {
@@ -38,6 +47,13 @@ const ROUTES = {
     fields: [
       "email", "canonicalEmail", "status", "purposes", "firstSeenAt",
       "updatedAt", "verifiedAt",
+    ],
+  },
+  talkAttendees: {
+    collection: collections.talkAttendees,
+    fields: [
+      "name", "age", "university", "email", "source", "registrationId",
+      "checkedInAt",
     ],
   },
 } as const;
@@ -150,12 +166,23 @@ function sendError(res: Response, status: number, error: string): void {
 }
 
 /**
- * Read-only API behind /admin. Every request is authenticated before any
- * Firestore read, whether it arrives through the Hosting rewrite or at
- * the function's own URL. Credentials live only in Secret Manager.
+ * API behind /admin. Every request is authenticated before any Firestore
+ * access, whether it arrives through the Hosting rewrite or at the
+ * function's own URL. Credentials live only in Secret Manager.
+ *
+ * GET  /api/admin/<route>               list a collection
+ * POST /api/admin/checkin               check-in from a scanned QR; body
+ *                                       {token, event: "talks"|"competition"}
+ * POST /api/admin/walkin                register someone on the spot
+ * POST /api/admin/<route>/<id>/send-qr  email a registrant their talks QR
+ * POST /api/admin/competition/<id>/send-competition-qr
+ *                                       email a competitor their competition QR
  */
 export const quantumjamAdminApi = onRequest(
-  {region: "us-central1", secrets: [ADMIN_USERNAME, ADMIN_PASSWORD]},
+  {
+    region: "us-central1",
+    secrets: [ADMIN_USERNAME, ADMIN_PASSWORD, QR_SECRET],
+  },
   async (req, res) => {
     res.set("Cache-Control", "private, no-store");
 
@@ -182,8 +209,8 @@ export const quantumjamAdminApi = onRequest(
       return;
     }
 
-    if (req.method !== "GET") {
-      res.set("Allow", "GET");
+    if (req.method !== "GET" && req.method !== "POST") {
+      res.set("Allow", "GET, POST");
       sendError(res, 405, "method-not-allowed");
       return;
     }
@@ -192,16 +219,91 @@ export const quantumjamAdminApi = onRequest(
     const route = path.startsWith(ROUTE_PREFIX) ?
       path.slice(ROUTE_PREFIX.length) :
       "";
-    if (!Object.prototype.hasOwnProperty.call(ROUTES, route)) {
-      sendError(res, 404, "not-found");
+
+    if (req.method === "GET") {
+      if (!Object.prototype.hasOwnProperty.call(ROUTES, route)) {
+        sendError(res, 404, "not-found");
+        return;
+      }
+      try {
+        const items = await readRows(route as RouteName);
+        res.status(200).json({items, fetchedAt: new Date().toISOString()});
+      } catch (err) {
+        logger.error("Backoffice read failed", {route, err});
+        sendError(res, 500, "internal");
+      }
+      return;
+    }
+
+    // Writes must be JSON. A cross-site form cannot send that without a
+    // CORS preflight, which this function never approves, so a browser that
+    // cached the Basic credentials cannot be tricked into writing.
+    if (!req.is("application/json")) {
+      sendError(res, 415, "unsupported-media-type");
+      return;
+    }
+    const qrSecret = readSecret(QR_SECRET);
+    if (!qrSecret) {
+      logger.error("QR signing secret is not configured");
+      sendError(res, 500, "not-configured");
       return;
     }
 
     try {
-      const items = await readRows(route as RouteName);
-      res.status(200).json({items, fetchedAt: new Date().toISOString()});
+      if (route === "checkin") {
+        const token = String(req.body?.token ?? "");
+        const event = req.body?.event === "competition" ?
+          "competition" :
+          "talks";
+        res.status(200).json(await checkInByToken(qrSecret, token, event));
+        return;
+      }
+      if (route === "walkin") {
+        res.status(200).json(await registerWalkIn(req.body));
+        return;
+      }
+
+      const [target, rawId, action, ...extra] = route.split("/");
+      // req.path is not URL-decoded, and doc IDs here can be emails.
+      let id = "";
+      try {
+        id = decodeURIComponent(rawId ?? "");
+      } catch {
+        id = "";
+      }
+      const hasTarget = id !== "" && extra.length === 0;
+
+      if (
+        hasTarget && action === "send-qr" &&
+        REGISTRATION_ROUTES.includes(target as RegistrationRoute)
+      ) {
+        const found = await sendRegistrationQr(
+          qrSecret,
+          target as RegistrationRoute,
+          id,
+        );
+        if (!found) {
+          sendError(res, 404, "not-found");
+          return;
+        }
+        res.status(200).json({ok: true});
+        return;
+      }
+
+      if (
+        hasTarget && action === "send-competition-qr" &&
+        target === "competition"
+      ) {
+        if (!(await sendCompetitionQr(qrSecret, id))) {
+          sendError(res, 404, "not-found");
+          return;
+        }
+        res.status(200).json({ok: true});
+        return;
+      }
+      sendError(res, 404, "not-found");
     } catch (err) {
-      logger.error("Backoffice read failed", {route, err});
+      logger.error("Backoffice write failed", {route, err});
       sendError(res, 500, "internal");
     }
   },
