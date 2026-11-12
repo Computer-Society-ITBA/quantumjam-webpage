@@ -4,15 +4,15 @@
     "cta": "Sign Up"
   },
   "hero": {
-    "subtitle": "Virtual workshops and classes leading up to an in-person quantum computing competition at ITBA.",
+    "subtitle": "Virtual workshops and classes leading up to an in-person quantum computing competition at Working&Co.",
     "date": "Sat, November 21",
-    "place": "ITBA SDF (San Martín 202)",
+    "place": "Working&Co (Niceto Vega 4601)",
     "capacity": "Free, limited spots",
     "cta": "Sign Up"
   },
   "about": {
     "title": "What is QuantumJam?",
-    "description": "A Computer Society ITBA event in two independent parts: a series of virtual workshops and classes, followed by a one-day, in-person quantum computing competition at ITBA. Both are 100% free, and competition day (about 8 hours) includes food, a workspace, and mentors for every team.",
+    "description": "A Computer Society ITBA event in two independent parts: a series of virtual workshops and classes, followed by a one-day, in-person quantum computing competition at Working&Co. Both are 100% free, and competition day (about 8 hours) includes food, a workspace, and mentors for every team.",
     "features": {
       "beginner": {
         "title": "No prior experience needed",
@@ -39,7 +39,7 @@
     "competition": {
       "ket": "|competition⟩",
       "label": "Competition day",
-      "desc": "November 21, in person at ITBA SDF. One specific challenge to solve."
+      "desc": "November 21, in person at Working&Co. One specific challenge to solve."
     },
     "talks": {
       "ket": "|talks⟩",
@@ -109,7 +109,7 @@
       },
       "when_where": {
         "q": "When and where does the Quantum Jam take place?",
-        "a": "The 2026 edition takes place on Saturday, November 21 at ITBA SDF (San Martín 202)."
+        "a": "The 2026 edition takes place on Saturday, November 21 at Working&Co (Niceto Vega 4601)."
       },
       "packing": {
         "q": "What should I bring?",
@@ -188,7 +188,7 @@
     "competition": {
       "ket": "|1⟩",
       "title": "Quantum computing competition",
-      "desc": "Free, one day, live at ITBA: food, workspace, and mentors included.",
+      "desc": "Free, one day, live at Working&Co: food, workspace, and mentors included.",
       "mode": "In person"
     },
     "closedBadge": "Closed",
@@ -380,7 +380,7 @@
       },
       "personal": {
         "title": "Personal Info",
-        "desc": "Who is showing up at ITBA. We use this for accreditation and catering.",
+        "desc": "Who is showing up at Working&Co. We use this for accreditation and catering.",
         "submit": "Continue"
       },
       "socials": {
@@ -450,7 +450,7 @@
     },
     "competition": {
       "title": "Quantum computing competition",
-      "description": "Free, in-person at ITBA.",
+      "description": "Free, in-person at Working&Co.",
       "submit": "Collapse the wavefunction",
       "submitting": "Measuring the system…",
       "note": "We review every application and email you about your status in the coming days.",
@@ -477,7 +477,7 @@
       "faq": "FAQ",
       "register": "Sign Up",
       "email": "computersociety@itba.edu.ar",
-      "place": "ITBA SDF (San Martín 202)"
+      "place": "Working&Co (Niceto Vega 4601)"
     },
     "copyright": "© 2026 Computer Society ITBA"
   },

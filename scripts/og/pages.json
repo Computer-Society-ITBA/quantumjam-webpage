@@ -2,25 +2,25 @@
   "/": {
     "image": "og-image.png",
     "card": {
-      "subtitle": "Workshops virtuales y una competencia de computación cuántica presencial en el ITBA.",
+      "subtitle": "Workshops virtuales y una competencia de computación cuántica presencial en Working&Co.",
       "chips": [
         "Sáb 21 de noviembre",
-        "ITBA, Buenos Aires",
+        "Working&Co, Buenos Aires",
         "Gratis, cupo limitado"
       ]
     }
   },
   "/register": {
     "title": "Inscribite a QuantumJam",
-    "description": "Elegí cómo participar: workshops virtuales, competencia presencial en el ITBA, o las dos. Gratis, cupo limitado.",
+    "description": "Elegí cómo participar: workshops virtuales, competencia presencial en Working&Co, o las dos. Gratis, cupo limitado.",
     "image": "og-register.png",
-    "imageAlt": "Inscribite a QuantumJam. Sábado 21 de noviembre en el ITBA, Buenos Aires. Gratis, cupo limitado.",
+    "imageAlt": "Inscribite a QuantumJam. Sábado 21 de noviembre en Working&Co, Buenos Aires. Gratis, cupo limitado.",
     "card": {
       "headline": "Inscribite",
       "subtitle": "Workshops virtuales y competencia presencial. Podés anotarte a una parte o a las dos.",
       "chips": [
         "Sáb 21 de noviembre",
-        "ITBA, Buenos Aires",
+        "Working&Co, Buenos Aires",
         "Gratis, cupo limitado"
       ]
     }
@@ -38,15 +38,15 @@
   },
   "/register/competition": {
     "title": "QuantumJam: inscribite a la competencia",
-    "description": "Un día de competencia de computación cuántica en el ITBA, con comida, espacio de trabajo y mentores. Sábado 21 de noviembre. Gratis, cupo limitado.",
+    "description": "Un día de competencia de computación cuántica en Working&Co, con comida, espacio de trabajo y mentores. Sábado 21 de noviembre. Gratis, cupo limitado.",
     "image": "og-competition.png",
-    "imageAlt": "Inscribite a la competencia de QuantumJam. Sábado 21 de noviembre en el ITBA, Buenos Aires. Gratis, cupo limitado.",
+    "imageAlt": "Inscribite a la competencia de QuantumJam. Sábado 21 de noviembre en Working&Co, Buenos Aires. Gratis, cupo limitado.",
     "card": {
       "headline": "Inscribite a la competencia",
       "subtitle": "Un día de computación cuántica en equipo, con comida, espacio de trabajo y mentores.",
       "chips": [
         "Sáb 21 de noviembre",
-        "ITBA, Buenos Aires",
+        "Working&Co, Buenos Aires",
         "Gratis, cupo limitado"
       ]
     }
@@ -59,7 +59,7 @@
     "card": {
       "headline": "Sponsoreá QuantumJam",
       "subtitle": "Sumá tu organización a la competencia de computación cuántica de Computer Society ITBA.",
-      "chips": ["Sáb 21 de noviembre", "ITBA, Buenos Aires"]
+      "chips": ["Sáb 21 de noviembre", "Working&Co, Buenos Aires"]
     }
   }
 }
