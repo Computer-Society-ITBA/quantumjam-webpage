@@ -182,12 +182,9 @@ export function Footer() {
             >
               {t('footer.links.email')}
             </a>
-            <a
-              href="https://maps.app.goo.gl/W33fFn4cnBmLFaNz7"
-              className="text-brand-text-dim hover:text-foreground text-[0.85rem] transition-colors"
-            >
+            <span className="text-brand-text-dim text-[0.85rem]">
               {t('footer.links.place')}
-            </a>
+            </span>
           </div>
         </div>
       </div>

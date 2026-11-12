@@ -4,15 +4,15 @@
     "cta": "Inscribirme"
   },
   "hero": {
-    "subtitle": "Workshops y clases virtuales que llevan a una competencia de computación cuántica presencial en Working&Co.",
+    "subtitle": "Workshops y clases virtuales que llevan a una competencia de computación cuántica presencial.",
     "date": "Sáb 21 de noviembre",
-    "place": "Working&Co (Niceto Vega 4601)",
+    "place": "Cambio de sede",
     "capacity": "Gratis, cupo limitado",
     "cta": "Inscribirme"
   },
   "about": {
     "title": "¿Qué es QuantumJam?",
-    "description": "Una jornada de Computer Society ITBA con dos partes independientes: una serie de workshops y clases virtuales, seguida de una competencia de computación cuántica presencial de un día en Working&Co. Las dos son 100% gratuitas: el día de la competencia (unas 8 horas) incluye comida, espacio de trabajo y mentores para cada equipo.",
+    "description": "Una jornada de Computer Society ITBA con dos partes independientes: una serie de workshops y clases virtuales, seguida de una competencia de computación cuántica presencial de un día. Las dos son 100% gratuitas: el día de la competencia (unas 8 horas) incluye comida, espacio de trabajo y mentores para cada equipo.",
     "features": {
       "beginner": {
         "title": "Sin experiencia previa",
@@ -39,7 +39,7 @@
     "competition": {
       "ket": "|competencia⟩",
       "label": "Día de la competencia",
-      "desc": "21 de noviembre, presencial en Working&Co. Una consigna específica para resolver."
+      "desc": "21 de noviembre, presencial. Una consigna específica para resolver."
     },
     "talks": {
       "ket": "|charlas⟩",
@@ -109,7 +109,7 @@
       },
       "when_where": {
         "q": "¿Cuándo y dónde se realiza Quantum Jam?",
-        "a": "La edición 2026 se realizará el sábado 21 de noviembre en Working&Co (Niceto Vega 4601)."
+        "a": "La edición 2026 se realizará el sábado 21 de noviembre. Hay un cambio de sede; la nueva ubicación está a confirmar."
       },
       "packing": {
         "q": "¿Qué necesito llevar?",
@@ -188,7 +188,7 @@
     "competition": {
       "ket": "|1⟩",
       "title": "Competencia de computación cuántica",
-      "desc": "Gratis, un día, en vivo en Working&Co: comida, espacio de trabajo y mentores incluidos.",
+      "desc": "Gratis, un día, en vivo: comida, espacio de trabajo y mentores incluidos.",
       "mode": "Presencial"
     },
     "closedBadge": "Cerrada",
@@ -380,7 +380,7 @@
       },
       "personal": {
         "title": "Datos personales",
-        "desc": "Quién viene a Working&Co. Lo usamos para la acreditación y la comida.",
+        "desc": "Quién viene a la competencia. Lo usamos para la acreditación y la comida.",
         "submit": "Continuar"
       },
       "socials": {
@@ -450,7 +450,7 @@
     },
     "competition": {
       "title": "Competencia de computación cuántica",
-      "description": "Gratis, presencial en Working&Co.",
+      "description": "Gratis, presencial. Cambio de sede; nueva ubicación a confirmar.",
       "submit": "Colapsar función de onda",
       "submitting": "Midiendo el sistema…",
       "note": "Vamos a revisar cada postulación y te vamos a avisar tu estado por mail en los próximos días.",
@@ -477,7 +477,7 @@
       "faq": "Preguntas frecuentes",
       "register": "Inscribirme",
       "email": "computersociety@itba.edu.ar",
-      "place": "Working&Co (Niceto Vega 4601)"
+      "place": "Cambio de sede: ubicación a confirmar"
     },
     "copyright": "© 2026 Computer Society ITBA"
   },
