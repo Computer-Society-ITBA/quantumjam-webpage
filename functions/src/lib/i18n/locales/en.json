@@ -59,9 +59,9 @@
   },
   "competitionTicket": {
     "subject": "Your check-in QR for the QuantumJam competition",
-    "preheader": "Your check-in QR, the competition details and your team.",
+    "preheader": "Your check-in QR, the new competition venue and your team.",
     "dateBanner": "Saturday, November 21",
-    "headline": "Quantum Jam is this weekend!",
+    "headline": "Quantum Jam is this Saturday!",
     "greeting": "Hi, {name}!",
     "greetingNoName": "Hi!",
     "intro": "Here's your check-in QR and the competition details. Show it at the entrance to check in.",
@@ -71,20 +71,23 @@
     "timeLabel": "Time",
     "timeValue": "9:00 AM to 5:00 PM",
     "whereLabel": "Where",
+    "venueChangeTag": "Venue change",
+    "venueChange": "The competition is no longer at ITBA SDF (San Martín 202). The new venue is {venue}.",
     "cantComeTag": "Can't make it?",
-    "cantCome": "Please let us know by replying to this email, so we can give your spot to someone else.",
+    "cantCome": "If you can't make it, please let us know by replying to this email, so we can give your spot to someone on the waitlist.",
     "bringTitle": "What to bring",
     "bring": {
-      "laptopHtml": "<b>Laptop and charger</b> (the only must-have)",
-      "dni": "Your ID, to get into the building",
+      "dni": "<b>Your ID, no exceptions</b>: you won't be able to get into the building without it",
+      "laptopHtml": "<b>Laptop and charger</b>",
       "power": "A power strip or extension cord, if you have one",
       "headphones": "Headphones"
     },
     "teamTitle": "Your assigned team is {team}",
+    "teamChanged": "Your team may have changed: we filled the teams that had open spots so every team has 4 members.",
     "teamMatesText": "Your teammates:",
     "noMates": "You don't have any confirmed teammates yet.",
     "closing": "See you on Saturday!",
     "reason": "You're receiving this because your Quantum Jam 2026 competition application was accepted.",
-    "qrText": "Your check-in QR is attached as an image. Show it at the entrance to check in."
+    "qrText": "Show your check-in QR at the entrance to check in."
   }
 }

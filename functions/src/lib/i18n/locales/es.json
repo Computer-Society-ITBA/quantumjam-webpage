@@ -59,9 +59,9 @@
   },
   "competitionTicket": {
     "subject": "Tu QR de ingreso a la competencia de la QuantumJam",
-    "preheader": "Tu QR de ingreso, los datos de la competencia y tu equipo.",
+    "preheader": "Tu QR de ingreso, la nueva sede de la competencia y tu equipo.",
     "dateBanner": "Sábado 21 de noviembre",
-    "headline": "¡Este finde es la Quantum Jam!",
+    "headline": "¡Este sábado es la Quantum Jam!",
     "greeting": "¡Hola, {name}!",
     "greetingNoName": "¡Hola!",
     "intro": "Te mandamos tu QR de ingreso y los datos de la competencia. Mostralo en la entrada para registrar tu llegada.",
@@ -71,20 +71,23 @@
     "timeLabel": "Horario",
     "timeValue": "9:00 a 17:00 hs",
     "whereLabel": "Dónde",
+    "venueChangeTag": "Cambio de sede",
+    "venueChange": "La competencia ya no es en el ITBA SDF (San Martín 202). La nueva sede es {venue}.",
     "cantComeTag": "¿No podés venir?",
-    "cantCome": "Por favor avisanos respondiendo este mail, así le cedemos tu lugar a otra persona.",
+    "cantCome": "Si no vas a poder venir, por favor avisanos respondiendo este mail, así le damos tu lugar a alguien de la lista de espera.",
     "bringTitle": "Qué traer para estar a full",
     "bring": {
-      "laptopHtml": "<b>Computadora y cargador</b> (es lo único indispensable)",
-      "dni": "DNI, para entrar al edificio",
+      "dni": "<b>DNI, sí o sí</b>: sin DNI no vas a poder entrar al edificio",
+      "laptopHtml": "<b>Computadora y cargador</b>",
       "power": "Una zapatilla o alargue, si tenés",
       "headphones": "Auriculares"
     },
     "teamTitle": "Tu equipo asignado es {team}",
+    "teamChanged": "Puede que tu equipo haya cambiado: completamos los equipos que tenían lugares libres para que todos sean de a 4.",
     "teamMatesText": "Tus compañeros:",
     "noMates": "Todavía no tenés compañeros confirmados en tu equipo.",
     "closing": "¡Nos vemos el sábado!",
     "reason": "Te escribimos porque tu inscripción a la competencia de la Quantum Jam 2026 fue aceptada.",
-    "qrText": "Tu QR de ingreso va adjunto como imagen. Mostralo en la entrada para registrar tu llegada."
+    "qrText": "Mostrá tu QR de ingreso en la entrada para registrar tu llegada."
   }
 }
