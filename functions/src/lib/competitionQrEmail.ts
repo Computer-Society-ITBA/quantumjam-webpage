@@ -10,6 +10,8 @@ import {t, type Lang} from "./i18n";
 // is ever emptied, sendCompetitionQr refuses to send.
 export const VENUE_ADDRESS =
   "Cnel. Niceto Vega 4601, Cdad. Autónoma de Buenos Aires";
+// Shown before the address; the map link searches the address alone.
+const VENUE_NAME = "Working & Co";
 
 const QR_CID = "competition-qr";
 const QR_SIZE = 240;
@@ -55,6 +57,14 @@ const STYLE = {
     `background-color:${COLOR.magenta};color:${COLOR.bg};` +
     `font-family:${FONT_DISPLAY};font-weight:800;font-size:11px;` +
     "letter-spacing:0.1em;text-transform:uppercase;",
+  venueNotice:
+    `margin:0 0 16px;border:1px solid ${COLOR.lime};` +
+    "border-collapse:separate;",
+  venueTag:
+    "display:inline-block;margin:0 0 10px;padding:4px 10px;" +
+    `background-color:${COLOR.lime};color:${COLOR.bg};` +
+    `font-family:${FONT_DISPLAY};font-weight:800;font-size:11px;` +
+    "letter-spacing:0.1em;text-transform:uppercase;",
   noticeText: `margin:0;font-size:15px;line-height:1.6;color:${COLOR.text};`,
   cell:
     `padding:10px 14px;border:1px solid ${COLOR.line};` +
@@ -81,7 +91,7 @@ const INSTAGRAM_URL = "https://www.instagram.com/computer.society.itba/";
 const LINKEDIN_URL = "https://www.linkedin.com/company/itba-computer-society";
 const WEBSITE_URL = "https://www.csitba.com.ar/";
 
-const BRING_KEYS = ["laptopHtml", "dni", "power", "headphones"];
+const BRING_KEYS = ["dni", "laptopHtml", "power", "headphones"];
 
 export type Teammate = {name: string; email: string};
 
@@ -105,12 +115,13 @@ export function renderCompetitionQrEmail(
   const k = (key: string, params?: Record<string, string>) =>
     t(lang, `competitionTicket.${key}`, params);
   const name = data.firstName.trim();
+  const venue = `${VENUE_NAME}, ${data.venue}`;
   const greeting = name ? k("greeting", {name}) : k("greetingNoName");
   const subject = k("subject");
   const details: [string, string][] = [
     [k("whenLabel"), k("whenValue")],
     [k("timeLabel"), k("timeValue")],
-    [k("whereLabel"), data.venue],
+    [k("whereLabel"), venue],
   ];
   const bring = BRING_KEYS.map((key) => k(`bring.${key}`));
 
@@ -126,7 +137,7 @@ export function renderCompetitionQrEmail(
       <tr>
         <td colspan="2" valign="top" bgcolor="${COLOR.bg}" style="${STYLE.cell}">
           <p style="${STYLE.label}">${escapeHtml(details[2][0])}</p>
-          <p style="${STYLE.value}"><a href="${escapeHtml(mapUrl)}" style="color:${COLOR.text};text-decoration:underline;">${escapeHtml(data.venue)}</a></p>
+          <p style="${STYLE.value}"><a href="${escapeHtml(mapUrl)}" style="color:${COLOR.text};text-decoration:underline;">${escapeHtml(venue)}</a></p>
         </td>`;
   const bringRows = bring.map((item) => `
         <tr>
@@ -187,6 +198,15 @@ export function renderCompetitionQrEmail(
                   </tr>
                 </table>
                 <table role="presentation" width="100%" cellpadding="0"
+                  cellspacing="0" border="0" style="${STYLE.venueNotice}">
+                  <tr>
+                    <td bgcolor="${COLOR.bg}" style="background-color:${COLOR.bg};padding:16px 18px;">
+                      <span style="${STYLE.venueTag}">${escapeHtml(k("venueChangeTag"))}</span>
+                      <p style="${STYLE.noticeText}">${escapeHtml(k("venueChange", {venue}))}</p>
+                    </td>
+                  </tr>
+                </table>
+                <table role="presentation" width="100%" cellpadding="0"
                   cellspacing="0" border="0"
                   style="margin:0 0 24px;border-collapse:collapse;">
                   <tr>${detailCells}</tr>
@@ -206,6 +226,7 @@ export function renderCompetitionQrEmail(
                 </table>
                 <p style="${STYLE.section}">${
   escapeHtml(k("teamTitle", {team: data.teamName}))}</p>
+                <p style="${STYLE.bodyText}">${escapeHtml(k("teamChanged"))}</p>
                 ${mates}
                 <p style="${STYLE.closing}">${escapeHtml(k("closing"))}</p>
               </td>
@@ -220,7 +241,7 @@ export function renderCompetitionQrEmail(
                   <a href="${WEBSITE_URL}" style="${STYLE.footerLink}">Web</a>
                 </p>
                 <p style="${STYLE.footerText}">${escapeHtml(k("reason"))}</p>
-                <p style="${STYLE.footerText}">IEEE Computer Society ITBA. ITBA SDF, San Martín 202, CABA.</p>
+                <p style="${STYLE.footerText}">IEEE Computer Society ITBA</p>
               </td>
             </tr>
           </table>
@@ -236,6 +257,8 @@ export function renderCompetitionQrEmail(
     "",
     k("qrText"),
     "",
+    `${k("venueChangeTag")}: ${k("venueChange", {venue})}`,
+    "",
     ...details.map(([label, value]) => `${label}: ${value}`),
     "",
     `${k("cantComeTag")} ${k("cantCome")}`,
@@ -244,6 +267,7 @@ export function renderCompetitionQrEmail(
     ...bring.map((item) => `- ${stripTags(item)}`),
     "",
     k("teamTitle", {team: data.teamName}),
+    k("teamChanged"),
     ...(data.teammates.length > 0 ?
       [k("teamMatesText"),
         ...data.teammates.map((m) => `- ${m.name} (${m.email})`)] :
@@ -253,7 +277,7 @@ export function renderCompetitionQrEmail(
     "",
     "--",
     k("reason"),
-    "IEEE Computer Society ITBA. ITBA SDF, San Martín 202, CABA.",
+    "IEEE Computer Society ITBA",
   ].join("\n");
 
   return {subject, text, html};
