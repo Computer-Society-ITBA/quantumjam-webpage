@@ -10,4 +10,15 @@ export const collections = {
   sponsorInquiries: `sponsorInquiries${COLLECTION_SUFFIX}`,
   signupDrafts: `signupDrafts${COLLECTION_SUFFIX}`,
   teams: `teams${COLLECTION_SUFFIX}`,
+  // Prediction-market game ("Compys"). The market doc and the players and
+  // trades are public-read (odds + leaderboard); secrets and verifications
+  // are written and read only by Cloud Functions.
+  jamMarket: `jamMarket${COLLECTION_SUFFIX}`,
+  jamPlayers: `jamPlayers${COLLECTION_SUFFIX}`,
+  jamPlayerSecrets: `jamPlayerSecrets${COLLECTION_SUFFIX}`,
+  jamVerifications: `jamVerifications${COLLECTION_SUFFIX}`,
+  jamTrades: `jamTrades${COLLECTION_SUFFIX}`,
 } as const;
+
+// The single market document lives at jamMarket/state.
+export const JAM_MARKET_DOC = "state";

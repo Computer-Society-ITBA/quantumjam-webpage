@@ -14,11 +14,14 @@ export function SplitText({
   children,
   offset = 6,
   className,
+  colorClassName = 'text-brand-collapse',
   style,
 }: {
   children: ReactNode
   offset?: number
   className?: string
+  /** Color of the solid top layer; the ghosts stay cyan and magenta. */
+  colorClassName?: string
   style?: CSSProperties
 }) {
   return (
@@ -37,7 +40,7 @@ export function SplitText({
       >
         {children}
       </span>
-      <span className="text-brand-collapse relative">{children}</span>
+      <span className={cn('relative', colorClassName)}>{children}</span>
     </span>
   )
 }

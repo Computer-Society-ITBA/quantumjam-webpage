@@ -1,7 +1,7 @@
 import {createHash, timingSafeEqual} from "crypto";
 import type {Response} from "express";
 import {Timestamp} from "firebase-admin/firestore";
-import {onRequest} from "firebase-functions/https";
+import {HttpsError, onRequest} from "firebase-functions/https";
 import * as logger from "firebase-functions/logger";
 import {defineSecret} from "firebase-functions/params";
 
@@ -12,6 +12,21 @@ import {
   checkInByToken,
   sendCompetitionQr,
 } from "./competitionQr";
+import {handleJamAdminPost, handleJamRead} from "./jam/admin";
+
+// Maps an onCall-style error code to the HTTP status the jam admin routes
+// return, since those handlers throw HttpsError but this is an onRequest.
+const HTTPS_STATUS: Record<string, number> = {
+  "invalid-argument": 400,
+  "failed-precondition": 400,
+  "deadline-exceeded": 400,
+  "unauthenticated": 401,
+  "permission-denied": 403,
+  "not-found": 404,
+  "already-exists": 409,
+  "resource-exhausted": 429,
+  "internal": 500,
+};
 
 const ADMIN_USERNAME = defineSecret("QUANTUMJAM_ADMIN_USERNAME");
 const ADMIN_PASSWORD = defineSecret("QUANTUMJAM_ADMIN_PASSWORD");
@@ -158,6 +173,23 @@ function sendError(res: Response, status: number, error: string): void {
 }
 
 /**
+ * Sends a jam admin error: an HttpsError becomes its mapped status and
+ * code, anything else a 500.
+ * @param {Response} res The response to write to.
+ * @param {unknown} err The thrown error.
+ */
+function sendJamError(res: Response, err: unknown): void {
+  if (err instanceof HttpsError) {
+    res
+      .status(HTTPS_STATUS[err.code] ?? 500)
+      .json({error: err.code, message: err.message});
+    return;
+  }
+  logger.error("Jam admin request failed", {err});
+  sendError(res, 500, "internal");
+}
+
+/**
  * API behind /admin. Every request is authenticated before any Firestore
  * access, whether it arrives through the Hosting rewrite or at the
  * function's own URL. Credentials live only in Secret Manager.
@@ -213,6 +245,14 @@ export const quantumjamAdminApi = onRequest(
       "";
 
     if (req.method === "GET") {
+      if (route === "jam") {
+        try {
+          res.status(200).json(await handleJamRead());
+        } catch (err) {
+          sendJamError(res, err);
+        }
+        return;
+      }
       if (!Object.prototype.hasOwnProperty.call(ROUTES, route)) {
         sendError(res, 404, "not-found");
         return;
@@ -234,6 +274,20 @@ export const quantumjamAdminApi = onRequest(
       sendError(res, 415, "unsupported-media-type");
       return;
     }
+
+    // Jam game controls need no QR secret, so they dispatch before it.
+    const postSegments = route.split("/");
+    if (postSegments[0] === "jam") {
+      try {
+        res
+          .status(200)
+          .json(await handleJamAdminPost(postSegments[1] ?? "", req.body));
+      } catch (err) {
+        sendJamError(res, err);
+      }
+      return;
+    }
+
     const qrSecret = readSecret(QR_SECRET);
     if (!qrSecret) {
       logger.error("QR signing secret is not configured");

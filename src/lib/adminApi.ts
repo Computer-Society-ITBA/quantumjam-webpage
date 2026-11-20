@@ -214,6 +214,75 @@ export const COMPETITION_QR_OUTCOMES = [
 ] as const
 export type CompetitionQrOutcome = (typeof COMPETITION_QR_OUTCOMES)[number]
 
+// --- Compys trading game ---
+
+export type JamAdminPhase = 'setup' | 'open' | 'frozen' | 'settled'
+export type JamAdminTeam = { id: string; name: string }
+
+export type JamAdminMarket = {
+  phase: JamAdminPhase
+  b: number
+  startingCash: number
+  payouts: number[]
+  teams: JamAdminTeam[]
+  q: Record<string, number>
+  prices: Record<string, number>
+  finalists: string[] | null
+  podium: string[] | null
+}
+
+export type JamAdminLeader = {
+  playerId: string
+  displayName: string
+  cash: number
+  holdings: Record<string, number>
+  netWorth: number
+}
+
+export type JamAdminState = {
+  market: JamAdminMarket | null
+  players: JamAdminLeader[]
+  fetchedAt: string
+}
+
+/** Reads the whole jam market state and leaderboard for the admin panel. */
+export async function fetchJamState(
+  credentials: AdminCredentials,
+  signal: AbortSignal,
+): Promise<JamAdminState> {
+  let res: Response
+  try {
+    res = await fetch('/api/admin/jam', {
+      headers: {
+        Accept: 'application/json',
+        Authorization: basicAuthHeader(credentials),
+      },
+      credentials: 'omit',
+      cache: 'no-store',
+      signal,
+    })
+  } catch (err) {
+    if (signal.aborted) throw err
+    throw new AdminApiError('unavailable')
+  }
+  if (res.status === 401) throw new AdminApiError('unauthorized')
+  if (!res.ok) throw new AdminApiError('unavailable')
+  const body: unknown = await res.json().catch(() => null)
+  if (typeof body !== 'object' || body === null || !('fetchedAt' in body)) {
+    throw new AdminApiError('unavailable')
+  }
+  return body as JamAdminState
+}
+
+/** Runs a jam admin action (setup/open/freeze/settle/reset). */
+export async function jamAdminAction(
+  action: 'setup' | 'open' | 'freeze' | 'finalists' | 'settle' | 'reset',
+  body: unknown,
+  credentials: AdminCredentials,
+): Promise<void> {
+  await postAdmin(`jam/${action}`, body ?? {}, credentials)
+}
+
 /**
  * Emails a competition registrant their competition check-in QR. The
  * server only sends to approved registrants with a team, and never twice

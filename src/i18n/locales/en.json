@@ -601,6 +601,163 @@
       "competitionQrSentAt": "Competition QR sent",
       "competitionQrClaimedAt": "Competition QR in progress",
       "competitionCheckedInAt": "Competition check-in"
+    },
+    "jam": {
+      "panelButton": "Compys Exchange",
+      "panelTitle": "Compys Exchange",
+      "phaseLabel": "Phase",
+      "noMarket": "No market",
+      "playerCount": "{{count}} players",
+      "actionFailed": "Could not complete the action.",
+      "setupTitle": "Create the market",
+      "setupDesc": "One team per line. Each player starts with 1,000,000 Compys.",
+      "teamsPlaceholder": "Team A\nTeam B\nTeam C",
+      "create": "Create market",
+      "recreate": "Recreate market",
+      "open": "Open market",
+      "freeze": "Freeze market",
+      "settleTitle": "Reveal the winner",
+      "settleDesc": "Pick the team that won the competition. Each share of that team pays 100 Compys, every other share pays 0, and the market collapses.",
+      "settle": "Reveal and collapse",
+      "settleConfirm": "Confirm the winner? This pays out and ends the game.",
+      "settleYes": "Yes, collapse",
+      "settledTitle": "Market collapsed",
+      "reset": "Reset game",
+      "resetConfirm": "This deletes players and trades and returns to setup. Are you sure?",
+      "resetYes": "Yes, reset",
+      "winnerLabel": "Winner",
+      "pickTeam": "Pick a team",
+      "pickWinner": "Pick the winning team.",
+      "finalistsTitle": "Finalists",
+      "finalistsDesc": "Check the finalist teams. Every other team drops to 0 and can no longer be traded; the probability is split among the finalists by their current price.",
+      "finalistsSave": "Save finalists",
+      "finalistsConfirm": "Confirm {{count}} finalists? Shares in every other team become worth 0.",
+      "finalistsYes": "Yes, confirm",
+      "finalistsCurrent": "{{count}} finalists active",
+      "pickFinalists": "Pick at least two finalists."
+    }
+  },
+  "jam": {
+    "title": "Compys Exchange",
+    "loading": "Loading the market...",
+    "unavailable": "The market is not available yet.",
+    "phase": {
+      "setup": "Setting up",
+      "open": "Open",
+      "frozen": "Frozen",
+      "settled": "Collapsed"
+    },
+    "auth": {
+      "codeDesc": "We sent a 6-digit code to {{email}}.",
+      "emailLabel": "Your QuantumJam registration email",
+      "emailPlaceholder": "you@email.com",
+      "codeLabel": "Verification code",
+      "sending": "Sending...",
+      "sendCode": "Send code",
+      "entering": "Entering...",
+      "enter": "Enter the market",
+      "changeEmail": "Change email",
+      "resend": "Resend code",
+      "resendIn": "Resend in {{seconds}}s",
+      "errors": {
+        "tooMany": "Too many attempts. Try again in a bit.",
+        "expired": "The code expired. Request a new one.",
+        "badCode": "Incorrect code.",
+        "noCode": "There is no code in progress for that email.",
+        "closed": "The market is not accepting players right now.",
+        "generic": "Something went wrong. Try again.",
+        "notRegistered": "That email is not registered for the competition."
+      }
+    },
+    "market": {
+      "share": "share",
+      "youHold": "You hold",
+      "buy": "Buy",
+      "sell": "Sell",
+      "frozenDesc": "Trading is closed. The market collapses when the jury announces the winner.",
+      "cash": "Cash",
+      "signOut": "Sign out",
+      "tradeRejected": "Could not trade: check your balance, your shares, or whether the market is still open.",
+      "tradeFailed": "Could not trade. Try again.",
+      "netWorth": "Net worth",
+      "sharesUnit": "shares",
+      "priceNow": "One share costs right now",
+      "colTeam": "Team",
+      "colChance": "Chance",
+      "colYours": "Your shares",
+      "eliminated": "Out of the final",
+      "amountPlaceholder": "Amount to invest",
+      "amountLabel": "Amount in Compys",
+      "allIn": "All-in",
+      "aboutShares": "≈ {{shares}} shares",
+      "sellAll": "Sell all",
+      "finalistsNotice": "The finalists are in. Every other team is now at 0 and can no longer be traded."
+    },
+    "leaderboard": {
+      "title": "Leaderboard",
+      "finalTitle": "Final leaderboard",
+      "empty": "No players yet.",
+      "anon": "Anonymous",
+      "you": "you"
+    },
+    "collapse": {
+      "title": "The market collapsed",
+      "wonBy": "QuantumJam winner:",
+      "champion": "Compys Exchange winner"
+    },
+    "live": "Live",
+    "tagline": "Invest Compys in the teams. Whoever ends up with the most wins a secret prize.",
+    "wavefunction": "Market superposition",
+    "setupNote": "The market has not opened yet. You will be able to trade soon.",
+    "titleBefore": "",
+    "titleCoin": "Compys",
+    "titleAfter": "Exchange",
+    "comingSoon": "The market opens when the competition starts.",
+    "history": {
+      "title": "Probability over time",
+      "yours": "Your teams",
+      "others": "Other teams",
+      "finalists": "Finalists",
+      "aria": "Line chart of each team's probability of winning over time."
+    },
+    "rules": {
+      "link": "How it works",
+      "back": "Back to the market",
+      "title": "How the Compys Exchange works",
+      "sections": {
+        "what": {
+          "title": "What it is",
+          "body": "A prediction market on the QuantumJam. You buy shares in the teams you think will win, and each price reflects what the whole room thinks."
+        },
+        "join": {
+          "title": "How to join",
+          "body": "With the email you registered for the QuantumJam with. You get a code and start with 1,000,000 Compys."
+        },
+        "price": {
+          "title": "The price is a probability",
+          "body": "Each share costs between 0 and 100 Compys, and that price is the market's probability of the team winning: a share at 25 Compys is 25%. Across all teams they always add up to 100."
+        },
+        "moves": {
+          "title": "How the market moves",
+          "body": "When someone buys a team, its price goes up and the others go down; selling does the opposite. The bigger the trade, the more it moves the price, so buying a lot at once costs more per share."
+        },
+        "trade": {
+          "title": "Buying and selling",
+          "body": "Pick a team, enter how many Compys to invest (or go all-in) and buy. You can sell any time while the market is open: if the price went up since you bought, you keep the difference."
+        },
+        "finalists": {
+          "title": "Finalists",
+          "body": "When the finalists are announced, every other team drops to 0 and can no longer be traded. The probability is split among the finalists in proportion to their prices at that moment."
+        },
+        "close": {
+          "title": "Close and collapse",
+          "body": "After the presentations the market freezes and trading stops. When the jury announces the winner, each share of that team pays 100 Compys and every other share pays 0."
+        },
+        "win": {
+          "title": "How to win",
+          "body": "Whoever ends with the highest net worth wins: your cash plus what your shares would pay if you sold them. The ranking updates live and there is a secret prize."
+        }
+      }
     }
   }
 }

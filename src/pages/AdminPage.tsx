@@ -2,6 +2,7 @@ import { Fragment, useEffect, useId, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { CheckInScanner } from '@/components/admin/CheckInScanner'
+import { JamAdminPanel } from '@/components/admin/JamAdminPanel'
 import { INPUT_CLASSES } from '@/components/admin/inputClasses'
 import { FieldLabel } from '@/components/landing/QuantumField'
 import { Button } from '@/components/ui/button'
@@ -12,8 +13,11 @@ import {
   TIMESTAMP_FIELDS,
   checkInToken,
   fetchAdminCollection,
+  fetchJamState,
+  jamAdminAction,
   sendCompetitionQr,
   type AdminCollection,
+  type JamAdminState,
   type AdminCredentials,
   type AdminField,
   type AdminRow,
@@ -60,7 +64,7 @@ type Collections = Record<AdminCollection, LoadState>
 
 type LoginError = 'invalid' | 'expired' | 'unavailable'
 
-type Panel = 'scan' | null
+type Panel = 'scan' | 'jam' | null
 
 type BulkCounts = {
   total: number
@@ -266,6 +270,14 @@ export default function AdminPage() {
   const handleScan = (token: string) =>
     guard((c) => checkInToken(token, c)).then(afterCheckIn)
 
+  const loadJamState = (): Promise<JamAdminState> =>
+    guard((c) => fetchJamState(c, new AbortController().signal))
+
+  const runJamAction = (
+    action: 'setup' | 'open' | 'freeze' | 'finalists' | 'settle' | 'reset',
+    body: unknown,
+  ): Promise<void> => guard((c) => jamAdminAction(action, body, c))
+
   // refreshAfter is false for bulk sends, which refresh once at the end.
   const handleSendQr = async (
     id: string,
@@ -388,6 +400,12 @@ export default function AdminPage() {
               {t('admin.scanner.openCompetition')}
             </Button>
             <Button
+              variant={panel === 'jam' ? 'hero' : 'outline'}
+              onClick={() => setPanel(panel === 'jam' ? null : 'jam')}
+            >
+              {t('admin.jam.panelButton')}
+            </Button>
+            <Button
               variant="outline"
               onClick={refresh}
               disabled={refreshing}
@@ -402,12 +420,21 @@ export default function AdminPage() {
         </div>
 
         {/* Mounted only while open, so the camera is released on close. */}
-        {panel && (
+        {panel === 'scan' && (
           <div className="border-brand-line mb-8 border p-5">
             <p className="text-brand-green mb-3 text-center text-[0.85rem] font-medium tracking-wide uppercase">
               {t('admin.scanner.modeCompetition')}
             </p>
             <CheckInScanner onScan={handleScan} />
+          </div>
+        )}
+
+        {panel === 'jam' && (
+          <div className="border-brand-line mb-8 border p-5">
+            <p className="text-brand-green mb-4 text-center text-[0.85rem] font-medium tracking-wide uppercase">
+              {t('admin.jam.panelTitle')}
+            </p>
+            <JamAdminPanel loadState={loadJamState} runAction={runJamAction} />
           </div>
         )}
 

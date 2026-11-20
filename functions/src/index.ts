@@ -15,3 +15,5 @@ export {saveSignupDraft} from "./drafts";
 export {submitSponsorInquiry} from "./sponsor";
 export {quantumjamAdminApi} from "./backoffice";
 export {campaignEvent} from "./campaign";
+export {jamRequestCode, jamConfirmCode, jamSession} from "./jam/auth";
+export {jamTrade} from "./jam/trade";

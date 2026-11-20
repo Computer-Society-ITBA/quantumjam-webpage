@@ -19,10 +19,43 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    // Compys trading game: odds and the leaderboard are public, so the
+    // market document, the players and the trade feed are read-only to
+    // everyone. Writes are still functions-only (balances and prices are
+    // set exclusively by Cloud Functions in a transaction), and the
+    // players' emails and session tokens live in jamPlayerSecrets, which
+    // falls through to the deny-all rule below. Both the production and the
+    // _staging collections are covered.
+    match /jamMarket/{doc} {
+      allow read: if true;
+      allow write: if false;
+    }
+    match /jamMarket_staging/{doc} {
+      allow read: if true;
+      allow write: if false;
+    }
+    match /jamPlayers/{doc} {
+      allow read: if true;
+      allow write: if false;
+    }
+    match /jamPlayers_staging/{doc} {
+      allow read: if true;
+      allow write: if false;
+    }
+    match /jamTrades/{doc} {
+      allow read: if true;
+      allow write: if false;
+    }
+    match /jamTrades_staging/{doc} {
+      allow read: if true;
+      allow write: if false;
+    }
+
     // All sign-up data (emailVerifications, workshopSignups,
-    // competitionSignups, teams) is written and read exclusively by Cloud
-    // Functions through the Admin SDK, which bypasses these rules entirely.
-    // No client should ever read or write Firestore directly here.
+    // competitionSignups, teams) and the jam game's secrets
+    // (jamPlayerSecrets, jamVerifications) are written and read exclusively
+    // by Cloud Functions through the Admin SDK, which bypasses these rules
+    // entirely. No client should ever read or write Firestore directly here.
     match /{document=**} {
       allow read, write: if false;
     }

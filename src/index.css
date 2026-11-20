@@ -324,6 +324,24 @@
   animation: pulse-dot 2.4s ease-in-out infinite;
 }
 
+/* The 3D Compys coin spinning on its vertical axis, tilted slightly toward
+   the viewer so the banded rim shows as it turns. */
+@keyframes compy-spin {
+  from {
+    transform: rotateX(-14deg) rotateY(0deg);
+  }
+  to {
+    transform: rotateX(-14deg) rotateY(360deg);
+  }
+}
+
+/* In the components layer so utilities can still override it. */
+@layer components {
+  .compy-spin {
+    animation: compy-spin 3.2s linear infinite;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

@@ -601,6 +601,163 @@
       "competitionQrSentAt": "QR de competencia enviado",
       "competitionQrClaimedAt": "QR de competencia en curso",
       "competitionCheckedInAt": "Ingreso a la competencia"
+    },
+    "jam": {
+      "panelButton": "Bolsa de Compys",
+      "panelTitle": "Bolsa de Compys",
+      "phaseLabel": "Fase",
+      "noMarket": "Sin mercado",
+      "playerCount": "{{count}} jugadores",
+      "actionFailed": "No se pudo completar la acción.",
+      "setupTitle": "Crear el mercado",
+      "setupDesc": "Un equipo por línea. Cada jugador arranca con 1.000.000 de Compys.",
+      "teamsPlaceholder": "Equipo A\nEquipo B\nEquipo C",
+      "create": "Crear mercado",
+      "recreate": "Recrear mercado",
+      "open": "Abrir mercado",
+      "freeze": "Congelar mercado",
+      "settleTitle": "Revelar el ganador",
+      "settleDesc": "Elegí el equipo que ganó la competencia. Cada acción de ese equipo paga 100 Compys, el resto 0, y el mercado colapsa.",
+      "settle": "Revelar y colapsar",
+      "settleConfirm": "¿Confirmás el ganador? Esto paga y cierra el juego.",
+      "settleYes": "Sí, colapsar",
+      "settledTitle": "Mercado colapsado",
+      "reset": "Reiniciar juego",
+      "resetConfirm": "Esto borra jugadores, trades y vuelve a preparación. ¿Seguro?",
+      "resetYes": "Sí, reiniciar",
+      "winnerLabel": "Ganador",
+      "pickTeam": "Elegí un equipo",
+      "pickWinner": "Elegí el equipo ganador.",
+      "finalistsTitle": "Finalistas",
+      "finalistsDesc": "Marcá los equipos finalistas. El resto queda en 0 y no se puede operar; la probabilidad se reparte entre los finalistas según su precio actual.",
+      "finalistsSave": "Guardar finalistas",
+      "finalistsConfirm": "¿Confirmás {{count}} finalistas? Las acciones del resto pasan a valer 0.",
+      "finalistsYes": "Sí, confirmar",
+      "finalistsCurrent": "{{count}} finalistas activos",
+      "pickFinalists": "Elegí al menos dos finalistas."
+    }
+  },
+  "jam": {
+    "title": "Bolsa de Compys",
+    "loading": "Cargando el mercado...",
+    "unavailable": "El mercado todavía no está disponible.",
+    "phase": {
+      "setup": "Preparando",
+      "open": "Abierto",
+      "frozen": "Congelado",
+      "settled": "Colapsado"
+    },
+    "auth": {
+      "codeDesc": "Te enviamos un código de 6 dígitos a {{email}}.",
+      "emailLabel": "Tu mail de inscripción a la QuantumJam",
+      "emailPlaceholder": "tu@email.com",
+      "codeLabel": "Código de verificación",
+      "sending": "Enviando...",
+      "sendCode": "Enviar código",
+      "entering": "Entrando...",
+      "enter": "Entrar al mercado",
+      "changeEmail": "Cambiar email",
+      "resend": "Reenviar código",
+      "resendIn": "Reenviar en {{seconds}}s",
+      "errors": {
+        "tooMany": "Demasiados intentos. Probá de nuevo en un rato.",
+        "expired": "El código venció. Pedí uno nuevo.",
+        "badCode": "Código incorrecto.",
+        "noCode": "No hay ningún código en curso para ese email.",
+        "closed": "El mercado no está aceptando jugadores en este momento.",
+        "generic": "Algo salió mal. Probá de nuevo.",
+        "notRegistered": "Ese mail no está inscripto a la competencia."
+      }
+    },
+    "market": {
+      "share": "acción",
+      "youHold": "Tenés",
+      "buy": "Comprar",
+      "sell": "Vender",
+      "frozenDesc": "Se cerraron las operaciones. El mercado colapsa cuando el jurado anuncie al ganador.",
+      "cash": "Efectivo",
+      "signOut": "Cerrar sesión",
+      "tradeRejected": "No se pudo operar: revisá tu saldo, tus acciones o si el mercado sigue abierto.",
+      "tradeFailed": "No se pudo operar. Probá de nuevo.",
+      "netWorth": "Patrimonio",
+      "sharesUnit": "acciones",
+      "priceNow": "Cada acción cuesta ahora",
+      "colTeam": "Equipo",
+      "colChance": "Probabilidad",
+      "colYours": "Tus acciones",
+      "eliminated": "Fuera de la final",
+      "amountPlaceholder": "Monto a invertir",
+      "amountLabel": "Monto en Compys",
+      "allIn": "All-in",
+      "aboutShares": "≈ {{shares}} acciones",
+      "sellAll": "Vender todo",
+      "finalistsNotice": "Ya están los finalistas. El resto de los equipos quedó en 0 y no se puede operar."
+    },
+    "leaderboard": {
+      "title": "Ranking",
+      "finalTitle": "Ranking final",
+      "empty": "Todavía no hay jugadores.",
+      "anon": "Anónimo",
+      "you": "vos"
+    },
+    "collapse": {
+      "title": "El mercado colapsó",
+      "wonBy": "Ganó la QuantumJam:",
+      "champion": "Ganó la Bolsa de Compys"
+    },
+    "live": "En vivo",
+    "tagline": "Invertí Compys en los equipos. Quien más junte gana un premio secreto.",
+    "wavefunction": "Superposición del mercado",
+    "setupNote": "El mercado todavía no abrió. Ya vas a poder operar.",
+    "titleBefore": "Bolsa de",
+    "titleCoin": "Compys",
+    "titleAfter": "",
+    "comingSoon": "El mercado abre cuando arranque la competencia.",
+    "history": {
+      "title": "Evolución de las probabilidades",
+      "yours": "Tus equipos",
+      "others": "Resto de los equipos",
+      "finalists": "Finalistas",
+      "aria": "Gráfico de líneas con la probabilidad de ganar de cada equipo a lo largo del tiempo."
+    },
+    "rules": {
+      "link": "Cómo funciona",
+      "back": "Volver al mercado",
+      "title": "Cómo funciona la Bolsa de Compys",
+      "sections": {
+        "what": {
+          "title": "Qué es",
+          "body": "Un mercado de predicción sobre la QuantumJam. Comprás acciones de los equipos que creés que van a ganar, y el precio de cada uno refleja lo que piensa toda la sala."
+        },
+        "join": {
+          "title": "Cómo entrás",
+          "body": "Con el mail con el que te inscribiste a la QuantumJam. Te llega un código y arrancás con 1.000.000 de Compys."
+        },
+        "price": {
+          "title": "El precio es una probabilidad",
+          "body": "Cada acción cuesta entre 0 y 100 Compys, y ese precio es la probabilidad que el mercado le da al equipo de ganar: una acción a 25 Compys es un 25%. Entre todos los equipos siempre suman 100."
+        },
+        "moves": {
+          "title": "Cómo se mueve el mercado",
+          "body": "Cuando alguien compra acciones de un equipo, su precio sube y el de los demás baja; cuando vende, pasa lo contrario. Cuanto más grande la operación, más mueve el precio, así que comprar mucho de golpe sale más caro por acción."
+        },
+        "trade": {
+          "title": "Comprar y vender",
+          "body": "Elegís un equipo, ponés cuántos Compys querés invertir (o all-in) y comprás. Podés vender cuando quieras mientras el mercado esté abierto: si el precio subió desde que compraste, ganás la diferencia."
+        },
+        "finalists": {
+          "title": "Finalistas",
+          "body": "Cuando se anuncian los finalistas, el resto de los equipos queda en 0 y ya no se puede operar. La probabilidad se reparte entre los finalistas en proporción al precio que tenían en ese momento."
+        },
+        "close": {
+          "title": "Cierre y colapso",
+          "body": "Después de las presentaciones el mercado se congela y no se puede operar más. Cuando el jurado anuncia al ganador, cada acción de ese equipo paga 100 Compys y todas las demás pagan 0."
+        },
+        "win": {
+          "title": "Cómo se gana",
+          "body": "Gana quien termine con más patrimonio: tu efectivo más lo que pagarían tus acciones si las vendieras. El ranking se actualiza en vivo y hay un premio secreto."
+        }
+      }
     }
   }
 }
