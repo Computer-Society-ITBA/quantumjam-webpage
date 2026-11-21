@@ -447,10 +447,9 @@ export default function ChallengePage() {
               <Bullets>
                 <li>
                   <B>Simulador con ruido:</B> repetir la curva (o parte de ella)
-                  con el modelo de ruido de ruido.py, igual para todos:
-                  compuertas cz, sx, x y rz, qubits conectados en línea, y una
-                  probabilidad de error de 0,1 % por cz y 0,005 % por compuerta
-                  de un qubit.
+                  con un modelo de ruido igual para todos: compuertas cz, sx, x
+                  y rz, qubits conectados en línea, y una probabilidad de error
+                  de 0,1 % por cz y 0,005 % por compuerta de un qubit.
                 </li>
                 <li>
                   <B>Ruido de hardware real:</B> repetir un punto estirado con
